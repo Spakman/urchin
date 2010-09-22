@@ -1,0 +1,10 @@
+rsh
+===
+
+A Unix shell for Ruby programmers. Regard this as very incomplete and
+experimental for now!
+
+Authors
+===
+
+Mark Somerville <mark@scottishclimbs.com>
