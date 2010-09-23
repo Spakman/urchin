@@ -8,17 +8,20 @@ require "#{File.dirname(__FILE__)}/job"
 
 module RSH
   class Shell
-    def run
-      while line = Readline.readline(prompt)
-        next if line.empty?
-        Readline::HISTORY.push(line)
-
-        CommandParser.jobs_from(line).each do |job|
-          job.run
-          job.pids.each do |pid|
-            Process.wait pid
-          end
+    def run(command_string)
+      CommandParser.jobs_from(command_string).each do |job|
+        job.run
+        job.pids.each do |pid|
+          Process.wait pid
         end
+      end
+    end
+
+    def run_interactively
+      while commands = Readline.readline(prompt)
+        next if commands.empty?
+        Readline::HISTORY.push(commands)
+        run commands
       end
     end
 
