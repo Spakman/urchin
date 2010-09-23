@@ -9,7 +9,7 @@ require "#{File.dirname(__FILE__)}/job"
 module RSH
   class Shell
     def run
-      while line = Readline.readline('> ')
+      while line = Readline.readline(prompt)
         next if line.empty?
         Readline::HISTORY.push(line)
 
@@ -20,6 +20,10 @@ module RSH
           end
         end
       end
+    end
+
+    def prompt
+      "\e[0;36m[\e[1;32m#{Process.pid}\e[0;36m]\033[0m% "
     end
   end
 end
