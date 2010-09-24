@@ -4,7 +4,7 @@
 
 module RSH
   # Really dumb command parser for now.
-  class CommandParser
+  class Parser
     def self.jobs_from(input)
       input.split(";").map do |commands|
         Job.new(commands)

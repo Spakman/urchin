@@ -3,13 +3,13 @@
 # See COPYING.
 
 require "readline"
-require "#{File.dirname(__FILE__)}/command_parser"
+require "#{File.dirname(__FILE__)}/parser"
 require "#{File.dirname(__FILE__)}/job"
 
 module RSH
   class Shell
     def run(command_string)
-      CommandParser.jobs_from(command_string).each do |job|
+      Parser.jobs_from(command_string).each do |job|
         job.run
         job.pids.each do |pid|
           Process.wait pid
