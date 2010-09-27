@@ -22,9 +22,6 @@ module RSH
 
         job = Job.new([ cat, grep , wc ])
         job.run
-        job.pids.each do |pid|
-          Process.wait pid
-        end
       end
       assert_equal "31", output.chomp
 

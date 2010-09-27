@@ -48,6 +48,9 @@ module RSH
 
         nextin = pipe.first
       end
+      @pids.each do |pid|
+        Process.wait pid
+      end
     end
   end
 end

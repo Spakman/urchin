@@ -12,9 +12,6 @@ module RSH
       Parser.jobs_from(command_string).each do |job|
         begin
           job.run
-          job.pids.each do |pid|
-            Process.wait pid
-          end
         rescue Interrupt
           puts ""
         end
