@@ -4,25 +4,23 @@
 
 module RSH
 
-  # Encapsulates a pipeline, which consists of one or more programs.
+  # Encapsulates a pipeline, which consists of one or more commands.
   class Job
     attr_reader :pids
 
     def initialize(commands)
-      @programs = commands.split("|") # really dumb parsing
+      @commands = commands
       @pids = []
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
-    #
-    # TODO: make the exec() safe from shell injection.
     def run
       nextin = STDIN
       nextout = STDOUT
       pipe = []
 
-      @programs.each_with_index do |program, index|
-        if index+1 < @programs.size
+      @commands.each_with_index do |command, index|
+        if index+1 < @commands.size
           pipe = IO.pipe
           nextout = pipe.last
         else
@@ -38,7 +36,7 @@ module RSH
             STDOUT.reopen nextout
             nextout.close
           end
-          exec program
+          command.execute
         end
 
         if nextin != STDIN
