@@ -10,18 +10,27 @@ module RSH
   class Shell
     def run(command_string)
       Parser.jobs_from(command_string).each do |job|
-        job.run
-        job.pids.each do |pid|
-          Process.wait pid
+        begin
+          job.run
+          job.pids.each do |pid|
+            Process.wait pid
+          end
+        rescue Interrupt
+          puts ""
         end
       end
     end
 
     def run_interactively
-      while commands = Readline.readline(prompt)
-        next if commands.empty?
-        Readline::HISTORY.push(commands)
-        run commands
+      begin
+        while input = Readline.readline(prompt)
+          next if input.empty?
+          Readline::HISTORY.push(input)
+          run input
+        end
+      rescue Interrupt
+        puts "^C"
+        retry
       end
     end
 
