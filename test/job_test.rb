@@ -29,5 +29,22 @@ module RSH
       # irritating when you're testing that pipes are closed!
       assert_equal 4, (Dir.entries("/dev/fd/") - [ ".", ".." ]).size
     end
+
+    def test_processes_are_put_in_correct_process_group
+      s1 = Command.new("sleep")
+      s1.append_argument "5"
+      s2 = Command.new("sleep")
+      s2.append_argument "5"
+
+      job = Job.new([ s1, s2 ])
+      Thread.new do
+        job.run
+      end
+      sleep 1
+
+      assert_equal Process.getpgid(job.pids.first), Process.getpgid(job.pids.last)
+      assert_equal job.pids.first, Process.getpgid(job.pids.last)
+      assert_not_equal Process.getpgrp, Process.getpgid(job.pids.last)
+    end
   end
 end

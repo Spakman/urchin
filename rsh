@@ -20,6 +20,10 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+# If we are not the controlling process, we won't be able to set the foreground
+# process group unless we ignore or block SIGTTOU.
+Signal.trap :TTOU, "IGNORE"
+
 if options[:command_string]
   RSH::Shell.new.run(options[:command_string])
 else

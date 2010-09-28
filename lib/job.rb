@@ -2,6 +2,8 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+require "#{File.dirname(__FILE__)}/terminal"
+
 module RSH
 
   # Encapsulates a pipeline, which consists of one or more commands.
@@ -28,6 +30,13 @@ module RSH
         end
 
         @pids << fork do
+
+          # This process belongs in the same process group as the rest of the
+          # pipeline. The process group leader is the first command.
+          pid = Process.pid
+          pgid = @pids.empty? ? pid : Process.getpgid(@pids.first)
+          Process.setpgid(pid, pgid) rescue Errno::EACCES
+
           if nextin != STDIN
             STDIN.reopen nextin
             nextin.close
@@ -36,8 +45,18 @@ module RSH
             STDOUT.reopen nextout
             nextout.close
           end
+
           command.execute
         end
+
+        # Set the process group here as well as in the child process to avoid
+        # a race condition.
+        #
+        # Errno::EACCESS will be raised in whichever process loses the race.
+        Process.setpgid(@pids.last, @pids.first) rescue Errno::EACCES
+
+        # Move this process group to the foreground.
+        Terminal.tcsetpgrp(0, Process.getpgid(@pids.first))
 
         if nextin != STDIN
           nextin.close
@@ -51,6 +70,9 @@ module RSH
       @pids.each do |pid|
         Process.wait pid
       end
+
+      # Move the shell back to the foreground.
+      Terminal.tcsetpgrp(0, Process.getpgrp)
     end
   end
 end

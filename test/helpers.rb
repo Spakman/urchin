@@ -1,7 +1,7 @@
 module RSH
   module TestHelpers
     def teardown
-      FileUtils.rm_r("/tmp/rsh.test_unit")
+      FileUtils.rm_r("/tmp/rsh.test_unit", :force => true)
     end
 
     def redirect_stdout
