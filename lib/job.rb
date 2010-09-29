@@ -34,7 +34,7 @@ module RSH
           # This process belongs in the same process group as the rest of the
           # pipeline. The process group leader is the first command.
           pid = Process.pid
-          pgid = @pids.empty? ? pid : Process.getpgid(@pids.first)
+          pgid = @pids.empty? ? pid : @pids.first
           Process.setpgid(pid, pgid) rescue Errno::EACCES
 
           if nextin != STDIN

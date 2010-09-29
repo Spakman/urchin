@@ -16,4 +16,5 @@ module Terminal
   dlload "libc.so.6"
 
   extern "int tcsetpgrp(int, int)"
+  extern "int tcgetpgrp(int)"
 end
