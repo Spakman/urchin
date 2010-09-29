@@ -2,16 +2,16 @@
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"
 
-module RSH
+module Urchin
   module TestHelpers
     def teardown
-      FileUtils.rm_r("/tmp/rsh.test_unit", :force => true)
+      FileUtils.rm_r("/tmp/urchin.test_unit", :force => true)
     end
 
     def redirect_stdout
-      FileUtils.mkdir("/tmp/rsh.test_unit")
+      FileUtils.mkdir("/tmp/urchin.test_unit")
       @old_stdout = STDOUT.dup
-      @redirected_stdout = File.open("/tmp/rsh.test_unit/stdout", "w+")
+      @redirected_stdout = File.open("/tmp/urchin.test_unit/stdout", "w+")
       STDOUT.reopen @redirected_stdout
     end
 

@@ -8,7 +8,7 @@ require "#{File.dirname(__FILE__)}/lib/shell"
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: rsh [options]"
+  opts.banner = "Usage: urchin [options]"
 
   opts.on("-h", "--help", "Show this message") do
     puts opts
@@ -25,7 +25,7 @@ end.parse!
 Signal.trap :TTOU, "IGNORE"
 
 if options[:command_string]
-  RSH::Shell.new.run(options[:command_string])
+  Urchin::Shell.new.run(options[:command_string])
 else
-  RSH::Shell.new.run_interactively
+  Urchin::Shell.new.run_interactively
 end

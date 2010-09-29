@@ -4,7 +4,7 @@ require "#{File.dirname(__FILE__)}/helpers"
 require "#{File.dirname(__FILE__)}/../lib/job"
 require "#{File.dirname(__FILE__)}/../lib/command"
 
-module RSH
+module Urchin
   class JobTestCase < Test::Unit::TestCase
 
     include TestHelpers

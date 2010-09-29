@@ -4,7 +4,7 @@
 
 require "#{File.dirname(__FILE__)}/command"
 
-module RSH
+module Urchin
   # Really dumb command parser for now.
   class Parser
     def self.jobs_from(input)

@@ -4,7 +4,7 @@
 
 require "#{File.dirname(__FILE__)}/terminal"
 
-module RSH
+module Urchin
 
   # Encapsulates a pipeline, which consists of one or more commands.
   class Job

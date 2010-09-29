@@ -6,7 +6,7 @@ require "readline"
 require "#{File.dirname(__FILE__)}/parser"
 require "#{File.dirname(__FILE__)}/job"
 
-module RSH
+module Urchin
   class Shell
     def run(command_string)
       Parser.jobs_from(command_string).each do |job|

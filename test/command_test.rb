@@ -3,7 +3,7 @@ require "fileutils"
 require "#{File.dirname(__FILE__)}/helpers"
 require "#{File.dirname(__FILE__)}/../lib/command"
 
-module RSH
+module Urchin
   class CommandTestCase < Test::Unit::TestCase
 
     include TestHelpers

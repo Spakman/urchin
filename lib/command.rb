@@ -2,7 +2,7 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-module RSH
+module Urchin
   class Command
     def initialize(executable)
       @executable = executable
