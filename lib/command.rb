@@ -4,6 +4,9 @@
 
 module Urchin
   class Command
+    attr_reader :status
+    attr_accessor :pid
+
     def initialize(executable)
       @executable = executable
       @args = []
@@ -19,6 +22,22 @@ module Urchin
 
     def execute
       exec @executable, *@args
+    end
+
+    def running!
+      @status = :running
+    end
+
+    def stopped!
+      @status = :stopped
+    end
+
+    def completed!
+      @status = :completed
+    end
+
+    def running?
+      @status == :running
     end
   end
 end

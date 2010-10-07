@@ -10,20 +10,24 @@ module Urchin
     include TestHelpers
 
     def test_job_pipeline_has_correct_output_and_closes_pipes
+      cat = Command.new("cat")
+      grep = Command.new("grep")
+      wc = Command.new("wc")
+
       output = with_redirected_output do
-        cat = Command.new("cat")
         cat.append_argument "COPYING"
         cat.append_argument "README"
-        grep = Command.new("grep")
         grep.append_argument "-i"
         grep.append_argument "copyright"
-        wc = Command.new("wc")
         wc.append_argument "-l"
 
         job = Job.new([ cat, grep , wc ])
         job.run
       end
       assert_equal "31", output.chomp
+      assert_equal :completed, cat.status
+      assert_equal :completed, grep.status
+      assert_equal :completed, wc.status
 
       # For some reason test/unit always seems to have a pipe open, which is
       # irritating when you're testing that pipes are closed!
@@ -53,6 +57,28 @@ module Urchin
 
       # ensure this process is back in the foreground
       assert_equal Process.pid, Terminal.tcgetpgrp(0)
+    end
+
+    def test_commands_are_marked_as_stopped
+      s1 = Command.new("sleep")
+      s1.append_argument "1"
+      s2 = Command.new("sleep")
+      s2.append_argument "1"
+
+      job = Job.new([ s1, s2 ])
+      Thread.new do
+        job.run
+      end
+      sleep 0.2
+
+      assert s1.running?
+      assert s2.running?
+
+      Process.kill("-TSTP", s1.pid)
+      sleep 0.1
+
+      assert_equal :stopped, s1.status
+      assert_equal :stopped, s2.status
     end
   end
 end

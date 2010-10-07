@@ -37,6 +37,8 @@ module Urchin
           pgid = @pids.empty? ? pid : @pids.first
           Process.setpgid(pid, pgid) rescue Errno::EACCES
 
+          Signal.trap :TSTP, "DEFAULT"
+
           if nextin != STDIN
             STDIN.reopen nextin
             nextin.close
@@ -49,14 +51,14 @@ module Urchin
           command.execute
         end
 
+        command.pid = @pids.last
+        command.running!
+
         # Set the process group here as well as in the child process to avoid
         # a race condition.
         #
         # Errno::EACCESS will be raised in whichever process loses the race.
         Process.setpgid(@pids.last, @pids.first) rescue Errno::EACCES
-
-        # Move this process group to the foreground.
-        Terminal.tcsetpgrp(0, Process.getpgid(@pids.first))
 
         if nextin != STDIN
           nextin.close
@@ -67,8 +69,23 @@ module Urchin
 
         nextin = pipe.first
       end
-      @pids.each do |pid|
-        Process.wait pid
+
+      # Move this process group to the foreground.
+      Terminal.tcsetpgrp(0, Process.getpgid(@pids.first))
+
+      wait_for_children
+    end
+
+    # Blocks until all of the running children have changed status.
+    def wait_for_children
+      commands = @commands.find_all { |command| command.running? }
+      commands.each do |command|
+        pid, status = Process.waitpid2(command.pid, Process::WUNTRACED)
+        if status.stopped?
+          command.stopped!
+        else
+          command.completed!
+        end
       end
 
       # Move the shell back to the foreground.
