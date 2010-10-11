@@ -11,6 +11,16 @@ module Urchin
       @args = []
     end
 
+    # Returns a new Command or an instance of one of the classes in Builtins.
+    def self.create(executable)
+      builtin_constant = executable.capitalize
+      if Builtins.constants.include? builtin_constant
+        Builtins.const_get(builtin_constant.to_sym).new
+      else
+        new executable
+      end
+    end
+
     def append_argument(argument)
       @args << argument
     end

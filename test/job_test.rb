@@ -10,9 +10,9 @@ module Urchin
     include TestHelpers
 
     def test_job_pipeline_has_correct_output_and_closes_pipes
-      cat = Command.new("cat")
-      grep = Command.new("grep")
-      wc = Command.new("wc")
+      cat = Command.create("cat")
+      grep = Command.create("grep")
+      wc = Command.create("wc")
 
       output = with_redirected_output do
         cat.append_argument "COPYING"
@@ -35,9 +35,9 @@ module Urchin
     end
 
     def test_processes_are_put_in_correct_process_group
-      s1 = Command.new("sleep")
+      s1 = Command.create("sleep")
       s1.append_argument "1"
-      s2 = Command.new("sleep")
+      s2 = Command.create("sleep")
       s2.append_argument "1"
 
       job = Job.new([ s1, s2 ])
@@ -60,9 +60,9 @@ module Urchin
     end
 
     def test_commands_are_marked_as_stopped
-      s1 = Command.new("sleep")
+      s1 = Command.create("sleep")
       s1.append_argument "1"
-      s2 = Command.new("sleep")
+      s2 = Command.create("sleep")
       s2.append_argument "1"
 
       job = Job.new([ s1, s2 ])
@@ -79,6 +79,25 @@ module Urchin
 
       assert s1.stopped?
       assert s2.stopped?
+    end
+
+    def test_validate_pipline
+      ls = Command.create("ls")
+      tail = Command.create("tail")
+      assert Job.new([ ls, tail ]).valid_pipeline?
+
+      cd = Command.create("cd")
+      assert !Job.new([ cd ]).valid_pipeline?
+
+      ls = Command.create("ls")
+      cd = Command.create("cd")
+      assert !Job.new([ ls, cd ]).valid_pipeline?
+    end
+
+    def test_running_builtin_as_part_of_a_pipline
+      ls = Command.create("ls")
+      cd = Command.create("cd")
+      assert_raises(RuntimeError) { Job.new([ ls, cd ]).run }
     end
   end
 end

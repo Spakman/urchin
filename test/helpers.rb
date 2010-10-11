@@ -2,6 +2,9 @@
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"
 
+# TODO: require all builtins.
+require "#{File.dirname(__FILE__)}/../builtins/cd"
+
 module Urchin
   module TestHelpers
     def teardown

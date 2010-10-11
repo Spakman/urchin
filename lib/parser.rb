@@ -13,7 +13,7 @@ module Urchin
 
         job.split("|").each do |command_string|
           args = command_string.split(" ").map { |a| a.strip }
-          command = Command.new(args.shift)
+          command = Command.create(args.shift)
           command.append_arguments args
           commands << command
         end

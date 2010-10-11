@@ -18,6 +18,7 @@ module Urchin
       end
     end
 
+    # TODO: handle errors from builtins.
     def run_interactively
       begin
         while input = Readline.readline(prompt)

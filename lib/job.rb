@@ -15,8 +15,26 @@ module Urchin
       @pids = []
     end
 
-    # Builds a pipeline of programs, fork and exec'ing as it goes.
+    # Checks that every Command is able to be run in a child process or that
+    # there is only one Command.
+    def valid_pipeline?
+      @commands.find_all { |c| c.kind_of? Command } == @commands
+    end
+
     def run
+      if valid_pipeline?
+        run_pipeline
+      else
+        if @commands.size == 1
+          @commands.first.execute
+        else
+          raise "Builtins cannot be part of a pipeline"
+        end
+      end
+    end
+
+    # Builds a pipeline of programs, fork and exec'ing as it goes.
+    def run_pipeline
       nextin = STDIN
       nextout = STDOUT
       pipe = []

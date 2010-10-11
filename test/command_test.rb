@@ -10,7 +10,7 @@ module Urchin
 
     def test_executing_a_command
       output = with_redirected_output do
-        command = Command.new("echo")
+        command = Command.create("echo")
         command.append_argument "123"
 
         pid = fork do
@@ -20,6 +20,11 @@ module Urchin
       end
 
       assert_equal "123", output.chomp
+    end
+
+    def test_create
+      assert_kind_of Command, Command.create("ls")
+      assert_kind_of Builtins::Cd, Command.create("cd")
     end
   end
 end
