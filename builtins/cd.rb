@@ -9,9 +9,21 @@ module Urchin
     class Cd
       include Methods
 
-      # TODO: error checking and other features.
+      def valid_arguments?
+        if @arguments.size > 1
+          raise UrchinRuntimeError.new("Too many arguments.")
+        elsif @arguments.empty?
+          @arguments << ENV['HOME']
+        end
+      end
+
       def execute
-        Dir.chdir @arguments.first
+        valid_arguments?
+        begin
+          Dir.chdir @arguments.first
+        rescue Errno::EACCES
+          raise UrchinRuntimeError.new("Permission denied.")
+        end
       end
     end
   end

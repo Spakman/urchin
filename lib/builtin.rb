@@ -2,6 +2,8 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+require "#{File.dirname(__FILE__)}/urchin_runtime_error"
+
 module Urchin
   module Builtins
     module Methods

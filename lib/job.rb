@@ -3,6 +3,7 @@
 # See COPYING.
 
 require "#{File.dirname(__FILE__)}/terminal"
+require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 
 module Urchin
 
@@ -28,7 +29,7 @@ module Urchin
         if @commands.size == 1
           @commands.first.execute
         else
-          raise "Builtins cannot be part of a pipeline"
+          raise UrchinRuntimeError.new("Builtins cannot be part of a pipeline.")
         end
       end
     end

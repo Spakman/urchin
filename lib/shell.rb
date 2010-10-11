@@ -5,20 +5,24 @@
 require "readline"
 require "#{File.dirname(__FILE__)}/parser"
 require "#{File.dirname(__FILE__)}/job"
+require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 
 module Urchin
   class Shell
     def run(command_string)
       Parser.jobs_from(command_string).each do |job|
         begin
-          job.run
+          begin
+            job.run
+          rescue UrchinRuntimeError => error
+            STDERR.puts error.message
+          end
         rescue Interrupt
           puts ""
         end
       end
     end
 
-    # TODO: handle errors from builtins.
     def run_interactively
       begin
         while input = Readline.readline(prompt)

@@ -97,7 +97,7 @@ module Urchin
     def test_running_builtin_as_part_of_a_pipline
       ls = Command.create("ls")
       cd = Command.create("cd")
-      assert_raises(RuntimeError) { Job.new([ ls, cd ]).run }
+      assert_raises(UrchinRuntimeError) { Job.new([ ls, cd ]).run }
     end
   end
 end
