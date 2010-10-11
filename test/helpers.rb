@@ -2,8 +2,10 @@
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"
 
-# TODO: require all builtins.
 require "#{File.dirname(__FILE__)}/../builtins/cd"
+Dir.glob("builtins/*.rb").each do |path|
+  require path
+end
 
 module Urchin
   module TestHelpers
