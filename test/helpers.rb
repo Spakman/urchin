@@ -29,7 +29,12 @@ module Urchin
 
     def with_redirected_output(&block)
       redirect_stdout
-      yield
+      begin
+        yield
+      rescue Exception => exception
+        STDERR.puts exception.message
+        STDERR.puts exception.backtrace.join("\n")
+      end
       reopen_stdout
     end
   end
