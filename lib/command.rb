@@ -56,5 +56,9 @@ module Urchin
     def completed?
       @status == :completed
     end
+
+    def to_s
+      "#{@executable} #{@args.join(" ")}"
+    end
   end
 end

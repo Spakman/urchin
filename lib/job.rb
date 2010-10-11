@@ -4,12 +4,13 @@
 
 require "#{File.dirname(__FILE__)}/terminal"
 require "#{File.dirname(__FILE__)}/urchin_runtime_error"
+require "#{File.dirname(__FILE__)}/job_table"
 
 module Urchin
 
   # Encapsulates a pipeline, which consists of one or more commands.
   class Job
-    attr_reader :pids
+    attr_reader :pids, :status, :title
 
     def initialize(commands)
       @commands = commands
@@ -20,6 +21,10 @@ module Urchin
     # there is only one Command.
     def valid_pipeline?
       @commands.find_all { |c| c.kind_of? Command } == @commands
+    end
+
+    def title
+      @commands.first.to_s
     end
 
     def run
@@ -89,8 +94,29 @@ module Urchin
         nextin = pipe.first
       end
 
-      # Move this process group to the foreground.
+      JOB_TABLE.insert self
+      @status = :running
+
+      unless start_in_background?
+        foreground!
+      end
+    end
+
+    def start_in_background!
+      @start_in_background = true
+    end
+
+    def start_in_background?
+      @start_in_background
+    end
+
+    # Move this process group to the foreground.
+    def foreground!
       Terminal.tcsetpgrp(0, Process.getpgid(@pids.first))
+      Process.kill("-CONT", Process.getpgid(@pids.first))
+
+      commands = @commands.find_all { |command| !command.completed? }
+      commands.map { |command| command.running! }
 
       wait_for_children
     end
@@ -105,6 +131,12 @@ module Urchin
         else
           command.completed!
         end
+      end
+
+      if @commands.find_all { |c| !c.completed? }.empty?
+        JOB_TABLE.delete self
+      else
+        @status = :stopped
       end
 
       # Move the shell back to the foreground.

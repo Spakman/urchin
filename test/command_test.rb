@@ -26,5 +26,11 @@ module Urchin
       assert_kind_of Command, Command.create("ls")
       assert_kind_of Builtins::Cd, Command.create("cd")
     end
+
+    def test_to_s
+      command = Command.create("sleep")
+      command.append_argument "20"
+      assert_equal "sleep 20", command.to_s
+    end
   end
 end

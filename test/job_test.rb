@@ -36,9 +36,9 @@ module Urchin
 
     def test_processes_are_put_in_correct_process_group
       s1 = Command.create("sleep")
-      s1.append_argument "1"
+      s1.append_argument "0.5"
       s2 = Command.create("sleep")
-      s2.append_argument "1"
+      s2.append_argument "0.5"
 
       job = Job.new([ s1, s2 ])
       Thread.new do
@@ -53,7 +53,7 @@ module Urchin
       # ensure the Job process group is in the foreground
       assert_equal job.pids.first, Terminal.tcgetpgrp(0)
 
-      sleep 1
+      sleep 0.5
 
       # ensure this process is back in the foreground
       assert_equal Process.pid, Terminal.tcgetpgrp(0)
@@ -98,6 +98,12 @@ module Urchin
       ls = Command.create("ls")
       cd = Command.create("cd")
       assert_raises(UrchinRuntimeError) { Job.new([ ls, cd ]).run }
+    end
+
+    def test_title
+      ls = Command.create("ls")
+      cd = Command.create("cd")
+      assert_equal ls.to_s, Job.new([ ls, cd ]).title
     end
   end
 end
