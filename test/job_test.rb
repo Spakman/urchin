@@ -25,9 +25,9 @@ module Urchin
         job.run
       end
       assert_equal "31", output.chomp
-      assert_equal :completed, cat.status
-      assert_equal :completed, grep.status
-      assert_equal :completed, wc.status
+      assert cat.completed?
+      assert grep.completed?
+      assert wc.completed?
 
       # For some reason test/unit always seems to have a pipe open, which is
       # irritating when you're testing that pipes are closed!
@@ -77,8 +77,8 @@ module Urchin
       Process.kill("-TSTP", s1.pid)
       sleep 0.1
 
-      assert_equal :stopped, s1.status
-      assert_equal :stopped, s2.status
+      assert s1.stopped?
+      assert s2.stopped?
     end
   end
 end

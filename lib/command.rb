@@ -4,7 +4,6 @@
 
 module Urchin
   class Command
-    attr_reader :status
     attr_accessor :pid
 
     def initialize(executable)
@@ -38,6 +37,14 @@ module Urchin
 
     def running?
       @status == :running
+    end
+
+    def stopped?
+      @status == :stopped
+    end
+
+    def completed?
+      @status == :completed
     end
   end
 end
