@@ -6,45 +6,34 @@ require "#{File.dirname(__FILE__)}/../lib/job"
 require "#{File.dirname(__FILE__)}/../lib/command"
 
 module Urchin
-  class JobTable
-    def empty!
-      @jobs = {}
-      @index = 1
-    end
-  end
-
-  unless defined? JOB_TABLE
-    JOB_TABLE = JobTable.new
-  end
-
   class JobTableTestCase < Test::Unit::TestCase
-    def teardown
-      JOB_TABLE.empty!
+    def setup
+      @job_table = JobTable.new
     end
 
     def test_insert
-      JOB_TABLE.insert Job.new(Command.create("ls"))
-      assert_equal 1, JOB_TABLE.jobs.size
+      @job_table.insert Job.new(Command.create("ls", @job_table), @job_table)
+      assert_equal 1, @job_table.jobs.size
     end
 
     def test_delete
-      ls = Job.new(Command.create("ls"))
-      JOB_TABLE.insert ls
-      pwd = Job.new(Command.create("pwd"))
-      JOB_TABLE.insert pwd
+      ls = Job.new(Command.create("ls", @job_table), @job_table)
+      @job_table.insert ls
+      pwd = Job.new(Command.create("pwd", @job_table), @job_table)
+      @job_table.insert pwd
 
-      assert_equal 2, JOB_TABLE.jobs.size
-      JOB_TABLE.delete pwd
-      assert_equal ls, JOB_TABLE.jobs[1]
+      assert_equal 2, @job_table.jobs.size
+      @job_table.delete pwd
+      assert_equal ls, @job_table.jobs[1]
     end
 
     def test_last_job
-      ls = Job.new(Command.create("ls"))
-      JOB_TABLE.insert ls
-      pwd = Job.new(Command.create("pwd"))
-      JOB_TABLE.insert pwd
+      ls = Job.new(Command.create("ls", @job_table), @job_table)
+      @job_table.insert ls
+      pwd = Job.new(Command.create("pwd", @job_table), @job_table)
+      @job_table.insert pwd
 
-      assert_equal pwd, JOB_TABLE.last_job
+      assert_equal pwd, @job_table.last_job
     end
   end
 end

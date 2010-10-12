@@ -12,9 +12,10 @@ module Urchin
   class Job
     attr_reader :pids, :status, :title
 
-    def initialize(commands)
+    def initialize(commands, job_table)
       @commands = commands
       @pids = []
+      @job_table = job_table
     end
 
     # Checks that every Command is able to be run in a child process or that
@@ -94,7 +95,7 @@ module Urchin
         nextin = pipe.first
       end
 
-      JOB_TABLE.insert self
+      @job_table.insert self
       @status = :running
 
       unless start_in_background?
@@ -134,7 +135,7 @@ module Urchin
       end
 
       if @commands.find_all { |c| !c.completed? }.empty?
-        JOB_TABLE.delete self
+        @job_table.delete self
       else
         @status = :stopped
       end

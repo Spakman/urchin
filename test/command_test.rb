@@ -10,7 +10,7 @@ module Urchin
 
     def test_executing_a_command
       output = with_redirected_output do
-        command = Command.create("echo")
+        command = Command.create("echo", JobTable.new)
         command.append_argument "123"
 
         pid = fork do
@@ -23,12 +23,12 @@ module Urchin
     end
 
     def test_create
-      assert_kind_of Command, Command.create("ls")
-      assert_kind_of Builtins::Cd, Command.create("cd")
+      assert_kind_of Command, Command.create("ls", JobTable.new)
+      assert_kind_of Builtins::Cd, Command.create("cd", JobTable.new)
     end
 
     def test_to_s
-      command = Command.create("sleep")
+      command = Command.create("sleep", JobTable.new)
       command.append_argument "20"
       assert_equal "sleep 20", command.to_s
     end

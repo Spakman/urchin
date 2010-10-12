@@ -34,10 +34,6 @@ else
   # TODO: ensure we are the foreground job before starting to run interactively.
   @shell = Urchin::Shell.new
 
-  module Urchin
-    JOB_TABLE = JobTable.new
-  end
-
   Signal.trap :TSTP, "IGNORE"
 
   @shell.run_interactively

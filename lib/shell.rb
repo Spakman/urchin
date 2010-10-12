@@ -9,8 +9,13 @@ require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 
 module Urchin
   class Shell
+    def initialize
+      @job_table = JobTable.new
+      @parser = Parser.new(@job_table)
+    end
+
     def run(command_string)
-      Parser.jobs_from(command_string).each do |job|
+      @parser.jobs_from(command_string).each do |job|
         begin
           begin
             job.run

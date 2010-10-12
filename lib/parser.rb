@@ -7,7 +7,11 @@ require "#{File.dirname(__FILE__)}/command"
 module Urchin
   # Really dumb command parser for now.
   class Parser
-    def self.jobs_from(input)
+    def initialize(job_table)
+      @job_table = job_table
+    end
+
+    def jobs_from(input)
       input.split(";").map do |job_string|
         background = false
         commands = []
@@ -21,12 +25,12 @@ module Urchin
 
         command_strings.each do |command_string|
           args = command_string.split(" ").map { |a| a.strip }
-          command = Command.create(args.shift)
+          command = Command.create(args.shift, @job_table)
           command.append_arguments args
           commands << command
         end
 
-        job = Job.new(commands)
+        job = Job.new(commands, @job_table)
         job.start_in_background! if background
         job
       end

@@ -7,8 +7,9 @@ require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 module Urchin
   module Builtins
     module Methods
-      def initialize
+      def initialize(job_table)
         @arguments = []
+        @job_table = job_table
       end
 
       def append_arguments(args)

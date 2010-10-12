@@ -18,7 +18,7 @@ module Urchin
 
       def execute
         valid_arguments?
-        JOB_TABLE.last_job.foreground!
+        @job_table.last_job.foreground!
       end
     end
   end

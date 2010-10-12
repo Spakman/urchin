@@ -3,7 +3,6 @@
 # See COPYING.
 
 require "#{File.dirname(__FILE__)}/../lib/builtin"
-require "#{File.dirname(__FILE__)}/../lib/job_table"
 
 module Urchin
   module Builtins
@@ -18,7 +17,7 @@ module Urchin
 
       def execute
         valid_arguments?
-        output = JOB_TABLE.to_s
+        output = @job_table.to_s
         unless output.empty?
           puts output
         end
