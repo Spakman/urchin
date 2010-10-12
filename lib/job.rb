@@ -10,21 +10,22 @@ module Urchin
 
   # Encapsulates a pipeline, which consists of one or more commands.
   class Job
-    attr_reader :pids, :status, :title
+    attr_reader :pgid, :status, :title
 
     def initialize(commands, job_table)
       @commands = commands
-      @pids = []
       @job_table = job_table
+      @pgid = nil
     end
 
-    # Checks that every Command is able to be run in a child process or that
-    # there is only one Command.
+    # Checks that every Command is able to be run in a child process.
+    #
+    # A pipeline only fails this test when one or more of the commands are a
+    # Builtin.
     def valid_pipeline?
       @commands.find_all { |c| c.kind_of? Command } == @commands
     end
 
-    # For printing.
     def title
       @commands.first.to_s
     end
@@ -41,6 +42,39 @@ module Urchin
       end
     end
 
+    def fork_and_exec(command, nextin, nextout)
+      pid = fork do
+        # This process belongs in the same process group as the rest of the
+        # pipeline. The process group leader is the first command.
+        @pgid = pid if @pgid.nil?
+        Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
+
+        Signal.trap :TSTP, "DEFAULT"
+
+        if nextin != STDIN
+          STDIN.reopen nextin
+          nextin.close
+        end
+        if nextout != STDOUT
+          STDOUT.reopen nextout
+          nextout.close
+        end
+
+        command.execute
+      end
+
+      @pgid = pid if @pgid.nil?
+
+      command.pid = pid
+      command.running!
+
+      # Set the process group here as well as in the child process to avoid
+      # a race condition.
+      #
+      # Errno::EACCESS will be raised in whichever process loses the race.
+      Process.setpgid(pid, @pgid) rescue Errno::EACCES
+    end
+
     # Builds a pipeline of programs, fork and exec'ing as it goes.
     def run_pipeline
       nextin = STDIN
@@ -55,36 +89,7 @@ module Urchin
           nextout = STDOUT
         end
 
-        @pids << fork do
-
-          # This process belongs in the same process group as the rest of the
-          # pipeline. The process group leader is the first command.
-          pid = Process.pid
-          pgid = @pids.empty? ? pid : @pids.first
-          Process.setpgid(pid, pgid) rescue Errno::EACCES
-
-          Signal.trap :TSTP, "DEFAULT"
-
-          if nextin != STDIN
-            STDIN.reopen nextin
-            nextin.close
-          end
-          if nextout != STDOUT
-            STDOUT.reopen nextout
-            nextout.close
-          end
-
-          command.execute
-        end
-
-        command.pid = @pids.last
-        command.running!
-
-        # Set the process group here as well as in the child process to avoid
-        # a race condition.
-        #
-        # Errno::EACCESS will be raised in whichever process loses the race.
-        Process.setpgid(@pids.last, @pids.first) rescue Errno::EACCES
+        fork_and_exec(command, nextin, nextout)
 
         if nextin != STDIN
           nextin.close
@@ -114,8 +119,8 @@ module Urchin
 
     # Move this process group to the foreground.
     def foreground!
-      Terminal.tcsetpgrp(0, Process.getpgid(@pids.first))
-      Process.kill("-CONT", Process.getpgid(@pids.first))
+      Terminal.tcsetpgrp(0, Process.getpgid(@pgid))
+      Process.kill("-CONT", Process.getpgid(@pgid))
 
       commands = @commands.find_all { |command| !command.completed? }
       commands.map { |command| command.running! }
@@ -123,7 +128,11 @@ module Urchin
       reap_children
     end
 
-    # Blocks until all of the running children have changed status.
+    # Collect and process child status changes.
+    #
+    # This is called with Process::WUNTRACED when a foreground job is waiting
+    # for children and with Process::WNOHANG by the SIGCHLD handler in Shell,
+    # which catches exiting commands that are part of background jobs.
     def reap_children(flags = Process::WUNTRACED)
       commands = @commands.find_all { |command| command.running? }
       commands.each do |command|

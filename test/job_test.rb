@@ -11,6 +11,7 @@ module Urchin
     include TestHelpers
 
     class Urchin::Shell; attr_reader :job_table; end
+    class Urchin::Job; attr_reader :commands; end
 
     def setup
       @job_table = JobTable.new
@@ -53,12 +54,12 @@ module Urchin
       end
       sleep 0.1
 
-      assert_equal Process.getpgid(job.pids.first), Process.getpgid(job.pids.last)
-      assert_equal job.pids.first, Process.getpgid(job.pids.last)
-      assert_not_equal Process.getpgrp, Process.getpgid(job.pids.last)
+      assert_equal Process.getpgid(job.pgid), Process.getpgid(job.commands.last.pid)
+      assert_equal job.pgid, Process.getpgid(job.commands.last.pid)
+      assert_not_equal Process.getpgrp, Process.getpgid(job.commands.last.pid)
 
       # ensure the Job process group is in the foreground
-      assert_equal job.pids.first, Terminal.tcgetpgrp(0)
+      assert_equal job.pgid, Terminal.tcgetpgrp(0)
 
       sleep 0.5
 
