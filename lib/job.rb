@@ -24,6 +24,7 @@ module Urchin
       @commands.find_all { |c| c.kind_of? Command } == @commands
     end
 
+    # For printing.
     def title
       @commands.first.to_s
     end
@@ -119,24 +120,26 @@ module Urchin
       commands = @commands.find_all { |command| !command.completed? }
       commands.map { |command| command.running! }
 
-      wait_for_children
+      reap_children
     end
 
     # Blocks until all of the running children have changed status.
-    def wait_for_children
+    def reap_children(flags = Process::WUNTRACED)
       commands = @commands.find_all { |command| command.running? }
       commands.each do |command|
-        pid, status = Process.waitpid2(command.pid, Process::WUNTRACED)
-        if status.stopped?
-          command.stopped!
-        else
-          command.completed!
+        pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
+        if pid
+          if status.stopped?
+            command.stopped!
+          else
+            command.completed!
+          end
         end
       end
 
       if @commands.find_all { |c| !c.completed? }.empty?
         @job_table.delete self
-      else
+      elsif flags == Process::WUNTRACED
         @status = :stopped
       end
 

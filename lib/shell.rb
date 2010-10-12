@@ -12,6 +12,7 @@ module Urchin
     def initialize
       @job_table = JobTable.new
       @parser = Parser.new(@job_table)
+      define_sigchld_handler
     end
 
     def run(command_string)
@@ -43,6 +44,14 @@ module Urchin
 
     def prompt
       "\e[0;36m[\e[1;32m#{Process.pid}\e[0;36m]\033[0m% "
+    end
+
+    def define_sigchld_handler
+      Signal.trap :CHLD do
+        @job_table.jobs.each do |id, job|
+          job.reap_children Process::WNOHANG
+        end
+      end
     end
   end
 end

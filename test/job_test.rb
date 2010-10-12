@@ -3,11 +3,14 @@ require "fileutils"
 require "#{File.dirname(__FILE__)}/helpers"
 require "#{File.dirname(__FILE__)}/../lib/job"
 require "#{File.dirname(__FILE__)}/../lib/command"
+require "#{File.dirname(__FILE__)}/../lib/shell"
 
 module Urchin
   class JobTestCase < Test::Unit::TestCase
 
     include TestHelpers
+
+    class Urchin::Shell; attr_reader :job_table; end
 
     def setup
       @job_table = JobTable.new
@@ -87,12 +90,13 @@ module Urchin
     end
 
     def test_start_in_background
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "1"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "1"
+      shell = Urchin::Shell.new
+      s1 = Command.create("sleep", shell.job_table)
+      s1.append_argument "0.2"
+      s2 = Command.create("sleep", shell.job_table)
+      s2.append_argument "0.2"
 
-      job = Job.new([ s1, s2 ], @job_table)
+      job = Job.new([ s1, s2 ], shell.job_table)
       job.start_in_background!
       Thread.new do
         job.run
@@ -102,6 +106,11 @@ module Urchin
       assert s1.running?
       assert s2.running?
       assert_not_equal s1.pid, Terminal.tcgetpgrp(0)
+
+      # ensure the processes are reaped
+      sleep 0.2
+      assert s1.completed?
+      assert s2.completed?
     end
 
     def test_foreground
