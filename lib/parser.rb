@@ -7,8 +7,8 @@ require "#{File.dirname(__FILE__)}/command"
 module Urchin
   # Really dumb command parser for now.
   class Parser
-    def initialize(job_table)
-      @job_table = job_table
+    def initialize(shell)
+      @shell = shell
     end
 
     def jobs_from(input)
@@ -25,12 +25,12 @@ module Urchin
 
         command_strings.each do |command_string|
           args = command_string.split(" ").map { |a| a.strip }
-          command = Command.create(args.shift, @job_table)
+          command = Command.create(args.shift, @shell.job_table)
           command.append_arguments args
           commands << command
         end
 
-        job = Job.new(commands, @job_table)
+        job = Job.new(commands, @shell)
         job.start_in_background! if background
         job
       end

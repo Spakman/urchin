@@ -14,7 +14,8 @@ module Urchin
     class Urchin::Job; attr_reader :commands; end
 
     def setup
-      @job_table = JobTable.new
+      @shell = Shell.new
+      @job_table = @shell.job_table
     end
 
     def test_job_pipeline_has_correct_output_and_closes_pipes
@@ -29,7 +30,7 @@ module Urchin
         grep.append_argument "copyright"
         wc.append_argument "-l"
 
-        job = Job.new([ cat, grep , wc ], @job_table)
+        job = Job.new([ cat, grep , wc ], @shell)
         job.run
       end
       assert_equal "31", output.chomp
@@ -48,7 +49,7 @@ module Urchin
       s2 = Command.create("sleep", @job_table)
       s2.append_argument "0.2"
 
-      job = Job.new([ s1, s2 ], @job_table)
+      job = Job.new([ s1, s2 ], @shell)
       Thread.new do
         job.run
       end
@@ -73,7 +74,7 @@ module Urchin
       s2 = Command.create("sleep", @job_table)
       s2.append_argument "1"
 
-      job = Job.new([ s1, s2 ], @job_table)
+      job = Job.new([ s1, s2 ], @shell)
       Thread.new do
         job.run
       end
@@ -91,13 +92,12 @@ module Urchin
     end
 
     def test_start_in_background
-      shell = Urchin::Shell.new
-      s1 = Command.create("sleep", shell.job_table)
+      s1 = Command.create("sleep", @job_table)
       s1.append_argument "0.2"
-      s2 = Command.create("sleep", shell.job_table)
+      s2 = Command.create("sleep", @job_table)
       s2.append_argument "0.2"
 
-      job = Job.new([ s1, s2 ], shell.job_table)
+      job = Job.new([ s1, s2 ], @shell)
       job.start_in_background!
       Thread.new do
         job.run
@@ -120,7 +120,7 @@ module Urchin
       s2 = Command.create("sleep", @job_table)
       s2.append_argument "0.2"
 
-      job = Job.new([ s1, s2 ], @job_table)
+      job = Job.new([ s1, s2 ], @shell)
       job.start_in_background!
       Thread.new do
         job.run
@@ -136,26 +136,26 @@ module Urchin
     def test_validate_pipline
       ls = Command.create("ls", @job_table)
       tail = Command.create("tail", @job_table)
-      assert Job.new([ ls, tail ], @job_table).valid_pipeline?
+      assert Job.new([ ls, tail ], @shell).valid_pipeline?
 
       cd = Command.create("cd", @job_table)
-      assert !Job.new([ cd ], @job_table).valid_pipeline?
+      assert !Job.new([ cd ], @shell).valid_pipeline?
 
       ls = Command.create("ls", @job_table)
       cd = Command.create("cd", @job_table)
-      assert !Job.new([ ls, cd ], @job_table).valid_pipeline?
+      assert !Job.new([ ls, cd ], @shell).valid_pipeline?
     end
 
     def test_running_builtin_as_part_of_a_pipline
       ls = Command.create("ls", @job_table)
       cd = Command.create("cd", @job_table)
-      assert_raises(UrchinRuntimeError) { Job.new([ ls, cd ], @job_table).run }
+      assert_raises(UrchinRuntimeError) { Job.new([ ls, cd ], @shell).run }
     end
 
     def test_title
       ls = Command.create("ls", @job_table)
       cd = Command.create("cd", @job_table)
-      assert_equal ls.to_s, Job.new([ ls, cd ], @job_table).title
+      assert_equal ls.to_s, Job.new([ ls, cd ], @shell).title
     end
   end
 end

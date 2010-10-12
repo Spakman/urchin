@@ -4,7 +4,6 @@
 
 require "termios"
 require "#{File.dirname(__FILE__)}/urchin_runtime_error"
-require "#{File.dirname(__FILE__)}/job_table"
 
 module Urchin
 
@@ -12,9 +11,9 @@ module Urchin
   class Job
     attr_reader :pgid, :status, :title
 
-    def initialize(commands, job_table)
+    def initialize(commands, shell)
       @commands = commands
-      @job_table = job_table
+      @shell = shell
       @pgid = nil
     end
 
@@ -101,7 +100,7 @@ module Urchin
         nextin = pipe.first
       end
 
-      @job_table.insert self
+      @shell.job_table.insert self
       @status = :running
 
       unless start_in_background?
@@ -147,7 +146,7 @@ module Urchin
       end
 
       if @commands.find_all { |c| !c.completed? }.empty?
-        @job_table.delete self
+        @shell.job_table.delete self
       elsif flags == Process::WUNTRACED
         @status = :stopped
       end
