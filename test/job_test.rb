@@ -5,6 +5,23 @@ require "#{File.dirname(__FILE__)}/../lib/job"
 require "#{File.dirname(__FILE__)}/../lib/command"
 require "#{File.dirname(__FILE__)}/../lib/shell"
 
+module Termios
+  class Termios
+    # Since, unfortunately:
+    #
+    #   Termios.tcgetattr(STDIN) != Termios.tcgetattr(STDIN)
+    #
+    # Override this method in a slightly cheeky way.
+    def ==(object)
+      if object.kind_of? Termios
+        self.inspect == object.inspect
+      else
+        false
+      end
+    end
+  end
+end
+
 module Urchin
   class JobTestCase < Test::Unit::TestCase
 
@@ -83,7 +100,7 @@ module Urchin
       assert s1.running?
       assert s2.running?
 
-      Process.kill("-TSTP", s1.pid)
+      Process.kill("-TSTP", job.pgid)
       sleep 0.1
 
       assert s1.stopped?
@@ -156,6 +173,25 @@ module Urchin
       ls = Command.create("ls", @job_table)
       cd = Command.create("cd", @job_table)
       assert_equal ls.to_s, Job.new([ ls, cd ], @shell).title
+    end
+
+    def test_terminal_modes_are_saved_and_restored
+      man = Command.new("man")
+      man.append_argument "man"
+
+      job = Job.new([ man ], @shell)
+      Thread.new do
+        job.run
+      end
+      sleep 0.1
+
+      assert_not_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
+
+      Process.kill("-TSTP", job.pgid)
+      sleep 0.1
+
+      assert_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
+      Process.kill(:TERM, job.commands.first.pid)
     end
   end
 end
