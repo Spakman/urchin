@@ -2,7 +2,7 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-require "#{File.dirname(__FILE__)}/terminal"
+require "termios"
 require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 require "#{File.dirname(__FILE__)}/job_table"
 
@@ -119,7 +119,7 @@ module Urchin
 
     # Move this process group to the foreground.
     def foreground!
-      Terminal.tcsetpgrp(0, Process.getpgid(@pgid))
+      Termios.tcsetpgrp(STDIN, Process.getpgid(@pgid))
       Process.kill("-CONT", Process.getpgid(@pgid))
 
       commands = @commands.find_all { |command| !command.completed? }
@@ -153,7 +153,7 @@ module Urchin
       end
 
       # Move the shell back to the foreground.
-      Terminal.tcsetpgrp(0, Process.getpgrp)
+      Termios.tcsetpgrp(STDIN, Process.getpgrp)
     end
   end
 end

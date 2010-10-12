@@ -59,12 +59,12 @@ module Urchin
       assert_not_equal Process.getpgrp, Process.getpgid(job.commands.last.pid)
 
       # ensure the Job process group is in the foreground
-      assert_equal job.pgid, Terminal.tcgetpgrp(0)
+      assert_equal job.pgid, Termios.tcgetpgrp(STDIN)
 
       sleep 0.5
 
       # ensure this process is back in the foreground
-      assert_equal Process.pid, Terminal.tcgetpgrp(0)
+      assert_equal Process.pid, Termios.tcgetpgrp(STDIN)
     end
 
     def test_commands_are_marked_as_stopped
@@ -87,7 +87,7 @@ module Urchin
 
       assert s1.stopped?
       assert s2.stopped?
-      assert_not_equal s1.pid, Terminal.tcgetpgrp(0)
+      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
     end
 
     def test_start_in_background
@@ -106,7 +106,7 @@ module Urchin
 
       assert s1.running?
       assert s2.running?
-      assert_not_equal s1.pid, Terminal.tcgetpgrp(0)
+      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
       # ensure the processes are reaped
       sleep 0.2
@@ -127,7 +127,7 @@ module Urchin
       end
       sleep 0.1
 
-      assert_not_equal s1.pid, Terminal.tcgetpgrp(0)
+      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
       job.foreground!
       assert s1.completed?
       assert s2.completed?
