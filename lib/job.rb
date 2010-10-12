@@ -15,6 +15,7 @@ module Urchin
       @commands = commands
       @shell = shell
       @pgid = nil
+      @terminal_modes = Termios.tcgetattr(STDIN)
     end
 
     # Checks that every Command is able to be run in a child process.
@@ -120,11 +121,17 @@ module Urchin
     def foreground!
       Termios.tcsetpgrp(STDIN, Process.getpgid(@pgid))
       Process.kill("-CONT", Process.getpgid(@pgid))
+      Termios.tcsetattr(STDIN, Termios::TCSANOW, @terminal_modes)
 
       commands = @commands.find_all { |command| !command.completed? }
       commands.map { |command| command.running! }
 
       reap_children
+
+      # Move the shell back to the foreground.
+      Termios.tcsetpgrp(STDIN, Process.getpgrp)
+      @terminal_modes = Termios.tcgetattr(STDIN)
+      Termios.tcsetattr(STDIN, Termios::TCSANOW, @shell.terminal_modes)
     end
 
     # Collect and process child status changes.
@@ -150,9 +157,6 @@ module Urchin
       elsif flags == Process::WUNTRACED
         @status = :stopped
       end
-
-      # Move the shell back to the foreground.
-      Termios.tcsetpgrp(STDIN, Process.getpgrp)
     end
   end
 end

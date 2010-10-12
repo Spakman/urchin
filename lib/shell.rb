@@ -9,12 +9,13 @@ require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 
 module Urchin
   class Shell
-    attr_reader :job_table
+    attr_reader :job_table, :terminal_modes
 
     def initialize
       @job_table = JobTable.new
       @parser = Parser.new(self)
       define_sigchld_handler
+      @terminal_modes = Termios.tcgetattr(STDIN)
     end
 
     def run(command_string)
