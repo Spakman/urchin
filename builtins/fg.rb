@@ -18,7 +18,11 @@ module Urchin
 
       def execute
         valid_arguments?
-        @job_table.last_job.foreground!
+        if job = @job_table.last_job
+          job.foreground!
+        else
+          raise UrchinRuntimeError.new("No current job.")
+        end
       end
     end
   end

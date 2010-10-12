@@ -27,7 +27,6 @@ module Urchin
       @jobs.map { |id, j| "[#{id}] #{j.status}     #{j.title}" }.join("\n")
     end
 
-    # TODO: only get a stopped job.
     def last_job
       job = nil
       index = 0
