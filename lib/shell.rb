@@ -51,7 +51,7 @@ module Urchin
 
     def define_sigchld_handler
       Signal.trap :CHLD do
-        @job_table.jobs.each do |id, job|
+        @job_table.jobs.each do |job|
           job.reap_children Process::WNOHANG
         end
       end

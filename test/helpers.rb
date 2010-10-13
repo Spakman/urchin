@@ -9,6 +9,12 @@ end
 
 module Urchin
   module TestHelpers
+
+    class JobForTest
+      attr_accessor :foreground, :id
+      def foreground!; @foreground = true; end
+    end
+
     def teardown
       FileUtils.rm_r("/tmp/urchin.test_unit", :force => true)
     end

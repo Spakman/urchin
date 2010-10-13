@@ -6,12 +6,6 @@ require "#{File.dirname(__FILE__)}/../../builtins/jobs"
 
 module Urchin
   module Builtins
-
-    class JobForFgTest
-      attr_accessor :foreground
-      def foreground!; @foreground = true; end
-    end
-
     class FgTestCase < Test::Unit::TestCase
       include TestHelpers
 
@@ -28,7 +22,7 @@ module Urchin
 
       def test_execute_backgrounded_job
         job_table = JobTable.new
-        job = JobForFgTest.new
+        job = JobForTest.new
         job_table.insert job
         assert_nothing_raised { Fg.new(job_table).execute }
         assert job.foreground

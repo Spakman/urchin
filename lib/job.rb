@@ -9,6 +9,7 @@ module Urchin
 
   # Encapsulates a pipeline, which consists of one or more commands.
   class Job
+    attr_accessor :id
     attr_reader :pgid, :status, :title
 
     def initialize(commands, shell)

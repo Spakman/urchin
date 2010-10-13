@@ -10,32 +10,29 @@ module Urchin
     attr_reader :jobs
 
     def initialize
-      @jobs = {}
+      @jobs = []
       @index = 1
     end
 
     def insert(job)
-      @jobs[@index] = job
-      @index += 1
+      job.id = get_job_id
+      @jobs << job
+    end
+
+    def get_job_id
+      if @jobs.empty?
+        1
+      else
+        @jobs.last.id + 1
+      end
     end
 
     def delete(job)
-      @jobs.delete_if { |id, j| j == job }
+      @jobs.delete job
     end
 
     def to_s
-      @jobs.map { |id, j| "[#{id}] #{j.status}     #{j.title}" }.join("\n")
-    end
-
-    def last_job
-      job = nil
-      index = 0
-      @jobs.each do |id, j|
-        if id > index
-          job = j
-        end
-      end
-      job
+      @jobs.map { |job| "[#{job.id}] #{job.status}     #{job.title}" }.join("\n")
     end
   end
 end
