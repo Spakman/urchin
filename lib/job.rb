@@ -121,8 +121,8 @@ module Urchin
     # Move this process group to the foreground.
     def foreground!
       Termios.tcsetpgrp(STDIN, Process.getpgid(@pgid))
+      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
       Process.kill("-CONT", Process.getpgid(@pgid))
-      Termios.tcsetattr(STDIN, Termios::TCSANOW, @terminal_modes)
 
       commands = @commands.find_all { |command| !command.completed? }
       commands.map { |command| command.running! }
@@ -132,7 +132,7 @@ module Urchin
       # Move the shell back to the foreground.
       Termios.tcsetpgrp(STDIN, Process.getpgrp)
       @terminal_modes = Termios.tcgetattr(STDIN)
-      Termios.tcsetattr(STDIN, Termios::TCSANOW, @shell.terminal_modes)
+      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @shell.terminal_modes)
     end
 
     # Collect and process child status changes.
