@@ -44,5 +44,13 @@ module Urchin
       @job_table.delete job
       assert_equal 2, @job_table.get_job_id
     end
+
+    def test_find_by_id
+      @job_table.insert JobForTest.new
+      job = JobForTest.new
+      @job_table.insert job
+      @job_table.insert JobForTest.new
+      assert_equal job, @job_table.find_by_id(2)
+    end
   end
 end

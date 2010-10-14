@@ -11,14 +11,21 @@ module Urchin
       include Methods
 
       def valid_arguments?
-        unless @arguments.empty?
+        if @arguments.size == 1
+          if @arguments.first =~ /^%(\d+)$/
+            @job_id = $1.to_i
+          else
+            raise UrchinRuntimeError.new("Argument doesn't look right.")
+          end
+        elsif @arguments.size > 1
           raise UrchinRuntimeError.new("Too many arguments.")
         end
       end
 
       def execute
         valid_arguments?
-        if job = @job_table.jobs.last
+        job = @job_id ? @job_table.find_by_id(@job_id) : @job_table.jobs.last
+        if job
           job.foreground!
         else
           raise UrchinRuntimeError.new("No current job.")
