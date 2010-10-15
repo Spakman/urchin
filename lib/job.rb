@@ -118,6 +118,13 @@ module Urchin
       @start_in_background
     end
 
+    def background!
+      Process.kill("-CONT", Process.getpgid(@pgid))
+      commands = @commands.find_all { |command| !command.completed? }
+      commands.map { |command| command.running! }
+      @status = :running
+    end
+
     # Move this process group to the foreground.
     def foreground!
       Termios.tcsetpgrp(STDIN, Process.getpgid(@pgid))

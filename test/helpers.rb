@@ -11,8 +11,9 @@ module Urchin
   module TestHelpers
 
     class JobForTest
-      attr_accessor :foreground, :id
+      attr_accessor :foreground, :background, :id
       def foreground!; @foreground = true; end
+      def background!; @background = true; end
     end
 
     def teardown

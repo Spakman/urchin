@@ -74,7 +74,7 @@ module Urchin
 
       assert_equal Process.getpgid(job.pgid), Process.getpgid(job.commands.last.pid)
       assert_equal job.pgid, Process.getpgid(job.commands.last.pid)
-      assert_not_equal Process.getpgrp, Process.getpgid(job.commands.last.pid)
+      assert_not_equal Process.getpgrp, job.pgid
 
       # ensure the Job process group is in the foreground
       assert_equal job.pgid, Termios.tcgetpgrp(STDIN)
@@ -85,7 +85,7 @@ module Urchin
       assert_equal Process.pid, Termios.tcgetpgrp(STDIN)
     end
 
-    def test_commands_are_marked_as_stopped
+    def test_job_is_stopped
       s1 = Command.create("sleep", @job_table)
       s1.append_argument "1"
       s2 = Command.create("sleep", @job_table)
@@ -103,8 +103,31 @@ module Urchin
       Process.kill("-TSTP", job.pgid)
       sleep 0.1
 
+      assert_equal :stopped, job.status
       assert s1.stopped?
       assert s2.stopped?
+      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+    end
+
+    def test_background
+      s1 = Command.create("sleep", @job_table)
+      s1.append_argument "1"
+      s2 = Command.create("sleep", @job_table)
+      s2.append_argument "1"
+
+      job = Job.new([ s1, s2 ], @shell)
+      Thread.new do
+        job.run
+      end
+      sleep 0.1
+
+      Process.kill("-TSTP", job.pgid)
+      sleep 0.1
+
+      job.background!
+      assert_equal :running, job.status
+      assert s1.running?
+      assert s2.running?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
     end
 
