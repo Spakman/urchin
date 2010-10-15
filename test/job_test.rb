@@ -199,8 +199,8 @@ module Urchin
     end
 
     def test_terminal_modes_are_saved_and_restored
-      man = Command.new("man")
-      man.append_argument "man"
+      man = Command.new("less")
+      man.append_argument File.dirname(__FILE__)
 
       job = Job.new([ man ], @shell)
       Thread.new do
