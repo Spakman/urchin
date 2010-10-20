@@ -103,7 +103,7 @@ module Urchin
       end
 
       @shell.job_table.insert self
-      @status = :running
+      running!
 
       unless start_in_background?
         foreground!
@@ -118,11 +118,11 @@ module Urchin
       @start_in_background
     end
 
+    # Run this process group in the background.
     def background!
       Process.kill("-CONT", Process.getpgid(@pgid))
-      commands = @commands.find_all { |command| !command.completed? }
-      commands.map { |command| command.running! }
-      @status = :running
+      run_remaining_commands
+      running!
     end
 
     # Move this process group to the foreground.
@@ -131,12 +131,11 @@ module Urchin
       Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
       Process.kill("-CONT", Process.getpgid(@pgid))
 
-      commands = @commands.find_all { |command| !command.completed? }
-      commands.map { |command| command.running! }
-
+      run_remaining_commands
       reap_children
 
-      # Move the shell back to the foreground.
+      # Move the shell back to the foreground now that the job is stopped or
+      # completed.
       Termios.tcsetpgrp(STDIN, Process.getpgrp)
       @terminal_modes = Termios.tcgetattr(STDIN)
       Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @shell.terminal_modes)
@@ -148,8 +147,7 @@ module Urchin
     # for children and with Process::WNOHANG by the SIGCHLD handler in Shell,
     # which catches exiting commands that are part of background jobs.
     def reap_children(flags = Process::WUNTRACED)
-      commands = @commands.find_all { |command| command.running? }
-      commands.each do |command|
+      running_commands.each do |command|
         pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
         if pid
           if status.stopped?
@@ -160,11 +158,43 @@ module Urchin
         end
       end
 
-      if @commands.find_all { |c| !c.completed? }.empty?
+      if uncompleted_commands.empty?
+        # All of the commands are completed so we must be done.
         @shell.job_table.delete self
       elsif flags == Process::WUNTRACED
-        @status = :stopped
+        # We were also collecting status information for stopped processes, so
+        # we must be stopped.
+        stopped!
       end
+    end
+
+    def uncompleted_commands
+      @commands.find_all { |command| !command.completed? }
+    end
+
+    def running_commands
+      @commands.find_all { |command| command.running? }
+    end
+
+    # Mark all the uncompleted commands as running.
+    def run_remaining_commands
+      uncompleted_commands.map { |command| command.running! }
+    end
+
+    def running!
+      @status = :running
+    end
+
+    def stopped!
+      @status = :stopped
+    end
+
+    def running?
+      @status == :running
+    end
+
+    def stopped?
+      @status == :stopped
     end
   end
 end
