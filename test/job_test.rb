@@ -58,6 +58,7 @@ module Urchin
       # For some reason test/unit always seems to have a pipe open, which is
       # irritating when you're testing that pipes are closed!
       assert_equal 4, (Dir.entries("/dev/fd/") - [ ".", ".." ]).size
+      assert_raises(Errno::ECHILD) { Process.wait }
     end
 
     def test_processes_are_put_in_correct_process_group
@@ -79,10 +80,13 @@ module Urchin
       # ensure the Job process group is in the foreground
       assert_equal job.pgid, Termios.tcgetpgrp(STDIN)
 
-      sleep 0.5
+      until s1.completed? && s2.completed?
+        sleep 0.1
+      end
 
       # ensure this process is back in the foreground
-      assert_equal Process.pid, Termios.tcgetpgrp(STDIN)
+      assert_equal Process.getpgrp, Termios.tcgetpgrp(STDIN)
+      assert_raises(Errno::ECHILD) { Process.wait }
     end
 
     def test_job_is_stopped
@@ -101,12 +105,17 @@ module Urchin
       assert s2.running?
 
       Process.kill("-TSTP", job.pgid)
-      sleep 0.1
+      sleep 0.2
 
       assert job.stopped?
       assert s1.stopped?
       assert s2.stopped?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+
+    ensure
+      Process.kill("-CONT", job.pgid)
+      Process.wait rescue Errno::ECHILD
+      Process.wait rescue Errno::ECHILD
     end
 
     def test_background
@@ -129,13 +138,18 @@ module Urchin
       assert s1.running?
       assert s2.running?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+
+    ensure
+      Process.kill("-CONT", job.pgid)
+      Process.wait rescue Errno::ECHILD
+      Process.wait rescue Errno::ECHILD
     end
 
     def test_start_in_background
       s1 = Command.create("sleep", @job_table)
-      s1.append_argument "0.2"
+      s1.append_argument "0.5"
       s2 = Command.create("sleep", @job_table)
-      s2.append_argument "0.2"
+      s2.append_argument "0.5"
 
       job = Job.new([ s1, s2 ], @shell)
       job.start_in_background!
@@ -148,10 +162,15 @@ module Urchin
       assert s2.running?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
-      # ensure the processes are reaped
-      sleep 0.2
+      # check the processes are reaped
+      sleep 0.5
+      assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
       assert s2.completed?
+
+    ensure
+      Process.wait rescue Errno::ECHILD
+      Process.wait rescue Errno::ECHILD
     end
 
     def test_foreground
@@ -169,8 +188,13 @@ module Urchin
 
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
       job.foreground!
+      assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
       assert s2.completed?
+
+    ensure
+      Process.wait rescue Errno::ECHILD
+      Process.wait rescue Errno::ECHILD
     end
 
     def test_validate_pipline
