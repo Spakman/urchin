@@ -3,6 +3,7 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 require "optparse"
 require "#{File.dirname(__FILE__)}/lib/shell"
 

@@ -16,7 +16,7 @@ module Urchin
         pid = fork do
           command.execute
         end
-        sleep 0.1
+        Process.wait pid
       end
 
       assert_equal "123", output.chomp

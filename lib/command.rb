@@ -13,11 +13,11 @@ module Urchin
 
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
-      builtin_constant = executable.capitalize
-      if Builtins.constants.include? builtin_constant
-        Builtins.const_get(builtin_constant.to_sym).new(job_table)
-      else
+      constant = executable.capitalize
+      if(Builtins.constants & [ constant, constant.to_sym ]).empty?
         new executable
+      else
+        Builtins.const_get(constant.to_sym).new(job_table)
       end
     end
 

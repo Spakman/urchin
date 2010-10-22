@@ -2,7 +2,8 @@
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"
 
-require "#{File.dirname(__FILE__)}/../builtins/cd"
+$LOAD_PATH << "#{File.expand_path(File.dirname(__FILE__))}/../"
+
 Dir.glob("builtins/*.rb").each do |path|
   require path
 end
