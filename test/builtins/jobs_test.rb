@@ -12,7 +12,7 @@ module Urchin
       def test_validate_arguments
         jobs = Jobs.new(JobTable.new)
         assert_nothing_raised { jobs.valid_arguments? }
-        jobs.append_arguments [ "--hello" ]
+        jobs << "--hello"
         assert_raises(UrchinRuntimeError) { jobs.valid_arguments? }
       end
 

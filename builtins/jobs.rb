@@ -10,7 +10,7 @@ module Urchin
       include Methods
 
       def valid_arguments?
-        unless @arguments.empty?
+        unless @args.empty?
           raise UrchinRuntimeError.new("Too many arguments.")
         end
       end

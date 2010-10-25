@@ -77,7 +77,7 @@ module Urchin
         command_strings.each do |command_string|
           args = command_string.split(" ").map { |a| a.strip }
           command = Command.create(args.shift, @shell.job_table)
-          command.append_arguments args
+          args.map { |arg| command << arg } 
           commands << command
         end
 

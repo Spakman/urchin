@@ -13,9 +13,9 @@ module Urchin
       def test_validate_arguments
         jobs = Fg.new(JobTable.new)
         assert_nothing_raised { jobs.valid_arguments? }
-        jobs.append_arguments [ "--hello" ]
+        jobs << "--hello"
         assert_raises(UrchinRuntimeError) { jobs.valid_arguments? }
-        jobs.append_arguments [ "--hello" ]
+        jobs << "--hello"
         assert_raises(UrchinRuntimeError) { jobs.valid_arguments? }
       end
 
@@ -38,8 +38,7 @@ module Urchin
         job_table.insert job
         job_table.insert JobForTest.new
 
-        fg = Fg.new(job_table)
-        fg.append_arguments [ "%1" ]
+        fg = Fg.new(job_table) << "%1"
 
         assert_nothing_raised { fg.execute }
         assert job.foreground

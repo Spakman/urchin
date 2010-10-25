@@ -17,11 +17,10 @@ module Urchin
       def test_validate_arguments
         assert_nothing_raised { Cd.new(JobTable.new).valid_arguments? }
 
-        cd = Cd.new(JobTable.new)
-        cd.append_arguments [ "/" ]
+        cd = Cd.new(JobTable.new) << "/"
         assert_nothing_raised { cd.valid_arguments? }
 
-        cd.append_arguments [ "/another" ]
+        cd << "/another"
         assert_raises(UrchinRuntimeError) { cd.valid_arguments? }
       end
 
@@ -32,15 +31,13 @@ module Urchin
       end
 
       def test_one_parameter
-        cd = Cd.new(JobTable.new)
-        cd.append_arguments [ "/" ]
+        cd = Cd.new(JobTable.new) << "/"
         assert_nothing_raised { cd.execute }
         assert_equal "/", Dir.getwd
       end
 
       def test_permission_denied
-        cd = Cd.new(JobTable.new)
-        cd.append_arguments [ "/root" ]
+        cd = Cd.new(JobTable.new) << "/root"
         assert_raises(UrchinRuntimeError) { cd.execute }
       end
     end

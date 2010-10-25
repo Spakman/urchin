@@ -8,12 +8,13 @@ module Urchin
   module Builtins
     module Methods
       def initialize(job_table)
-        @arguments = []
+        @args = []
         @job_table = job_table
       end
 
-      def append_arguments(args)
-        @arguments += args
+      def <<(arg)
+        @args << arg
+        self
       end
     end
   end

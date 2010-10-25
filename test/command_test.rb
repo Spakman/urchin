@@ -8,10 +8,14 @@ module Urchin
 
     include TestHelpers
 
+    class Urchin::Command
+      attr_reader :args
+    end
+
     def test_executing_a_command
       output = with_redirected_output do
         command = Command.create("echo", JobTable.new)
-        command.append_argument "123"
+        command << "123"
 
         pid = fork do
           command.execute
@@ -29,8 +33,14 @@ module Urchin
 
     def test_to_s
       command = Command.create("sleep", JobTable.new)
-      command.append_argument "20"
+      command << "20"
       assert_equal "sleep 20", command.to_s
+    end
+
+    def test_appending_an_argument_returns_self
+      command = Command.create("sleep", JobTable.new)
+      assert_equal command, command << "--hello"
+      assert_equal 1, command.args.size
     end
   end
 end

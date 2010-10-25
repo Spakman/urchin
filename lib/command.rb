@@ -21,12 +21,9 @@ module Urchin
       end
     end
 
-    def append_argument(argument)
+    def <<(argument)
       @args << argument
-    end
-
-    def append_arguments(arguments)
-      @args += arguments
+      self
     end
 
     def execute

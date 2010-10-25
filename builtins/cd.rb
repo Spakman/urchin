@@ -10,17 +10,17 @@ module Urchin
       include Methods
 
       def valid_arguments?
-        if @arguments.size > 1
+        if @args.size > 1
           raise UrchinRuntimeError.new("Too many arguments.")
-        elsif @arguments.empty?
-          @arguments << ENV['HOME']
+        elsif @args.empty?
+          @args << ENV['HOME']
         end
       end
 
       def execute
         valid_arguments?
         begin
-          Dir.chdir @arguments.first
+          Dir.chdir @args.first
         rescue Errno::EACCES
           raise UrchinRuntimeError.new("Permission denied.")
         end

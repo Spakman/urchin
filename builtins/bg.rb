@@ -11,13 +11,13 @@ module Urchin
       include Methods
 
       def valid_arguments?
-        if @arguments.size == 1
-          if @arguments.first =~ /^%(\d+)$/
+        if @args.size == 1
+          if @args.first =~ /^%(\d+)$/
             @job_id = $1.to_i
           else
             raise UrchinRuntimeError.new("Argument doesn't look right.")
           end
-        elsif @arguments.size > 1
+        elsif @args.size > 1
           raise UrchinRuntimeError.new("Too many arguments.")
         end
       end

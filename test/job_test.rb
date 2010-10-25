@@ -36,17 +36,11 @@ module Urchin
     end
 
     def test_job_pipeline_has_correct_output_and_closes_pipes
-      cat = Command.create("cat", @job_table)
-      grep = Command.create("grep", @job_table)
-      wc = Command.create("wc", @job_table)
+      cat = Command.create("cat", @job_table) << "COPYING" << "README"
+      grep = Command.create("grep", @job_table) << "-i" << "copyright"
+      wc = Command.create("wc", @job_table) << "-l"
 
       output = with_redirected_output do
-        cat.append_argument "COPYING"
-        cat.append_argument "README"
-        grep.append_argument "-i"
-        grep.append_argument "copyright"
-        wc.append_argument "-l"
-
         job = Job.new([ cat, grep , wc ], @shell)
         job.run
       end
@@ -62,10 +56,8 @@ module Urchin
     end
 
     def test_processes_are_put_in_correct_process_group
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "0.2"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "0.2"
+      s1 = Command.create("sleep", @job_table) << "0.2"
+      s2 = Command.create("sleep", @job_table) << "0.2"
 
       job = Job.new([ s1, s2 ], @shell)
       Thread.new do
@@ -90,10 +82,8 @@ module Urchin
     end
 
     def test_job_is_stopped
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "1"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "1"
+      s1 = Command.create("sleep", @job_table) << "1"
+      s2 = Command.create("sleep", @job_table) << "1"
 
       job = Job.new([ s1, s2 ], @shell)
       Thread.new do
@@ -119,10 +109,8 @@ module Urchin
     end
 
     def test_background
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "1"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "1"
+      s1 = Command.create("sleep", @job_table) << "1"
+      s2 = Command.create("sleep", @job_table) << "1"
 
       job = Job.new([ s1, s2 ], @shell)
       Thread.new do
@@ -146,10 +134,8 @@ module Urchin
     end
 
     def test_start_in_background
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "0.5"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "0.5"
+      s1 = Command.create("sleep", @job_table) << "0.5"
+      s2 = Command.create("sleep", @job_table) << "0.5"
 
       job = Job.new([ s1, s2 ], @shell)
       job.start_in_background!
@@ -174,10 +160,8 @@ module Urchin
     end
 
     def test_foreground
-      s1 = Command.create("sleep", @job_table)
-      s1.append_argument "0.2"
-      s2 = Command.create("sleep", @job_table)
-      s2.append_argument "0.2"
+      s1 = Command.create("sleep", @job_table) << "0.2"
+      s2 = Command.create("sleep", @job_table) << "0.2"
 
       job = Job.new([ s1, s2 ], @shell)
       job.start_in_background!
@@ -223,8 +207,7 @@ module Urchin
     end
 
     def test_terminal_modes_are_saved_and_restored
-      man = Command.new("less")
-      man.append_argument File.dirname(__FILE__)
+      man = Command.new("less") << File.expand_path(File.dirname(__FILE__))
 
       job = Job.new([ man ], @shell)
       Thread.new do
