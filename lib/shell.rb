@@ -32,6 +32,9 @@ module Urchin
       end
     end
 
+    # Starts the command line processing loop.
+    #
+    # TODO: nicer history management.
     def run_interactively
       begin
         while input = Readline.readline(prompt)
@@ -49,6 +52,9 @@ module Urchin
       "\e[0;36m[\e[1;32m#{Process.pid}\e[0;36m]\033[0m% "
     end
 
+    # Foreground child processes can also be caught by the
+    # Job itself, but we need to add this here to ensure
+    # there are no zombies.
     def define_sigchld_handler
       Signal.trap :CHLD do
         @job_table.jobs.each do |job|

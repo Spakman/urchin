@@ -4,14 +4,11 @@
 
 module Urchin
   # Stores the list of running and suspended jobs along with job IDs.
-  #
-  # TODO: create smarter IDs.
   class JobTable
     attr_reader :jobs
 
     def initialize
       @jobs = []
-      @index = 1
     end
 
     def insert(job)
@@ -32,11 +29,11 @@ module Urchin
     end
 
     def to_s
-      @jobs.map { |job| "[#{job.id}] #{job.status}     #{job.title}" }.join("\n")
+      @jobs.map { |j| "[#{j.id}] #{j.status}     #{j.title}" }.join("\n")
     end
 
     def find_by_id(id)
-      @jobs.find { |job| job.id == id }
+      @jobs.find { |j| j.id == id }
     end
   end
 end

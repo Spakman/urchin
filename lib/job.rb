@@ -92,22 +92,15 @@ module Urchin
 
         fork_and_exec(command, nextin, nextout)
 
-        if nextin != STDIN
-          nextin.close
-        end
-        if nextout != STDOUT
-          nextout.close
-        end
-
+        nextin.close if nextin != STDIN
+        nextout.close if nextout != STDOUT
         nextin = pipe.first
       end
 
       @shell.job_table.insert self
-      running!
 
-      unless start_in_background?
-        foreground!
-      end
+      running!
+      foreground! unless start_in_background?
     end
 
     def start_in_background!
@@ -121,8 +114,7 @@ module Urchin
     # Run this process group in the background.
     def background!
       Process.kill("-CONT", Process.getpgid(@pgid))
-      run_remaining_commands
-      running!
+      mark_as_running!
     end
 
     # Move this process group to the foreground.
@@ -131,8 +123,8 @@ module Urchin
       Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
       Process.kill("-CONT", Process.getpgid(@pgid))
 
-      run_remaining_commands
-      reap_children
+      mark_as_running!
+      reap_children # This call blocks until the running children change state.
 
       # Move the shell back to the foreground now that the job is stopped or
       # completed.
@@ -169,16 +161,17 @@ module Urchin
     end
 
     def uncompleted_commands
-      @commands.find_all { |command| !command.completed? }
+      @commands.find_all { |c| !c.completed? }
     end
 
     def running_commands
-      @commands.find_all { |command| command.running? }
+      @commands.find_all { |c| c.running? }
     end
 
-    # Mark all the uncompleted commands as running.
-    def run_remaining_commands
-      uncompleted_commands.map { |command| command.running! }
+    # Mark this job and all the uncompleted commands as running.
+    def mark_as_running!
+      uncompleted_commands.map { |c| c.running! }
+      running!
     end
 
     def running!
