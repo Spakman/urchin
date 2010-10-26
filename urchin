@@ -21,10 +21,6 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-# If we are not the controlling process, we won't be able to set the foreground
-# process group unless we ignore or block SIGTTOU.
-Signal.trap :TTOU, "IGNORE"
-
 Dir.glob("builtins/*.rb").each do |path|
   require path
 end
@@ -32,10 +28,5 @@ end
 if options[:command_string]
   Urchin::Shell.new.run(options[:command_string])
 else
-  # TODO: ensure we are the foreground job before starting to run interactively.
-  @shell = Urchin::Shell.new
-
-  Signal.trap :TSTP, "IGNORE"
-
-  @shell.run_interactively
+  Urchin::Shell.new.run_interactively
 end

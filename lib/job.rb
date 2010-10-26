@@ -45,12 +45,19 @@ module Urchin
 
     def fork_and_exec(command, nextin, nextout)
       pid = fork do
-        # This process belongs in the same process group as the rest of the
-        # pipeline. The process group leader is the first command.
-        @pgid = pid if @pgid.nil?
-        Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
+        if @shell.is_interactive?
+          # This process belongs in the same process group as the rest of the
+          # pipeline. The process group leader is the first command.
+          @pgid = pid if @pgid.nil?
+          Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
 
-        Signal.trap :TSTP, "DEFAULT"
+          Signal.trap :INT, "DEFAULT"
+          Signal.trap :QUIT, "DEFAULT"
+          Signal.trap :TSTP, "DEFAULT"
+          Signal.trap :TTIN, "DEFAULT"
+          Signal.trap :TTOU, "DEFAULT"
+          Signal.trap :CHLD, "DEFAULT"
+        end
 
         if nextin != STDIN
           STDIN.reopen nextin
@@ -64,16 +71,17 @@ module Urchin
         command.execute
       end
 
-      @pgid = pid if @pgid.nil?
-
       command.pid = pid
       command.running!
 
-      # Set the process group here as well as in the child process to avoid
-      # a race condition.
-      #
-      # Errno::EACCESS will be raised in whichever process loses the race.
-      Process.setpgid(pid, @pgid) rescue Errno::EACCES
+      if @shell.is_interactive?
+        # Set the process group here as well as in the child process to avoid
+        # a race condition.
+        #
+        # Errno::EACCESS will be raised in whichever process loses the race.
+        @pgid = pid if @pgid.nil?
+        Process.setpgid(pid, @pgid) rescue Errno::EACCES
+      end
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
@@ -97,10 +105,13 @@ module Urchin
         nextin = pipe.first
       end
 
-      @shell.job_table.insert self
+      @shell.job_table.insert self and running!
 
-      running!
-      foreground! unless start_in_background?
+      if @shell.is_interactive?
+        foreground! unless start_in_background?
+      else
+        reap_children
+      end
     end
 
     def start_in_background!

@@ -16,6 +16,11 @@ module Urchin
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN)
+      @interactive = false
+    end
+
+    def is_interactive?
+      @interactive
     end
 
     def run(command_string)
@@ -36,6 +41,7 @@ module Urchin
     #
     # TODO: nicer history management.
     def run_interactively
+      setup_interactivity
       begin
         while input = Readline.readline(prompt)
           next if input.empty?
@@ -46,6 +52,37 @@ module Urchin
         puts "^C"
         retry
       end
+    end
+
+    # Ensures the Shell is in the foreground and ignores job-control signals so
+    # it can perform job control itself.
+    def setup_interactivity
+      unless STDIN.tty?
+        STDERR.puts "STDIN is not a TTY."
+        exit 1
+      end
+      unless STDERR.tty?
+        STDERR.puts "STDERR is not a TTY."
+        exit 1
+      end
+
+      # Ensure we are the foreground job before starting to run interactively.
+      while Termios.tcgetpgrp(STDIN) != Process.getpgrp
+        Process.kill("-TTIN", Process.getpgrp)
+      end
+
+      # Ignore interactive and job-control signals.
+      Signal.trap :INT, "IGNORE"
+      Signal.trap :QUIT, "IGNORE"
+      Signal.trap :TSTP, "IGNORE"
+      Signal.trap :TTIN, "IGNORE"
+      Signal.trap :TTOU, "IGNORE"
+
+      # Ensure we are in our own process group.
+      Process.setpgid(Process.pid, Process.pid)
+      Termios.tcsetpgrp(STDIN, Process.getpgrp)
+
+      @interactive = true
     end
 
     def prompt

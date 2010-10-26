@@ -32,6 +32,7 @@ module Urchin
 
     def setup
       @shell = Shell.new
+      @shell.setup_interactivity
       @job_table = @shell.job_table
     end
 
