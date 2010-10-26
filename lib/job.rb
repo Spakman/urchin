@@ -113,15 +113,15 @@ module Urchin
 
     # Run this process group in the background.
     def background!
-      Process.kill("-CONT", Process.getpgid(@pgid))
+      Process.kill("-CONT", @pgid)
       mark_as_running!
     end
 
     # Move this process group to the foreground.
     def foreground!
-      Termios.tcsetpgrp(STDIN, Process.getpgid(@pgid))
+      Termios.tcsetpgrp(STDIN, @pgid)
       Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
-      Process.kill("-CONT", Process.getpgid(@pgid))
+      Process.kill("-CONT", @pgid)
 
       mark_as_running!
       reap_children # This call blocks until the running children change state.
