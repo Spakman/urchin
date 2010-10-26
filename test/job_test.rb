@@ -27,12 +27,16 @@ module Urchin
 
     include TestHelpers
 
-    class Urchin::Shell; attr_reader :job_table; end
+    class Urchin::Shell
+      attr_reader :job_table
+      attr_writer :interactive
+    end
+
     class Urchin::Job; attr_reader :commands; end
 
     def setup
       @shell = Shell.new
-      @shell.setup_interactivity
+      @shell.interactive = true
       @job_table = @shell.job_table
     end
 
