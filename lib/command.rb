@@ -9,6 +9,7 @@ module Urchin
     def initialize(executable)
       @executable = executable
       @args = []
+      @redirects = []
     end
 
     # Returns a new Command or an instance of one of the classes in Builtins.
@@ -26,7 +27,21 @@ module Urchin
       self
     end
 
+    def add_redirect(from, to, mode)
+      @redirects << { :from => from, :to => to, :mode => mode }
+    end
+
+    def perform_redirects
+      @redirects.each do |redirect|
+        unless redirect[:to].respond_to? :reopen
+          redirect[:from].reopen(redirect[:to], redirect[:mode])
+        end
+        redirect[:from].reopen(redirect[:to])
+      end
+    end
+
     def execute
+      perform_redirects
       exec @executable, *@args
     end
 
