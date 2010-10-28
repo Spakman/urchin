@@ -19,6 +19,14 @@ module Urchin
       @terminal_modes = Termios.tcgetattr(STDIN)
     end
 
+    def <<(command)
+      @commands << command
+    end
+
+    def empty?
+      @commands.empty?
+    end
+
     # Checks that every Command is able to be run in a child process.
     #
     # A pipeline only fails this test when one or more of the commands are a

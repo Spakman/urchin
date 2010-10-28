@@ -3,6 +3,7 @@
 # See COPYING.
 
 require "#{File.dirname(__FILE__)}/command"
+require "strscan"
 
 module Urchin
   # Really dumb command parser for now.
@@ -63,27 +64,89 @@ module Urchin
     end
 
     def jobs_from(input)
-      input.split(";").map do |job_string|
-        background = false
-        commands = []
+      @input = StringScanner.new(input)
+      jobs = []
+      while job = parse_job
+        jobs << job
+      end
+      return jobs
+    end
 
-        command_strings = job_string.split("|")
+    def trim_space
+      @input.scan(/\s+/)
+    end
 
-        if command_strings.last.strip[-1,1] == "&"
-          background = true
-          command_strings.last.gsub!("&", "")
+    def parse_job
+      @current_job = Job.new([], @shell)
+      while !ampersand && !semi && pipe && command = parse_command
+        @current_job << command
+      end
+      @current_job unless @current_job.empty?
+    end
+
+    def pipe
+      @input.scan(/\|?/)
+    end
+
+    def ampersand
+      @input.scan(/&/)
+    end
+
+    def semi
+      @input.scan(/;/)
+    end
+
+    def parse_command
+      trim_space
+      if word = parse_word
+        command = Command.new(word)
+        while !parse_end_command && arg = parse_word
+          command << arg
         end
+        return command
+      end
+      false
+    end
 
-        command_strings.each do |command_string|
-          args = command_string.split(" ").map { |a| a.strip }
-          command = Command.create(args.shift, @shell.job_table)
-          args.map { |arg| command << arg } 
-          commands << command
+    def parse_end_command
+      trim_space
+      @input.scan(/[&|;]/)
+      case @input.matched
+      when "&"
+        @current_job.start_in_background!
+        @input.pos = @input.pointer - 1 unless @input.eos?
+        true
+      when "|", ";"
+        @input.pos = @input.pointer - 1 unless @input.eos?
+        true
+      end
+    end
+
+    def parse_string_content
+      @input.scan(/[^\\"]+/) and @input.matched
+    end
+
+    def parse_string_escape
+      if @input.scan(%r{\\["\\/]})
+        @input.matched[-1]
+      else
+        false
+      end
+    end
+
+    def parse_word
+      trim_space
+      if @input.scan(/"/)
+        word = ""
+        while contents = parse_string_content || parse_string_escape
+          word << contents
         end
-
-        job = Job.new(commands, @shell)
-        job.start_in_background! if background
-        job
+        @input.scan(/"/)
+        word
+      elsif @input.scan /[^\s|;|&]+/
+        @input.matched.strip
+      else
+        false
       end
     end
   end
