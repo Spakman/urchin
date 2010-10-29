@@ -44,6 +44,11 @@ module Urchin
   #
   #   * VAR=hello echo $VAR; echo $VAR
   #
+  #   Exit code logic:
+  #
+  #   * cd /dir && ls -l
+  #   * cd ~ms || cd ~mark
+  #
   #   Inline Ruby code:
   #
   #   * ls | ~@ p STDIN.gsub(/^*\..*/, "") @~ | tail
