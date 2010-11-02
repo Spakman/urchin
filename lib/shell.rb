@@ -72,7 +72,6 @@ module Urchin
       end
 
       # Ignore interactive and job-control signals.
-      Signal.trap :INT, "IGNORE"
       Signal.trap :QUIT, "IGNORE"
       Signal.trap :TSTP, "IGNORE"
       Signal.trap :TTIN, "IGNORE"
