@@ -8,7 +8,7 @@ module Urchin
   class Job; attr_reader :commands, :start_in_background; end
 
   class Command
-    attr_reader :executable, :args
+    attr_reader :executable, :args, :redirects
 
     def ==(object)
       if object.class == Command
@@ -56,13 +56,17 @@ module Urchin
     end
 
     def test_simple_command
-      jobs = @parser.jobs_from("ls")
+      jobs = @parser.jobs_from('ls')
       assert_equal 1, jobs.size
-      assert_equal Command.new("ls"), jobs.first.commands.first
+      assert_equal Command.new('ls'), jobs.first.commands.first
 
-      jobs = @parser.jobs_from("ls -l -a")
+      jobs = @parser.jobs_from('ls -l -a')
       assert_equal 1, jobs.size
-      assert_equal Command.new("ls") << "-l" << "-a", jobs.first.commands.first
+      assert_equal Command.new('ls') << '-l' << '-a', jobs.first.commands.first
+
+      jobs = @parser.jobs_from('echo "word" word2')
+      assert_equal 1, jobs.size
+      assert_equal Command.new('echo') << 'word' << 'word2', jobs.first.commands.first
     end
 
     def test_pipeline
@@ -111,6 +115,49 @@ module Urchin
       assert_equal Command.new("echo") << "123", jobs.last.commands.first
       assert jobs.first.start_in_background
       assert !jobs.last.start_in_background
+    end
+
+    def test_redirect_stdout
+      jobs = @parser.jobs_from("uptime > output")
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDOUT, command.redirects.first[:from]
+      assert_equal "output", command.redirects.first[:to]
+      assert_equal "w", command.redirects.first[:mode]
+    end
+
+    def test_redirect_stdout_appending
+      jobs = @parser.jobs_from("uptime >> output")
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDOUT, command.redirects.first[:from]
+      assert_equal "output", command.redirects.first[:to]
+      assert_equal "a", command.redirects.first[:mode]
+    end
+
+    def test_redirect_stdin
+      jobs = @parser.jobs_from('ruby -e "puts STDIN.read" < input')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDIN, command.redirects.first[:from]
+      assert_equal "input", command.redirects.first[:to]
+      assert_equal "r", command.redirects.first[:mode]
+    end
+
+    def test_redirect_stdin_and_stdout
+      jobs = @parser.jobs_from('ruby -e "puts STDIN.read" < input > output')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 2, command.redirects.size
+      assert_equal STDIN, command.redirects.first[:from]
+      assert_equal "input", command.redirects.first[:to]
+      assert_equal "r", command.redirects.first[:mode]
+      assert_equal STDOUT, command.redirects.last[:from]
+      assert_equal "output", command.redirects.last[:to]
+      assert_equal "w", command.redirects.last[:mode]
     end
   end
 end

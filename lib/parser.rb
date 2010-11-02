@@ -78,7 +78,7 @@ module Urchin
         job ||= Job.new([], @shell)
         if command = parse_command
           until end_of_command?
-            parse_redirects
+            parse_redirects(command)
           end
           job << command
         end
@@ -104,7 +104,20 @@ module Urchin
       @input.eos? || @input.scan(/\|/) || end_of_job?
     end
 
-    def parse_redirects
+    def parse_redirects(command)
+      if @input.scan(/^>>/)
+        if target = word
+          command.add_redirect(STDOUT, target, "a")
+        end
+      elsif @input.scan(/^>/)
+        if target = word
+          command.add_redirect(STDOUT, target, "w")
+        end
+      elsif @input.scan(/^</)
+        if target = word
+          command.add_redirect(STDIN, target, "r")
+        end
+      end
     end
 
     # Returns if this is the end of the job. Does not advance the string pointer.
@@ -142,9 +155,14 @@ module Urchin
         while part = (quoted_word_part(char) or escaped_char(char))
           output ||= ""
           output << part
+          break if end_of(char)
         end
       end
       output
+    end
+
+    def end_of(char)
+      @input.scan(/^#{char}/)
     end
 
     def quoted_word_part(char)
