@@ -4,6 +4,8 @@
 
 module Urchin
   class Command
+    private_class_method :new
+
     attr_accessor :pid
 
     def initialize(executable)

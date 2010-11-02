@@ -38,6 +38,7 @@ module Urchin
       @shell = Shell.new
       @shell.interactive = true
       @job_table = @shell.job_table
+      Urchin::Command.send(:public_class_method, :new)
     end
 
     def test_job_pipeline_has_correct_output_and_closes_pipes

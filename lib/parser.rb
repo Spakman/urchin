@@ -147,7 +147,7 @@ module Urchin
     # string. Otherwise, nil.
     def parse_command
       if ws = words
-        command = Command.new(ws.shift)
+        command = Command.create(ws.shift, @shell.job_table)
         ws.each { |word| command << word }
         return command
       end

@@ -29,6 +29,7 @@ module Urchin
   class ParserTestCase < Test::Unit::TestCase
     def setup
       @parser = Parser.new(Shell.new)
+      Urchin::Command.send(:public_class_method, :new)
     end
 
     def test_word
