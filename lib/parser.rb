@@ -104,6 +104,8 @@ module Urchin
       @input.eos? || @input.scan(/\|/) || end_of_job?
     end
 
+    # TODO: clean this up.
+    # TODO: handle arbitrary FDs.
     def parse_redirects(command)
       if @input.scan(/^>>/)
         if target = word
@@ -116,6 +118,18 @@ module Urchin
       elsif @input.scan(/^</)
         if target = word
           command.add_redirect(STDIN, target, "r")
+        end
+      elsif @input.scan(/^2>&/)
+        if word == "1"
+          command.add_redirect(STDERR, STDOUT, "w")
+        end
+      elsif @input.scan(/^2>>/)
+        if target = word
+          command.add_redirect(STDERR, target, "a")
+        end
+      elsif @input.scan(/^2>/)
+        if target = word
+          command.add_redirect(STDERR, target, "w")
         end
       end
     end
@@ -170,7 +184,12 @@ module Urchin
     end
 
     def word_part
-      @input.scan(/[^&|;><\s\\]+/)
+      # Check to see if the next word part is a redirect.
+      if @input.check(/^\d+>/)
+        false
+      else
+        @input.scan(/[^&|;><\s\\]+/)
+      end
     end
 
     # Returns unescaped character that is passed, if it is next and escaped.

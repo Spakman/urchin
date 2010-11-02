@@ -159,5 +159,35 @@ module Urchin
       assert_equal "output", command.redirects.last[:to]
       assert_equal "w", command.redirects.last[:mode]
     end
+
+    def test_redirect_sterr_to_stdout
+      jobs = @parser.jobs_from('ls /root 2>&1')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDERR, command.redirects.first[:from]
+      assert_equal STDOUT, command.redirects.first[:to]
+      assert_equal "w", command.redirects.first[:mode]
+    end
+
+    def test_redirect_sterr_to_file
+      jobs = @parser.jobs_from('ls /root 2> error')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDERR, command.redirects.first[:from]
+      assert_equal "error", command.redirects.first[:to]
+      assert_equal "w", command.redirects.first[:mode]
+    end
+
+    def test_redirect_sterr_to_file_appending
+      jobs = @parser.jobs_from('ls /root 2>> error')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 1, command.redirects.size
+      assert_equal STDERR, command.redirects.first[:from]
+      assert_equal "error", command.redirects.first[:to]
+      assert_equal "a", command.redirects.first[:mode]
+    end
   end
 end
