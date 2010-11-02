@@ -6,11 +6,7 @@ require "#{File.dirname(__FILE__)}/command"
 require "strscan"
 
 module Urchin
-  # Really dumb command parser for now.
-  #
-  # TODO: implement a proper parser.
-  #
-  #   Here are some cases that it should be able to handle:
+  # TODO: handle the following:
   #
   #   Pipelines:
   #
@@ -74,85 +70,108 @@ module Urchin
       while job = parse_job
         jobs << job
       end
-      return jobs
-    end
-
-    def trim_space
-      @input.scan(/\s+/)
+      jobs
     end
 
     def parse_job
-      @current_job = Job.new([], @shell)
-      while !ampersand && !semi && pipe && command = parse_command
-        @current_job << command
-      end
-      @current_job unless @current_job.empty?
-    end
-
-    def pipe
-      @input.scan(/\|?/)
-    end
-
-    def ampersand
-      @input.scan(/&/)
-    end
-
-    def semi
-      @input.scan(/;/)
-    end
-
-    def parse_command
-      trim_space
-      if word = parse_word
-        command = Command.new(word)
-        while !parse_end_command && arg = parse_word
-          command << arg
+      until end_of_job?
+        job ||= Job.new([], @shell)
+        if command = parse_command
+          until end_of_command?
+            parse_redirects
+          end
+          job << command
         end
+      end
+      finalise_job(job) unless job.nil?
+    end
+
+    def finalise_job(job)
+      if background?
+        job.start_in_background!
+      else
+        @input.scan(/;/)
+      end
+      job
+    end
+
+    def background?
+      @input.scan(/^&/)
+    end
+
+    def end_of_command?
+      remove_space
+      @input.eos? || @input.scan(/\|/) || end_of_job?
+    end
+
+    def parse_redirects
+    end
+
+    # Returns if this is the end of the job. Does not advance the string pointer.
+    def end_of_job?
+      @input.eos? || @input.check(/^[;&]/)
+    end
+
+    def remove_space
+      @input.scan(/\s+/)
+    end
+
+    # Returns the Command object associated with the next words in the input
+    # string. Otherwise, nil.
+    def parse_command
+      if ws = words
+        command = Command.new(ws.shift)
+        ws.each { |word| command << word }
         return command
       end
       false
     end
 
-    def parse_end_command
-      trim_space
-      @input.scan(/[&|;]/)
-      case @input.matched
-      when "&"
-        @current_job.start_in_background!
-        @input.pos = @input.pointer - 1 unless @input.eos?
-        true
-      when "|", ";"
-        @input.pos = @input.pointer - 1 unless @input.eos?
-        true
+    # Returns a single word if it is next in the input string. Otherwise, nil.
+    def word
+      remove_space
+      while part = (word_part or escaped_char)
+        output ||= ""
+        output << part
       end
+      output
     end
 
-    def parse_string_content
-      @input.scan(/[^\\"]+/) and @input.matched
-    end
-
-    def parse_string_escape
-      if @input.scan(%r{\\["\\/]})
-        @input.matched[-1]
-      else
-        false
-      end
-    end
-
-    def parse_word
-      trim_space
-      if @input.scan(/"/)
-        word = ""
-        while contents = parse_string_content || parse_string_escape
-          word << contents
+    def quoted_word
+      if char = @input.scan(/^["']/)
+        while part = (quoted_word_part(char) or escaped_char(char))
+          output ||= ""
+          output << part
         end
-        @input.scan(/"/)
-        word
-      elsif @input.scan /[^\s|;|&]+/
-        @input.matched.strip
-      else
-        false
       end
+      output
+    end
+
+    def quoted_word_part(char)
+      @input.scan(/[^\\#{char}]+/)
+    end
+
+    def word_part
+      @input.scan(/[^&|;><\s\\]+/)
+    end
+
+    # Returns unescaped character that is passed, if it is next and escaped.
+    def escaped_char(char = '.')
+      if escaped = @input.scan(/^\\#{char}/)
+        return escaped[1,1]
+      end
+      false
+    end
+
+    # Returns an array of the next words or nil.
+    def words
+      remove_space
+      while w = (quoted_word or word)
+        words ||= []
+        words << w
+        remove_space
+      end
+      return words
     end
   end
 end

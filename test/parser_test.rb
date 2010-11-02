@@ -31,21 +31,28 @@ module Urchin
       @parser = Parser.new(Shell.new)
     end
 
-    def test_parse_word
-      @parser.setup "ls"
-      assert_equal "ls", @parser.parse_word
-      @parser.setup "  --help"
-      assert_equal "--help", @parser.parse_word
-      @parser.setup "ls "
-      assert_equal "ls", @parser.parse_word
-      @parser.setup " -la "
-      assert_equal "-la", @parser.parse_word
-      @parser.setup '"/usr/bin/ls"'
-      assert_equal "/usr/bin/ls", @parser.parse_word
+    def test_word
+      @parser.setup 'ls'
+      assert_equal 'ls', @parser.word
+      @parser.setup '  --help'
+      assert_equal '--help', @parser.word
+      @parser.setup 'ls '
+      assert_equal 'ls', @parser.word
+      @parser.setup ' -la '
+      assert_equal '-la', @parser.word
+      @parser.setup '/usr/bin/ls'
+      assert_equal '/usr/bin/ls', @parser.word
+    end
+
+    def test_words
+      @parser.setup 'two words'
+      assert_equal %w{ two words }, @parser.words
       @parser.setup '"two words"'
-      assert_equal "two words", @parser.parse_word
+      assert_equal [ 'two words' ], @parser.words
       @parser.setup '"a \"quote\" and stuff"'
-      assert_equal 'a "quote" and stuff', @parser.parse_word
+      assert_equal [ 'a "quote" and stuff' ], @parser.words
+      @parser.setup 'find . -name hello.* -exec chmod 660 {} \;'
+      assert_equal %w{ find . -name hello.* -exec chmod 660 \{\} ; }, @parser.words
     end
 
     def test_simple_command
