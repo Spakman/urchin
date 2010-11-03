@@ -4,7 +4,48 @@ Urchin
 A Unix shell for Ruby programmers. Regard this as very incomplete and
 experimental for now!
 
+
 Authors
 ===
 
 Mark Somerville <mark@scottishclimbs.com>
+
+
+What works?
+===
+
+Pipelines:
+
+	ls -la | head -n2
+
+Redirecting STDOUT, STDIN, STDERR:
+
+	uptime > output
+	uptime >> output
+	ruby -e 'puts STDIN.read; STDERR.puts 33' < source > out_and_err 2>&1
+
+Backgrounding jobs:
+
+	sleep 60 &
+
+Multiple jobs:
+
+	sleep 60 & man sleep
+
+	sleep 60; echo "it's over"
+
+Quoted and unquoted parameters:
+
+	grep -r '"hello"' .
+	grep -r "\"hello\"" .
+	ls my\ annoyingly\ named\ dir
+	find . -name 'hello' -exec chmod 660 {} \;
+
+Job control (uses fg, bg and jobs builtins).
+
+
+What doesn't work yet?
+===
+
+Globbing, brace expansion, exit code logic, environment variables... (you get
+the idea).
