@@ -90,7 +90,7 @@ module Urchin
       if background?
         job.start_in_background!
       else
-        @input.scan(/;/)
+        @input.scan(/^;/)
       end
       job
     end
@@ -101,7 +101,7 @@ module Urchin
 
     def end_of_command?
       remove_space
-      @input.eos? || @input.scan(/\|/) || end_of_job?
+      @input.eos? || @input.scan(/^\|/) || end_of_job?
     end
 
     # TODO: clean this up.
@@ -140,7 +140,7 @@ module Urchin
     end
 
     def remove_space
-      @input.scan(/\s+/)
+      @input.scan(/^\s+/)
     end
 
     # Returns the Command object associated with the next words in the input
@@ -188,7 +188,7 @@ module Urchin
       if @input.check(/^\d+>/)
         false
       else
-        @input.scan(/[^&|;><\s\\]+/)
+        @input.scan(/^[^&|;><\s\\]+/)
       end
     end
 
