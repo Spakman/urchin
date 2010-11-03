@@ -35,10 +35,11 @@ module Urchin
 
     def perform_redirects
       @redirects.each do |redirect|
-        unless redirect[:to].respond_to? :reopen
+        if redirect[:to].respond_to? :reopen
+          redirect[:from].reopen(redirect[:to])
+        else
           redirect[:from].reopen(redirect[:to], redirect[:mode])
         end
-        redirect[:from].reopen(redirect[:to])
       end
     end
 

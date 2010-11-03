@@ -190,5 +190,21 @@ module Urchin
       assert_equal "error", command.redirects.first[:to]
       assert_equal "a", command.redirects.first[:mode]
     end
+
+    def test_redirect_stdin_and_stdout_and_stderr
+      jobs = @parser.jobs_from('ruby -e "puts STDIN.read; STDERR.puts 33" < input > output 2>&1')
+      command = jobs.first.commands.first
+      assert_equal 1, jobs.size
+      assert_equal 3, command.redirects.size
+      assert_equal STDIN, command.redirects.first[:from]
+      assert_equal "input", command.redirects.first[:to]
+      assert_equal "r", command.redirects.first[:mode]
+      assert_equal STDOUT, command.redirects[1][:from]
+      assert_equal "output", command.redirects[1][:to]
+      assert_equal "w", command.redirects[1][:mode]
+      assert_equal STDERR, command.redirects.last[:from]
+      assert_equal STDOUT, command.redirects.last[:to]
+      assert_equal "w", command.redirects.last[:mode]
+    end
   end
 end
