@@ -67,8 +67,10 @@ module Urchin
     def jobs_from(input)
       @input = StringScanner.new(input)
       jobs = []
-      while job = parse_job
-        jobs << job
+      until @input.eos?
+        if job = parse_job
+          jobs << job
+        end
       end
       jobs
     end
@@ -83,11 +85,11 @@ module Urchin
           job << command
         end
       end
-      finalise_job(job) unless job.nil?
+      finalise_job(job)
     end
 
     def finalise_job(job)
-      if background?
+      if background? && job
         job.start_in_background!
       else
         @input.scan(/^;/)
@@ -146,12 +148,15 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
-      if ws = words
-        command = Command.create(ws.shift, @shell.job_table)
-        ws.each { |word| command << word }
+      if executable = word
+        command = Command.create(executable, @shell.job_table)
+        words.each do |arg|
+          command << arg
+        end
         return command
+      else
+        false
       end
-      false
     end
 
     # Returns a single word if it is next in the input string. Otherwise, nil.
