@@ -52,7 +52,7 @@ module Urchin
       assert_equal [ 'two words' ], @parser.words
       @parser.setup '"a \"quote\" and stuff"'
       assert_equal [ 'a "quote" and stuff' ], @parser.words
-      @parser.setup 'find . -name hello.* -exec chmod 660 {} \;'
+      @parser.setup 'find . -name "hello.*" -exec chmod 660 {} \;'
       assert_equal %w{ find . -name hello.* -exec chmod 660 \{\} ; }, @parser.words
     end
 
@@ -205,6 +205,26 @@ module Urchin
       assert_equal STDERR, command.redirects.last[:from]
       assert_equal STDOUT, command.redirects.last[:to]
       assert_equal "w", command.redirects.last[:mode]
+    end
+
+    def test_is_a_glob
+      assert @parser.is_a_glob?("*.c")
+      assert @parser.is_a_glob?("test/*.rb")
+      assert @parser.is_a_glob?("**/hello.rb")
+      assert @parser.is_a_glob?("READM?")
+      assert @parser.is_a_glob?("image.{png,jpg}")
+      assert @parser.is_a_glob?("image.{png,jpg,gif}")
+      assert @parser.is_a_glob?("image[0-9].png")
+      assert !@parser.is_a_glob?("image.png")
+      assert !@parser.is_a_glob?("[]")
+      assert !@parser.is_a_glob?("{}")
+      assert !@parser.is_a_glob?("{123}")
+    end
+
+    def test_words_from_glob
+      assert_not_empty @parser.words_from_glob("**/*.rb")
+      assert !@parser.words_from_glob(".*").include?(".")
+      assert !@parser.words_from_glob(".*").include?("..")
     end
   end
 end

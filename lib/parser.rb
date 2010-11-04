@@ -164,6 +164,23 @@ module Urchin
       output
     end
 
+    # Returns if the word is a glob pattern.
+    def is_a_glob?(word)
+      word =~ /(:? [*?] | \[.+\] | \{.+ (:? ,.+)+\} )/x
+    end
+
+    # Returns a list of words matching the glob pattern specified in word, if
+    # it is a glob pattern. Otherwise, just return an array containing word.
+    def words_from_glob(word)
+      if is_a_glob? word
+        Dir.glob(word) - [ ".", ".." ]
+      else
+        [ word ]
+      end
+    end
+
+    # Returns a quoted word that is free from quotes and escaped quote
+    # characters.
     def quoted_word
       if char = @input.scan(/^["']/)
         while part = (quoted_word_part(char) or escaped_char(char))
@@ -200,15 +217,18 @@ module Urchin
       false
     end
 
-    # Returns an array of the next words or nil.
     def words
-      remove_space
-      while w = (quoted_word or word)
-        words ||= []
-        words << w
+      words = []
+      begin
         remove_space
-      end
-      return words
+        w = nil
+        if w = quoted_word
+          words << w
+        elsif w = word
+          words += words_from_glob(w)
+        end
+      end until w.nil?
+      words
     end
   end
 end
