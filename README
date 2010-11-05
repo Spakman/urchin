@@ -41,11 +41,15 @@ Quoted and unquoted parameters:
 	ls my\ annoyingly\ named\ dir
 	find . -name 'hello' -exec chmod 660 {} \;
 
+Globbing:
+
+	ls **/*.rb
+	mv image?.{png,gif} images
+
 Job control (uses fg, bg and jobs builtins).
 
 
 What doesn't work yet?
 ===
 
-Globbing, brace expansion, exit code logic, environment variables... (you get
-the idea).
+Exit code logic, environment variables, tilde expansion... (you get the idea).
