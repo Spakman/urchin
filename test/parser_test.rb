@@ -222,15 +222,15 @@ module Urchin
     end
 
     def test_words_from_glob
-      assert_not_empty @parser.words_from_glob("**/*.rb")
+      assert !@parser.words_from_glob("**/*.rb").empty?
       assert !@parser.words_from_glob(".*").include?(".")
       assert !@parser.words_from_glob(".*").include?("..")
     end
 
     def test_empty_job
-      assert_empty @parser.jobs_from('&')
-      assert_empty @parser.jobs_from(';')
-      assert_not_empty @parser.jobs_from('; echo 1')
+      assert @parser.jobs_from('&').empty?
+      assert @parser.jobs_from(';').empty?
+      assert !@parser.jobs_from('; echo 1').empty?
       assert_equal 2, @parser.jobs_from('; echo 1;;& echo 3').size
     end
   end
