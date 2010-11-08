@@ -37,8 +37,11 @@ module Urchin
       end
 
       def test_permission_denied
-        cd = Cd.new(JobTable.new) << "/root"
+        FileUtils.mkdir("noperms", :mode => 400)
+        cd = Cd.new(JobTable.new) << "noperms"
         assert_raises(UrchinRuntimeError) { cd.execute }
+      ensure
+        FileUtils.rm_r("noperms")
       end
     end
   end
