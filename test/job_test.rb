@@ -50,7 +50,7 @@ module Urchin
         job = Job.new([ cat, grep , wc ], @shell)
         job.run
       end
-      assert_equal "31", output.chomp
+      assert_equal "31", output.strip
       assert cat.completed?
       assert grep.completed?
       assert wc.completed?
@@ -213,7 +213,7 @@ module Urchin
     end
 
     def test_terminal_modes_are_saved_and_restored
-      man = Command.new("less") << File.expand_path(File.dirname(__FILE__))
+      man = Command.new("less") << "#{File.dirname(__FILE__)}/../README"
 
       job = Job.new([ man ], @shell)
       Thread.new do
