@@ -42,6 +42,7 @@ module Urchin
       begin
         yield
       rescue Exception => exception
+        STDERR.puts exception.class
         STDERR.puts exception.message
         STDERR.puts exception.backtrace.join("\n")
       end
