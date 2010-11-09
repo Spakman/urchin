@@ -56,7 +56,7 @@ module Urchin
         if @shell.is_interactive?
           # This process belongs in the same process group as the rest of the
           # pipeline. The process group leader is the first command.
-          @pgid = pid if @pgid.nil?
+          @pgid = Process.pid if @pgid.nil?
           Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
 
           Signal.trap :INT, "DEFAULT"
