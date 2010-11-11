@@ -71,7 +71,7 @@ module Urchin
       end
       until s1.running? && s2.running?
         sleep 0.01
-      end
+      end; sleep 0.1
 
       assert_equal Process.getpgid(s1.pid), Process.getpgid(s2.pid)
       assert_equal job.pgid, Process.getpgid(s2.pid)
@@ -82,7 +82,7 @@ module Urchin
 
       until s1.completed? && s2.completed?
         sleep 0.1
-      end
+      end; sleep 0.2 # give it time to set the terminal modes
 
       # ensure this process is back in the foreground
       assert_equal Process.getpgrp, Termios.tcgetpgrp(STDIN)
@@ -111,7 +111,7 @@ module Urchin
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
     ensure
-      Process.kill("-CONT", job.pgid)
+      Process.kill("-KILL", job.pgid)
       Process.wait rescue Errno::ECHILD
       Process.wait rescue Errno::ECHILD
     end
@@ -138,7 +138,7 @@ module Urchin
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
     ensure
-      Process.kill("-CONT", job.pgid)
+      Process.kill("-KILL", job.pgid)
       Process.wait rescue Errno::ECHILD
       Process.wait rescue Errno::ECHILD
     end
@@ -225,7 +225,8 @@ module Urchin
         job.run
       end
 
-      sleep 0.01 until less.running?; sleep 0.1
+      sleep 0.01 until less.running?
+      sleep 0.2 # give it time to set the terminal modes
 
       assert_not_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
 
