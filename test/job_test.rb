@@ -235,7 +235,7 @@ module Urchin
 
       assert_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
     ensure
-      Process.kill(:TERM, job.commands.first.pid) rescue Errno::ESRCH
+      Process.kill(:KILL, less.pid) rescue Errno::ESRCH
       Process.wait rescue Errno::ECHILD
     end
   end
