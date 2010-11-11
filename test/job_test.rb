@@ -69,10 +69,12 @@ module Urchin
       Thread.new do
         job.run
       end
-      sleep 0.1
+      until s1.running? && s2.running?
+        sleep 0.01
+      end
 
-      assert_equal Process.getpgid(job.pgid), Process.getpgid(job.commands.last.pid)
-      assert_equal job.pgid, Process.getpgid(job.commands.last.pid)
+      assert_equal Process.getpgid(s1.pid), Process.getpgid(s2.pid)
+      assert_equal job.pgid, Process.getpgid(s2.pid)
       assert_not_equal Process.getpgrp, job.pgid
 
       # ensure the Job process group is in the foreground
@@ -122,10 +124,12 @@ module Urchin
       Thread.new do
         job.run
       end
-      sleep 0.1
+
+      sleep 0.01 until s1.running?; sleep 0.1
 
       Process.kill("-TSTP", job.pgid)
-      sleep 0.1
+
+      sleep 0.01 until s1.stopped?; sleep 0.1
 
       job.background!
       assert job.running?
@@ -156,6 +160,7 @@ module Urchin
 
       # check the processes are reaped
       sleep 0.5
+
       assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
       assert s2.completed?
@@ -174,7 +179,7 @@ module Urchin
       Thread.new do
         job.run
       end
-      sleep 0.1
+      sleep 0.01 until s1.running?; sleep 0.1
 
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
       job.foreground!
@@ -213,21 +218,25 @@ module Urchin
     end
 
     def test_terminal_modes_are_saved_and_restored
-      man = Command.new("less") << "#{File.dirname(__FILE__)}/../README"
+      less = Command.new("less") << "#{File.dirname(__FILE__)}/../README"
 
-      job = Job.new([ man ], @shell)
+      job = Job.new([ less ], @shell)
       Thread.new do
         job.run
       end
-      sleep 0.1
+
+      sleep 0.01 until less.running?; sleep 0.1
 
       assert_not_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
 
       Process.kill("-TSTP", job.pgid)
-      sleep 0.1
+
+      sleep 0.01 until less.stopped?; sleep 0.1
 
       assert_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
-      Process.kill(:TERM, job.commands.first.pid)
+    ensure
+      Process.kill(:TERM, job.commands.first.pid) rescue Errno::ESRCH
+      Process.wait rescue Errno::ECHILD
     end
   end
 end
