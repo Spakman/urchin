@@ -137,10 +137,13 @@ module Urchin
     end
 
     # Move this process group to the foreground.
+    #
+    # EINVAL and ESRCH are rescued because, in rare cases, process groups may
+    # have already completed before execution reaches here.
     def foreground!
-      Termios.tcsetpgrp(STDIN, @pgid)
+      Termios.tcsetpgrp(STDIN, @pgid) rescue Errno::EINVAL
       Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
-      Process.kill("-CONT", @pgid)
+      Process.kill("-CONT", @pgid) rescue Errno::ESRCH
 
       mark_as_running!
       reap_children(Process::WUNTRACED)
