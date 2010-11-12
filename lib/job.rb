@@ -118,7 +118,7 @@ module Urchin
       if @shell.is_interactive?
         foreground! unless start_in_background?
       else
-        reap_children
+        reap_children(Process::WUNTRACED)
       end
     end
 
@@ -143,7 +143,7 @@ module Urchin
       Process.kill("-CONT", @pgid)
 
       mark_as_running!
-      reap_children # This call blocks until the running children change state.
+      reap_children(Process::WUNTRACED)
 
       # Move the shell back to the foreground now that the job is stopped or
       # completed.
@@ -156,8 +156,9 @@ module Urchin
     #
     # This is called with Process::WUNTRACED when a foreground job is waiting
     # for children and with Process::WNOHANG by the SIGCHLD handler in Shell,
-    # which catches exiting commands that are part of background jobs.
-    def reap_children(flags = Process::WUNTRACED)
+    # which catches exiting commands that are part of background jobs. Flags
+    # are passed to waitpid2 directly (and can be a logical OR).
+    def reap_children(flags)
       running_commands.each do |command|
         pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
         if pid
@@ -172,7 +173,7 @@ module Urchin
       if uncompleted_commands.empty?
         # All of the commands are completed so we must be done.
         @shell.job_table.delete self
-      elsif flags == Process::WUNTRACED
+      elsif flags >= Process::WUNTRACED
         # We were also collecting status information for stopped processes, so
         # we must be stopped.
         stopped!
