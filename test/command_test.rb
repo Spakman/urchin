@@ -17,8 +17,6 @@ module Urchin
       Dir.chdir File.dirname(__FILE__)
     end
 
-    alias_method :old_teardown, :teardown
-
     def teardown
       Dir.chdir @old_dir
       old_teardown

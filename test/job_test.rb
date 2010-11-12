@@ -41,6 +41,11 @@ module Urchin
       Urchin::Command.send(:public_class_method, :new)
     end
 
+    def teardown
+      old_teardown
+      Process.waitall
+    end
+
     def test_job_pipeline_has_correct_output_and_closes_pipes
       cat = Command.create("cat", @job_table) << "COPYING" << "README"
       grep = Command.create("grep", @job_table) << "-i" << "copyright"
@@ -111,9 +116,7 @@ module Urchin
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
     ensure
-      Process.kill("-KILL", job.pgid)
-      Process.wait rescue Errno::ECHILD
-      Process.wait rescue Errno::ECHILD
+      Process.kill("-KILL", job.pgid) rescue Errno::ESRCH
     end
 
     def test_background
@@ -138,9 +141,7 @@ module Urchin
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
     ensure
-      Process.kill("-KILL", job.pgid)
-      Process.wait rescue Errno::ECHILD
-      Process.wait rescue Errno::ECHILD
+      Process.kill("-KILL", job.pgid) rescue Errno::ESRCH
     end
 
     def test_start_in_background
@@ -164,10 +165,6 @@ module Urchin
       assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
       assert s2.completed?
-
-    ensure
-      Process.wait rescue Errno::ECHILD
-      Process.wait rescue Errno::ECHILD
     end
 
     def test_foreground
@@ -186,10 +183,6 @@ module Urchin
       assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
       assert s2.completed?
-
-    ensure
-      Process.wait rescue Errno::ECHILD
-      Process.wait rescue Errno::ECHILD
     end
 
     def test_validate_pipline
@@ -237,7 +230,6 @@ module Urchin
       assert_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
     ensure
       Process.kill(:KILL, less.pid) rescue Errno::ESRCH
-      Process.wait rescue Errno::ECHILD
     end
   end
 end

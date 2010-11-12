@@ -21,6 +21,8 @@ module Urchin
       FileUtils.rm_r("/tmp/urchin.test_unit", :force => true)
     end
 
+    alias_method :old_teardown, :teardown
+
     def redirect_stdout
       FileUtils.mkdir("/tmp/urchin.test_unit")
       @old_stdout = STDOUT.dup
