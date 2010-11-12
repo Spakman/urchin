@@ -91,6 +91,16 @@ module Urchin
       command.add_redirect(STDOUT, "stdout_testfile", "w")
       command.add_redirect(STDERR, STDOUT, "w")
 
+      # TODO: this is a hack.
+      #
+      # Adding this line ensures that the terminal mode setting tests pass on
+      # OS X (probably BSD). I have not yet worked out why, but adding other
+      # tests like this with and without STDIN redirects have strange effects.
+      #
+      # Putting STDIN into nonblocking mode seems to affect the -pendin TTY
+      # flag. I'm not sure how to clear it.
+      command.add_redirect(STDIN, "/dev/null", "r")
+
       pid = fork { command.execute }
       Process.wait pid
 
