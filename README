@@ -1,14 +1,25 @@
 Urchin
 ===
 
-A Unix shell for Ruby programmers. Regard this as very incomplete and
-experimental for now!
+A Unix shell for Ruby programmers. If you have any ideas for what you think
+this should mean, please let me know!
+
+Regard this as very incomplete and experimental for now!
 
 
 Authors
 ===
 
 Mark Somerville <mark@scottishclimbs.com>
+
+
+Requirements
+===
+
+Ruby - tested with CRuby 1.8.6 and 1.9.2. If running using 1.9.2 on a laptop,
+be aware of bug #3436 (http://redmine.ruby-lang.org/issues/show/3436).
+
+Termios - using via Rubygems is discouraged to save memory.
 
 
 What works?
@@ -22,7 +33,7 @@ Redirecting STDOUT, STDIN, STDERR:
 
 	uptime > output
 	uptime >> output
-	ruby -e 'puts STDIN.read; STDERR.puts 33' < source > out_and_err 2>&1
+	ruby -e 'puts STDIN.read; STDERR.puts 33' < input > out_and_err 2>&1
 
 Backgrounding jobs:
 
