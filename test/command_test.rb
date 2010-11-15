@@ -85,19 +85,9 @@ module Urchin
     end
 
     def test_redirecting_stderr_to_stdout
-      command = Command.create("./in_out_err_writer", JobTable.new) << "this is out" << "this is err"
+      command = Command.create("./stdout_stderr_writer", JobTable.new) << "this is out" << "this is err"
       command.add_redirect(STDOUT, "stdout_testfile", "w")
       command.add_redirect(STDERR, STDOUT, "w")
-
-      # TODO: this is a hack.
-      #
-      # Adding this line ensures that the terminal mode setting tests pass on
-      # OS X (probably BSD). I have not yet worked out why, but adding other
-      # tests like this with and without STDIN redirects have strange effects.
-      #
-      # Putting STDIN into nonblocking mode seems to affect the -pendin TTY
-      # flag. I'm not sure how to clear it.
-      command.add_redirect(STDIN, "/dev/null", "r")
 
       pid = fork { command.execute }
       Process.wait pid
@@ -109,7 +99,7 @@ module Urchin
     end
 
     def test_redirecting_a_file_to_stdin
-      command = Command.create("./in_out_err_writer", JobTable.new) << "this is out"
+      command = Command.create("./stdin_writer", JobTable.new)
       command.add_redirect(STDIN, "stdin_testfile", "r")
       command.add_redirect(STDOUT, "stdout_testfile", "w")
 
@@ -117,7 +107,6 @@ module Urchin
       Process.wait pid
 
       assert_match /this is in\n/, File.read("stdout_testfile")
-      assert_match /this is out\n/, File.read("stdout_testfile")
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end

@@ -1,0 +1,4 @@
+#!/usr/bin/ruby
+# A simple program that outputs STDIN to STDOUT
+
+STDOUT.puts STDIN.gets

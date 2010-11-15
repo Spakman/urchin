@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
 # A simple program that outputs to both STDOUT and STDERR for testing.
-STDOUT.puts STDIN.read_nonblock(128) rescue Errno::EAGAIN
+
 STDOUT.puts ARGV.first
 STDERR.puts ARGV.last unless ARGV.size == 1
