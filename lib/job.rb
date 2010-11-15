@@ -2,7 +2,13 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-require "termios"
+begin
+  require "termios"
+rescue LoadError
+  require "rubygems"
+  require "termios"
+  STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
+end
 require "#{File.dirname(__FILE__)}/urchin_runtime_error"
 
 module Urchin
