@@ -4,7 +4,26 @@ Signal.trap :TTOU, "IGNORE"
 
 $LOAD_PATH << "#{File.expand_path(File.dirname(__FILE__))}/../"
 
-Dir.glob("builtins/*.rb").each do |path|
+require "readline"
+require "strscan"
+
+begin
+  require "termios"
+rescue LoadError
+  require "rubygems"
+  require "termios"
+  STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
+end
+
+require "lib/shell"
+require "lib/parser"
+require "lib/job_table"
+require "lib/job"
+require "lib/command"
+require "lib/builtin"
+require "lib/urchin_runtime_error"
+
+Dir.glob("#{File.dirname(__FILE__)}/../builtins/*.rb").each do |path|
   require path
 end
 

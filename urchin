@@ -3,9 +3,30 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 require "optparse"
-require "#{File.dirname(__FILE__)}/lib/shell"
+require "readline"
+require "strscan"
+
+begin
+  require "termios"
+rescue LoadError
+  require "rubygems"
+  require "termios"
+  STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
+end
+
+$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+require "lib/shell"
+require "lib/parser"
+require "lib/job_table"
+require "lib/job"
+require "lib/command"
+require "lib/builtin"
+require "lib/urchin_runtime_error"
+
+Dir.glob("#{File.dirname(__FILE__)}/builtins/*.rb").each do |path|
+  require path
+end
 
 options = {}
 OptionParser.new do |opts|
@@ -20,10 +41,6 @@ OptionParser.new do |opts|
     options[:command_string] = command_string
   end
 end.parse!
-
-Dir.glob("builtins/*.rb").each do |path|
-  require path
-end
 
 if options[:command_string]
   Urchin::Shell.new.run(options[:command_string])

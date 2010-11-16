@@ -2,11 +2,6 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-require "readline"
-require "#{File.dirname(__FILE__)}/parser"
-require "#{File.dirname(__FILE__)}/job"
-require "#{File.dirname(__FILE__)}/urchin_runtime_error"
-
 module Urchin
   class Shell
     attr_reader :job_table, :terminal_modes
