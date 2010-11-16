@@ -106,11 +106,13 @@ module Urchin
 
       assert s1.running?
       assert s2.running?
+      assert_equal :running, job.status
 
       Process.kill("-TSTP", job.pgid)
       sleep 0.2
 
       assert job.stopped?
+      assert_equal :stopped, job.status
       assert s1.stopped?
       assert s2.stopped?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)

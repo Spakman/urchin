@@ -52,5 +52,12 @@ module Urchin
       @job_table.insert JobForTest.new
       assert_equal job, @job_table.find_by_id(2)
     end
+
+    def test_to_s
+      job = JobForTest.new
+      job.title = "for_test"
+      @job_table.insert job
+      assert_equal "[1] running     for_test", @job_table.to_s
+    end
   end
 end

@@ -8,29 +8,6 @@ require "strscan"
 module Urchin
   # TODO: handle the following:
   #
-  #   Pipelines:
-  #
-  #   * ls -la | head | tail
-  #
-  #   Seperate jobs:
-  #
-  #   * uptime ; sleep 1 ; top
-  #   * sleep 60 & echo 123
-  #
-  #   Quoting and escaping:
-  #
-  #   * grep -r "this is a quoted string" .
-  #   * grep -r 'this is a quoted string' .
-  #   * grep -r this\ is\ an\ escaped\ string .
-  #
-  #   Redirects:
-  #
-  #   * ls > output
-  #   * ls >> output
-  #   * patch -p0 < code.patch
-  #   * ls 2>&1
-  #   * patch -p0 2>&1 > output < code.patch
-  #
   #   Command/tilde/alias expansion:
   #
   #   * ls -lh `cat thepath` | head -2
@@ -52,13 +29,6 @@ module Urchin
   #   Simple calculations:
   #
   #   * (12 * 56) - 33
-  #
-  #   Globbing/brace expansion:
-  #
-  #   * ls {img,image}.{png,jpg}
-  #   * ls *.{png,jpg}
-  #   * ls **/*.{png,jpg}
-  #   * ls 00[123].{png,jpg}
   class Parser
     def initialize(shell)
       @shell = shell

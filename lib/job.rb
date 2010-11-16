@@ -16,7 +16,7 @@ module Urchin
   # Encapsulates a pipeline, which consists of one or more commands.
   class Job
     attr_accessor :id
-    attr_reader :pgid, :status, :title
+    attr_reader :pgid
 
     def initialize(commands, shell)
       @commands = commands
@@ -119,7 +119,7 @@ module Urchin
         nextin = pipe.first
       end
 
-      @shell.job_table.insert self and running!
+      @shell.job_table.insert self
 
       if @shell.is_interactive?
         foreground! unless start_in_background?
@@ -182,10 +182,6 @@ module Urchin
       if uncompleted_commands.empty?
         # All of the commands are completed so we must be done.
         @shell.job_table.delete self
-      elsif flags >= Process::WUNTRACED
-        # We were also collecting status information for stopped processes, so
-        # we must be stopped.
-        stopped!
       end
     end
 
@@ -197,26 +193,21 @@ module Urchin
       @commands.find_all { |c| c.running? }
     end
 
-    # Mark this job and all the uncompleted commands as running.
+    # Mark all the uncompleted commands as running.
     def mark_as_running!
       uncompleted_commands.map { |c| c.running! }
-      running!
-    end
-
-    def running!
-      @status = :running
-    end
-
-    def stopped!
-      @status = :stopped
     end
 
     def running?
-      @status == :running
+      !running_commands.empty?
     end
 
     def stopped?
-      @status == :stopped
+      running_commands.empty? && !uncompleted_commands.empty?
+    end
+
+    def status
+      running? ? :running : :stopped
     end
   end
 end
