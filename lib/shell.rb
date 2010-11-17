@@ -72,8 +72,6 @@ module Urchin
       Signal.trap :TTIN, "IGNORE"
       Signal.trap :TTOU, "IGNORE"
 
-      # Ensure we are in our own process group.
-      Process.setpgid(Process.pid, Process.pid)
       Termios.tcsetpgrp(STDIN, Process.getpgrp)
 
       @interactive = true
