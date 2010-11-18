@@ -23,6 +23,22 @@ module Termios
 end
 
 module Urchin
+  module Builtins
+    class Builtinecho
+      include Methods
+      def execute
+        puts @args.first
+      end
+    end
+
+    class Reverse
+      include Methods
+      def execute
+        puts STDIN.read.chomp.reverse
+      end
+    end
+  end
+
   class JobTestCase < Test::Unit::TestCase
 
     include TestHelpers
@@ -201,9 +217,13 @@ module Urchin
     end
 
     def test_running_builtin_as_part_of_a_pipline
-      ls = Command.create("ls", @job_table)
-      cd = Command.create("cd", @job_table)
-      assert_raises(UrchinRuntimeError) { Job.new([ ls, cd ], @shell).run }
+      builtin_echo = Command.create("builtinecho", @job_table) << "123"
+      rev = Command.create("rev", @job_table)
+      builtin_reverse = Command.create("reverse", @job_table)
+      output = with_redirected_output do
+        Job.new([ builtin_echo, rev, builtin_reverse ], @shell).run
+      end
+      assert_equal "123\n", output
     end
 
     def test_title

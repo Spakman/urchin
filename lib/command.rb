@@ -75,5 +75,9 @@ module Urchin
     def to_s
       "#{@executable} #{@args.join(" ")}"
     end
+
+    def should_fork?
+      true
+    end
   end
 end

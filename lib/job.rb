@@ -36,16 +36,17 @@ module Urchin
       @commands.first.to_s
     end
 
-    def run
-      if valid_pipeline?
-        run_pipeline
-      else
-        if @commands.size == 1
-          @commands.first.execute
-        else
-          raise UrchinRuntimeError.new("Builtins cannot be part of a pipeline.")
-        end
-      end
+    def exec_in_process(command, nextin, nextout)
+      old_stdin = STDIN.dup
+      old_stdout = STDOUT.dup
+
+      STDIN.reopen nextin
+      STDOUT.reopen nextout
+
+      command.execute
+
+      STDIN.reopen old_stdin
+      STDOUT.reopen old_stdout
     end
 
     def fork_and_exec(command, nextin, nextout)
@@ -90,7 +91,7 @@ module Urchin
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
-    def run_pipeline
+    def run
       nextin = STDIN
       nextout = STDOUT
       pipe = []
@@ -103,7 +104,11 @@ module Urchin
           nextout = STDOUT
         end
 
-        fork_and_exec(command, nextin, nextout)
+        if command.should_fork?
+          fork_and_exec(command, nextin, nextout)
+        else
+          exec_in_process(command, nextin, nextout)
+        end
 
         nextin.close if nextin != STDIN
         nextout.close if nextout != STDOUT

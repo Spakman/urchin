@@ -14,6 +14,20 @@ module Urchin
         @args << arg
         self
       end
+
+      def should_fork?
+        false
+      end
+
+      # This will only get called after execute has completed.
+      def completed?
+        true
+      end
+
+      # This will only get called after execute has completed.
+      def running?
+        false
+      end
     end
   end
 end
