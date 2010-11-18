@@ -233,5 +233,29 @@ module Urchin
       assert !@parser.jobs_from('; echo 1').empty?
       assert_equal 2, @parser.jobs_from('; echo 1;;& echo 3').size
     end
+
+    def test_tilde_expansion
+      command = @parser.jobs_from('ls ~').first.commands.first
+      assert_equal ENV['HOME'], command.args.first
+
+      command = @parser.jobs_from('ls ~/').first.commands.first
+      assert_equal "#{ENV['HOME']}/", command.args.first
+
+      command = @parser.jobs_from('ls ~/dir').first.commands.first
+      assert_equal "#{ENV['HOME']}/dir", command.args.first
+
+      home = ENV['HOME'].sub(/\/\w+?$/, '')
+      command = @parser.jobs_from("ls ~fakeuser/dir/").first.commands.first
+      assert_equal "#{home}/fakeuser/dir/", command.args.first
+
+      command = @parser.jobs_from("ls ~fakeuser/").first.commands.first
+      assert_equal "#{home}/fakeuser/", command.args.first
+
+      command = @parser.jobs_from("ls ~fakeuser").first.commands.first
+      assert_equal "#{home}/fakeuser", command.args.first
+
+      command = @parser.jobs_from("ls no~expand").first.commands.first
+      assert_equal "no~expand", command.args.first
+    end
   end
 end
