@@ -77,6 +77,11 @@ module Urchin
       @interactive = true
     end
 
+    # Defines the prompt method.
+    def self.prompt(&block)
+      define_method :prompt, block
+    end
+
     def prompt
       "\e[0;36m[\e[1;32m#{Process.pid}\e[0;36m]\033[0m% "
     end
