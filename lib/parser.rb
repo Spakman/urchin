@@ -197,10 +197,26 @@ module Urchin
         if w = quoted_word
           words << w
         elsif w = word
-          words += words_from_glob(w)
+          words += perform_expansions(w)
         end
       end until w.nil?
       words
+    end
+
+    def tilde_expansion(word)
+      @slash_home ||= ENV['HOME'].sub(%r{/\w+?$}, "/")
+      if word =~ %r{^~\w+/?}
+        word.sub!("~", @slash_home)
+      end
+      if word =~ %r{^~/?}
+        word.sub!("~", ENV['HOME'])
+      end
+      word
+    end
+
+    def perform_expansions(word)
+      word = tilde_expansion(word)
+      words_from_glob(word)
     end
   end
 end
