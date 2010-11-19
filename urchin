@@ -42,10 +42,10 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-URCHIN_RC = "#{ENV["HOME"]}/.urchinrc"
+URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
 
-if File.exists?(URCHIN_RC) && File.readable?(URCHIN_RC)
-  Urchin.module_eval File.read(URCHIN_RC)
+if File.exists?(URCHIN_RB) && File.readable?(URCHIN_RB)
+  Urchin.module_eval File.read(URCHIN_RB)
 end
 
 if options[:command_string]
