@@ -10,8 +10,8 @@ desc "Print out the TODO tasks"
 task :todo do
   files = Dir.glob("**/*.rb") + [ "urchin" ]
   files.each do |filepath|
-    if File.read(filepath) =~ /^\W*# TODO: (.*)$/
-      puts "#{filepath}: #{$1}"
+    File.readlines(filepath).each do |line|
+      puts "#{filepath}: #{$1}" if line =~ /^ *# TODO: (.*)$/
     end
   end
 end
