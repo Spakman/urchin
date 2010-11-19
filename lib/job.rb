@@ -47,6 +47,10 @@ module Urchin
 
       STDIN.reopen old_stdin
       STDOUT.reopen old_stdout
+
+    ensure
+      old_stdin.close
+      old_stdout.close
     end
 
     def fork_and_exec(command, nextin, nextout)
