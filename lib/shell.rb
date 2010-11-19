@@ -44,7 +44,7 @@ module Urchin
           run input
         end
       rescue Interrupt
-        puts "^C"
+        puts "\n^C"
         retry
       end
     end
@@ -84,8 +84,9 @@ module Urchin
       end
     end
 
+    # TODO: consider Bash-like escaping (\[\]).
     def prompt
-      "\e[0;36m[\e[1;32m#{Process.pid}\e[0;36m]\033[0m% "
+      "\001\e[0;36m\002(\001\e[1;32m\002#{Dir.getwd}\001\e[0;36m\002)\001\033[0m\002% "
     end
 
     # Foreground child processes can also be caught by the
