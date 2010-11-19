@@ -84,9 +84,24 @@ module Urchin
       end
     end
 
-    # TODO: consider Bash-like escaping (\[\]).
-    def prompt
-      "\001\e[0;36m\002(\001\e[1;32m\002#{Dir.getwd}\001\e[0;36m\002)\001\033[0m\002% "
+    if RUBY_PLATFORM =~ /linux/
+      # TODO: consider Bash-like escaping (\[\]).
+      def prompt
+        "\001\e[0;36m\002(\001\e[1;32m\002#{Dir.getwd}\001\e[0;36m\002)\001\033[0m\002% "
+      end
+    elsif RUBY_PLATFORM =~ /darwin/
+      # OS X doesn't seem to like (or need) the \001\002 escaping, at least on
+      # the box I have SSH access to.
+
+      def prompt
+        "\e[0;36m(\e[1;32m#{Dir.getwd}\e[0;36m)\033[0m% "
+      end
+    else
+      # Other platforms are untested.
+
+      def prompt
+        "(#{Dir.getwd}) % "
+      end
     end
 
     # Foreground child processes can also be caught by the
