@@ -217,6 +217,7 @@ module Urchin
     end
 
     def test_running_builtin_as_part_of_a_pipline
+      open_fds = Dir.entries("/dev/fd/")
       builtin_echo = Command.create("builtinecho", @job_table) << "123"
       rev = Command.create("rev", @job_table)
       builtin_reverse = Command.create("reverse", @job_table)
@@ -224,6 +225,7 @@ module Urchin
         Job.new([ builtin_echo, rev, builtin_reverse ], @shell).run
       end
       assert_equal "123\n", output
+      assert_equal open_fds, Dir.entries("/dev/fd/")
     end
 
     def test_title

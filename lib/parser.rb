@@ -5,10 +5,9 @@
 module Urchin
   # TODO: handle the following:
   #
-  #   Command/tilde/alias expansion:
+  #   Command/alias expansion:
   #
   #   * ls -lh `cat thepath` | head -2
-  #   * ls ~/.config
   #
   #   Environment variables:
   #

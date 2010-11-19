@@ -11,6 +11,8 @@ Authors
 ===
 
 Mark Somerville <mark@scottishclimbs.com>
+http://mark.scottishclimbs.com/
+@_Spakman
 
 
 Requirements
@@ -57,10 +59,15 @@ Globbing:
 	ls **/*.rb
 	mv image?.{png,gif} images
 
+Tilde expansion:
+
+	ls ~/src/
+	ls ~mark
+
 Job control (uses fg, bg and jobs builtins).
 
 
 What doesn't work yet?
 ===
 
-Exit code logic, environment variables, tilde expansion... (you get the idea).
+Exit code logic, environment variables, persistent history... (you get the idea).

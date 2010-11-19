@@ -1,7 +1,7 @@
 require "test/unit"
 require "fileutils"
+require "#{File.dirname(__FILE__)}/../helpers"
 require "#{File.dirname(__FILE__)}/../../builtins/cd"
-require "#{File.dirname(__FILE__)}/../../lib/job_table"
 
 module Urchin
   module Builtins
@@ -34,6 +34,21 @@ module Urchin
         cd = Cd.new(JobTable.new) << "/"
         assert_nothing_raised { cd.execute }
         assert_equal "/", Dir.getwd
+      end
+
+      def test_last_directory
+        dir = Dir.getwd
+        cd = Cd.new(JobTable.new) << "-"
+        assert_raises(UrchinRuntimeError) { cd.execute }
+        assert_equal dir, Dir.getwd
+
+        cd = Cd.new(JobTable.new) << File.dirname(__FILE__)
+        assert_nothing_raised { cd.execute }
+        assert_not_equal dir, Dir.getwd
+
+        cd = Cd.new(JobTable.new) << "-"
+        assert_nothing_raised { cd.execute }
+        assert_equal dir, Dir.getwd
       end
 
       def test_permission_denied
