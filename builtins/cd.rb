@@ -27,14 +27,16 @@ module Urchin
         begin
           if @args.first == "-"
             if @@last_dir
-              Dir.chdir @@last_dir
+              @args[0] = @@last_dir
             else
               raise UrchinRuntimeError.new("There is no previous directory.")
             end
-          else
-            @@last_dir = Dir.getwd
-            Dir.chdir @args.first
           end
+          if !File.directory? @args.first
+            raise UrchinRuntimeError.new("Not a directory.")
+          end
+          @@last_dir = Dir.getwd
+          Dir.chdir @args.first
         rescue Errno::EACCES
           raise UrchinRuntimeError.new("Permission denied.")
         end
