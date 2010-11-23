@@ -114,7 +114,7 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
-      if executable = word
+      if executable = tilde_expansion(word)
         command = Command.create(executable, @shell.job_table)
         words.each do |arg|
           command << arg

@@ -256,6 +256,9 @@ module Urchin
 
       command = @parser.jobs_from("ls no~expand").first.commands.first
       assert_equal "no~expand", command.args.first
+
+      command = @parser.jobs_from('~/bin/hello').first.commands.first
+      assert_equal "#{ENV['HOME']}/bin/hello", command.executable
     end
   end
 end
