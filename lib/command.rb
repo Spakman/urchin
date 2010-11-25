@@ -7,6 +7,7 @@ module Urchin
     private_class_method :new
 
     attr_accessor :pid
+    attr_reader :exit_code
 
     def initialize(executable)
       @executable = executable
@@ -45,7 +46,20 @@ module Urchin
 
     def execute
       perform_redirects
-      exec @executable, *@args
+      begin
+        exec @executable, *@args
+      rescue Errno::ENOENT
+        STDERR.puts "Command not found: #{@executable}."
+        exit 127
+      end
+    end
+
+    # Of course, we can't simply set the exit code from Command#execute because
+    # that is only ever called after a fork. Instead, the Job will collect the
+    # exit status from the child process and set it from there.
+    def exit_code=(code)
+      completed!
+      @exit_code = code
     end
 
     def running!

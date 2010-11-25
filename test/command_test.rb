@@ -23,6 +23,7 @@ module Urchin
     end
 
     def test_executing_a_command
+      status = nil
       output = with_redirected_output do
         command = Command.create("echo", JobTable.new)
         command << "123"
@@ -30,10 +31,11 @@ module Urchin
         pid = fork do
           command.execute
         end
-        Process.wait pid
+        pits, status = Process.waitpid2 pid
       end
 
       assert_equal "123", output.chomp
+      assert_equal 0, status.exitstatus
     end
 
     def test_create
@@ -58,9 +60,10 @@ module Urchin
       command.add_redirect(STDOUT, "stdout_testfile", "w")
 
       pid = fork { command.execute }
-      Process.wait pid
+      pid, status = Process.waitpid2 pid
 
       assert_equal "123\n", File.read("stdout_testfile")
+      assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
@@ -76,10 +79,11 @@ module Urchin
       assert_equal "123\n", File.read("stdout_testfile")
 
       pid = fork { command.execute }
-      Process.wait pid
+      pid, status = Process.waitpid2 pid
 
       # should have appended to the file
       assert_equal "123\n123\n", File.read("stdout_testfile")
+      assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
@@ -90,10 +94,11 @@ module Urchin
       command.add_redirect(STDERR, STDOUT, "w")
 
       pid = fork { command.execute }
-      Process.wait pid
+      pid, status = Process.waitpid2 pid
 
       assert_match /this is out\n/, File.read("stdout_testfile")
       assert_match /this is err\n/, File.read("stdout_testfile")
+      assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
@@ -104,11 +109,25 @@ module Urchin
       command.add_redirect(STDOUT, "stdout_testfile", "w")
 
       pid = fork { command.execute }
-      Process.wait pid
+      pid, status = Process.waitpid2 pid
 
       assert_match /this is in\n/, File.read("stdout_testfile")
+      assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
+    end
+
+    def test_executing_command_that_does_not_exist
+      command = Command.create("/this/does/not/exist", JobTable.new)
+      command.add_redirect(STDERR, "stderr_testfile", "w")
+
+      pid = fork { command.execute }
+      pid, status = Process.waitpid2 pid
+
+      assert_equal "Command not found: /this/does/not/exist.\n", File.read("stderr_testfile")
+      assert_equal 127, status.exitstatus
+    ensure
+      FileUtils.rm("stderr_testfile", :force => true)
     end
   end
 end

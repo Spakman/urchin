@@ -173,8 +173,8 @@ module Urchin
         if pid
           if status.stopped?
             command.stopped!
-          else
-            command.completed!
+          elsif status.exited?
+            command.exit_code = status.exitstatus
           end
         end
       end
