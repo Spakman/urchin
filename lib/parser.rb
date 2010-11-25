@@ -26,8 +26,9 @@ module Urchin
   #
   #   * (12 * 56) - 33
   class Parser
-    def initialize(shell)
+    def initialize(shell, input = nil)
       @shell = shell
+      @input = StringScanner.new(input) if input
     end
 
     def jobs_from(input)
