@@ -213,7 +213,32 @@ module Urchin
       word
     end
 
+    # Performs environment variable expansions on a word.
+    #
+    # Variables can be of the form:
+    #
+    # $VAR   - when a variable is alone:
+    #
+    #   echo $VAR
+    #
+    # ${VAR} - to seperate from other characters:
+    #
+    #   echo hello${VAR}goodbye
+    #
+    # If the word contains multiple variables, they are expanded in order.
+    def variable_expansion(word)
+      if word =~ /^\$([A-Za-z0-9_]+)$/
+        word = ENV[$1] || ""
+      elsif word =~ /\$\{([A-Za-z0-9_]+)\}/
+        variable = ENV[$1] || ""
+        word.sub!(/\$\{#{$1}\}/, variable)
+        word = variable_expansion(word)
+      end
+      word
+    end
+
     def perform_expansions(word)
+      word = variable_expansion(word)
       word = tilde_expansion(word)
       words_from_glob(word)
     end

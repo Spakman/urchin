@@ -260,5 +260,31 @@ module Urchin
       command = @parser.jobs_from('~/bin/hello').first.commands.first
       assert_equal "#{ENV['HOME']}/bin/hello", command.executable
     end
+
+    def test_variable_expansion
+      command = @parser.jobs_from("echo $PATH").first.commands.first
+      assert_equal ENV['PATH'], command.args.first
+
+      command = @parser.jobs_from("echo $NOT_A_SET_VARIABLE").first.commands.first
+      assert_equal "", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}").first.commands.first
+      assert_equal ENV['PATH'], command.args.first
+
+      command = @parser.jobs_from("echo abc$PATH").first.commands.first
+      assert_equal "abc$PATH", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}1234").first.commands.first
+      assert_equal "#{ENV['PATH']}1234", command.args.first
+
+      command = @parser.jobs_from("echo 1234${HOME}").first.commands.first
+      assert_equal "1234#{ENV['HOME']}", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}1234${HOME}").first.commands.first
+      assert_equal "#{ENV['PATH']}1234#{ENV['HOME']}", command.args.first
+
+      command = @parser.jobs_from("echo $PATH1234").first.commands.first
+      assert_equal "", command.args.first
+    end
   end
 end
