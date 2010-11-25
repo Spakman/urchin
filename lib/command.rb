@@ -49,7 +49,7 @@ module Urchin
       begin
         exec @executable, *@args
       rescue Errno::ENOENT
-        STDERR.puts "Command not found: #{@executable}."
+        STDERR.puts "Command not found: #{@executable}"
         exit 127
       end
     end

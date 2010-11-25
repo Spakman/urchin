@@ -124,7 +124,7 @@ module Urchin
       pid = fork { command.execute }
       pid, status = Process.waitpid2 pid
 
-      assert_equal "Command not found: /this/does/not/exist.\n", File.read("stderr_testfile")
+      assert_equal "Command not found: /this/does/not/exist\n", File.read("stderr_testfile")
       assert_equal 127, status.exitstatus
     ensure
       FileUtils.rm("stderr_testfile", :force => true)
