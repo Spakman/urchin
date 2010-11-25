@@ -202,10 +202,17 @@ module Urchin
       words
     end
 
+    # Performs tilde expansion on a word.
+    #
+    # For example:
+    #
+    # ls ~
+    # ls ~/src
+    # ls ~spakman/src/
     def tilde_expansion(word)
-      @slash_home ||= ENV['HOME'].sub(%r{/\w+?$}, "/")
+      home = ENV['HOME'].sub(%r{/\w+?$}, "/")
       if word =~ %r{^~\w+/?}
-        word.sub!("~", @slash_home)
+        word.sub!("~", home)
       end
       if word =~ %r{^~/?}
         word.sub!("~", ENV['HOME'])
