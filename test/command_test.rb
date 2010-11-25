@@ -129,5 +129,18 @@ module Urchin
     ensure
       FileUtils.rm("stderr_testfile", :force => true)
     end
+
+    def test_set_command_local_environment_variables
+      command = Command.create("./env_var_writer", JobTable.new)
+      command.add_redirect(STDOUT, "stdout_testfile", "w")
+      command.environment_variables = { "LETTERS" => "ABC" }
+
+      pid = fork { command.execute }
+      pid, status = Process.waitpid2 pid
+
+      assert_equal "ABC\n", File.read("stdout_testfile")
+    ensure
+      FileUtils.rm("stdout_testfile", :force => true)
+    end
   end
 end

@@ -45,7 +45,12 @@ module Urchin
     def parse_job
       until end_of_job?
         job ||= Job.new([], @shell)
+        command_variables = {}
+        while var = environment_variable
+          command_variables.merge! var
+        end
         if command = parse_command
+          command.environment_variables = command_variables
           until end_of_command?
             parse_redirects(command)
           end
@@ -127,13 +132,21 @@ module Urchin
     end
 
     # Returns a single word if it is next in the input string. Otherwise, nil.
-    def word
-      remove_space
+    def word(options = { :trim => true })
+      remove_space unless options[:trim] == false
       while part = (word_part or escaped_char)
         output ||= ""
         output << part
       end
       output
+    end
+
+    def environment_variable
+      remove_space
+      if variable = @input.scan(/^[A-Z0-9a-z_]+=/)
+        value = (quoted_word or word(:trim => false))
+        { variable.chop => value }
+      end
     end
 
     # Returns if the word is a glob pattern.
