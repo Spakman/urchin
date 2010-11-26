@@ -319,5 +319,23 @@ module Urchin
       assert_equal 1, commands.first.environment_variables.size
       assert_equal "123", commands.first.environment_variables["NUMBERS"]
     end
+
+    def test_alias_expansion
+      Urchin::Shell.alias "ls" => "ls --color"
+
+      command = @parser.jobs_from("ls a/dir").first.commands.first
+      assert_equal "ls", command.executable
+      assert_equal "--color", command.args.first
+      assert_equal "a/dir", command.args.last
+
+      Urchin::Shell.alias "ls" => "notls --haha"
+
+      command = @parser.jobs_from("VAR=123 ls a/dir").first.commands.first
+      assert_equal "notls", command.executable
+      assert_equal "--haha", command.args.first
+      assert_equal "a/dir", command.args.last
+    ensure
+      Urchin::Shell.alias "ls" => nil
+    end
   end
 end

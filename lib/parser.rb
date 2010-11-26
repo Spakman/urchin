@@ -120,6 +120,7 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
+      alias_expansion
       if executable = tilde_expansion(word)
         command = Command.create(executable, @shell.job_table)
         words.each do |arg|
@@ -262,6 +263,20 @@ module Urchin
       word = variable_expansion(word)
       word = tilde_expansion(word)
       words_from_glob(word)
+    end
+
+    # Replaces a command with some text. This is only used for the first
+    # (command) word in a command line. The command word is parsed after alias
+    # expansion, so the alias can contain multiple commands in a pipeline.
+    def alias_expansion
+      pos = @input.pos
+      w = word
+      if @shell.aliases[w]
+        @input.string = @input.string[pos..-1].sub(w, @shell.aliases[w])
+        @input.pos = 0
+      else
+        @input.pos = pos
+      end
     end
   end
 end
