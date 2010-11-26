@@ -11,7 +11,7 @@ module Urchin
       @job_table = JobTable.new
       @parser = Parser.new(self)
       define_sigchld_handler
-      @terminal_modes = Termios.tcgetattr(STDIN)
+      @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
       @interactive = false
     end
 

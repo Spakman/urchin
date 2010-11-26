@@ -13,7 +13,7 @@ module Urchin
       @commands = commands
       @shell = shell
       @pgid = nil
-      @terminal_modes = Termios.tcgetattr(STDIN)
+      @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
     end
 
     def <<(command)
