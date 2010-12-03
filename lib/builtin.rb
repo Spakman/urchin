@@ -10,6 +10,9 @@ module Urchin
         @job_table = job_table
       end
 
+      # Just to keep things working.
+      def environment_variables=(varaibles); end
+
       def <<(arg)
         @args << arg
         self

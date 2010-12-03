@@ -8,7 +8,7 @@ module Urchin
   class Job; attr_reader :commands, :start_in_background; end
 
   class Command
-    attr_reader :executable, :args, :redirects
+    attr_reader :executable, :args, :redirects, :environment_variables
 
     def ==(object)
       if object.class == Command
@@ -256,6 +256,86 @@ module Urchin
 
       command = @parser.jobs_from("ls no~expand").first.commands.first
       assert_equal "no~expand", command.args.first
+
+      command = @parser.jobs_from('~/bin/hello').first.commands.first
+      assert_equal "#{ENV['HOME']}/bin/hello", command.executable
+    end
+
+    def test_variable_expansion
+      command = @parser.jobs_from("echo $PATH").first.commands.first
+      assert_equal ENV['PATH'], command.args.first
+
+      command = @parser.jobs_from("echo $NOT_A_SET_VARIABLE").first.commands.first
+      assert_equal "", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}").first.commands.first
+      assert_equal ENV['PATH'], command.args.first
+
+      command = @parser.jobs_from("echo abc$PATH").first.commands.first
+      assert_equal "abc$PATH", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}1234").first.commands.first
+      assert_equal "#{ENV['PATH']}1234", command.args.first
+
+      command = @parser.jobs_from("echo 1234${HOME}").first.commands.first
+      assert_equal "1234#{ENV['HOME']}", command.args.first
+
+      command = @parser.jobs_from("echo ${PATH}1234${HOME}").first.commands.first
+      assert_equal "#{ENV['PATH']}1234#{ENV['HOME']}", command.args.first
+
+      command = @parser.jobs_from("echo $PATH1234").first.commands.first
+      assert_equal "", command.args.first
+    end
+
+    def test_parsing_environment_variable
+      @parser.setup './env_var_writer'
+      assert_nil @parser.environment_variable
+
+      @parser.setup 'VAR=123 something'
+      assert_equal({ "VAR" => "123" }, @parser.environment_variable)
+
+      @parser.setup 'VAR="123 abc" something'
+      assert_equal({ 'VAR' => '123 abc' }, @parser.environment_variable)
+
+      @parser.setup 'VAR= something'
+      assert_equal({ 'VAR' => nil }, @parser.environment_variable)
+    end
+
+    def test_command_local_environment_variables
+      commands = @parser.jobs_from('VAR=123 ./env_var_writer').first.commands
+      assert_equal 1, commands.size
+      assert_equal Command.new('./env_var_writer'), commands.first
+      assert_equal "123", commands.first.environment_variables["VAR"]
+
+      commands = @parser.jobs_from('NUMBERS=123 LETTERS=abc ./env_var_writer').first.commands
+      assert_equal 1, commands.size
+      assert_equal Command.new('./env_var_writer'), commands.first
+      assert_equal "123", commands.first.environment_variables["NUMBERS"]
+      assert_equal "abc", commands.first.environment_variables["LETTERS"]
+
+      commands = @parser.jobs_from('NUMBERS=123 ./env_var_writer LETTERS=abc').first.commands
+      assert_equal 1, commands.size
+      assert_equal Command.new('./env_var_writer') << "LETTERS=abc", commands.first
+      assert_equal 1, commands.first.environment_variables.size
+      assert_equal "123", commands.first.environment_variables["NUMBERS"]
+    end
+
+    def test_alias_expansion
+      Urchin::Shell.alias "ls" => "ls --color"
+
+      command = @parser.jobs_from("ls a/dir").first.commands.first
+      assert_equal "ls", command.executable
+      assert_equal "--color", command.args.first
+      assert_equal "a/dir", command.args.last
+
+      Urchin::Shell.alias "ls" => "notls --haha"
+
+      command = @parser.jobs_from("VAR=123 ls a/dir").first.commands.first
+      assert_equal "notls", command.executable
+      assert_equal "--haha", command.args.first
+      assert_equal "a/dir", command.args.last
+    ensure
+      Urchin::Shell.alias "ls" => nil
     end
   end
 end

@@ -6,12 +6,14 @@ module Urchin
   class Command
     private_class_method :new
 
-    attr_accessor :pid
+    attr_accessor :pid, :environment_variables
+    attr_reader :exit_code
 
     def initialize(executable)
       @executable = executable
       @args = []
       @redirects = []
+      @environment_variables = {}
     end
 
     # Returns a new Command or an instance of one of the classes in Builtins.
@@ -45,7 +47,31 @@ module Urchin
 
     def execute
       perform_redirects
-      exec @executable, *@args
+      set_local_environment_variables
+      begin
+        exec @executable, *@args
+      rescue Errno::ENOENT
+        STDERR.puts "Command not found: #{@executable}"
+        exit 127
+      end
+    end
+
+    def set_local_environment_variables
+      @environment_variables.each_pair do |variable, value|
+        ENV[variable] = value
+      end
+    end
+
+    # TODO: set exit code for when the status is #coredump? and #signaled?.
+    def change_status(status)
+      if status.stopped?
+        stopped!
+      else
+        completed!
+        if status.exited?
+          @exit_code = status.exitstatus
+        end
+      end
     end
 
     def running!

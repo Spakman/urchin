@@ -21,7 +21,8 @@ module Urchin
         assert_nothing_raised { cd.valid_arguments? }
 
         cd << "/another"
-        assert_raises(UrchinRuntimeError) { cd.valid_arguments? }
+        exception = assert_raises(UrchinRuntimeError) { cd.valid_arguments? }
+        assert_equal "Too many arguments.", exception.message
       end
 
       def test_no_parameters
@@ -39,7 +40,8 @@ module Urchin
       def test_last_directory
         dir = Dir.getwd
         cd = Cd.new(JobTable.new) << "-"
-        assert_raises(UrchinRuntimeError) { cd.execute }
+        exception = assert_raises(UrchinRuntimeError) { cd.execute }
+        assert_equal "There is no previous directory.", exception.message
         assert_equal dir, Dir.getwd
 
         cd = Cd.new(JobTable.new) << File.dirname(__FILE__)
@@ -54,9 +56,22 @@ module Urchin
       def test_permission_denied
         FileUtils.mkdir("noperms", :mode => 400)
         cd = Cd.new(JobTable.new) << "noperms"
-        assert_raises(UrchinRuntimeError) { cd.execute }
+        exception = assert_raises(UrchinRuntimeError) { cd.execute }
+        assert_equal "Permission denied.", exception.message
       ensure
         FileUtils.rm_r("noperms")
+      end
+
+      def test_no_directory
+        cd = Cd.new(JobTable.new) << "/this/does/not/exist"
+        exception = assert_raises(UrchinRuntimeError) { cd.execute }
+        assert_equal "Not a directory.", exception.message
+      end
+
+      def test_not_a_directory
+        cd = Cd.new(JobTable.new) << File.expand_path(__FILE__)
+        exception = assert_raises(UrchinRuntimeError) { cd.execute }
+        assert_equal "Not a directory.", exception.message
       end
     end
   end

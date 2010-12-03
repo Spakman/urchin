@@ -1,0 +1,4 @@
+#!/usr/bin/ruby
+# A simple program that outputs to both STDOUT.
+
+STDOUT.puts ENV['LETTERS']

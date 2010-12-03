@@ -26,8 +26,9 @@ module Urchin
   #
   #   * (12 * 56) - 33
   class Parser
-    def initialize(shell)
+    def initialize(shell, input = nil)
       @shell = shell
+      @input = StringScanner.new(input) if input
     end
 
     def jobs_from(input)
@@ -44,7 +45,12 @@ module Urchin
     def parse_job
       until end_of_job?
         job ||= Job.new([], @shell)
+        command_variables = {}
+        while var = environment_variable
+          command_variables.merge! var
+        end
         if command = parse_command
+          command.environment_variables = command_variables
           until end_of_command?
             parse_redirects(command)
           end
@@ -114,7 +120,8 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
-      if executable = word
+      alias_expansion
+      if executable = tilde_expansion(word)
         command = Command.create(executable, @shell.job_table)
         words.each do |arg|
           command << arg
@@ -126,13 +133,21 @@ module Urchin
     end
 
     # Returns a single word if it is next in the input string. Otherwise, nil.
-    def word
-      remove_space
+    def word(options = { :trim => true })
+      remove_space unless options[:trim] == false
       while part = (word_part or escaped_char)
         output ||= ""
         output << part
       end
       output
+    end
+
+    def environment_variable
+      remove_space
+      if variable = @input.scan(/^[A-Z0-9a-z_]+=/)
+        value = (quoted_word or word(:trim => false))
+        { variable.chop => value }
+      end
     end
 
     # Returns if the word is a glob pattern.
@@ -202,10 +217,17 @@ module Urchin
       words
     end
 
+    # Performs tilde expansion on a word.
+    #
+    # For example:
+    #
+    # ls ~
+    # ls ~/src
+    # ls ~spakman/src/
     def tilde_expansion(word)
-      @slash_home ||= ENV['HOME'].sub(%r{/\w+?$}, "/")
+      home = ENV['HOME'].sub(%r{/\w+?$}, "/")
       if word =~ %r{^~\w+/?}
-        word.sub!("~", @slash_home)
+        word.sub!("~", home)
       end
       if word =~ %r{^~/?}
         word.sub!("~", ENV['HOME'])
@@ -213,9 +235,48 @@ module Urchin
       word
     end
 
+    # Performs environment variable expansions on a word.
+    #
+    # Variables can be of the form:
+    #
+    # $VAR   - when a variable is alone:
+    #
+    #   echo $VAR
+    #
+    # ${VAR} - to seperate from other characters:
+    #
+    #   echo hello${VAR}goodbye
+    #
+    # If the word contains multiple variables, they are expanded in order.
+    def variable_expansion(word)
+      if word =~ /^\$([A-Za-z0-9_]+)$/
+        word = ENV[$1] || ""
+      elsif word =~ /\$\{([A-Za-z0-9_]+)\}/
+        variable = ENV[$1] || ""
+        word.sub!(/\$\{#{$1}\}/, variable)
+        word = variable_expansion(word)
+      end
+      word
+    end
+
     def perform_expansions(word)
+      word = variable_expansion(word)
       word = tilde_expansion(word)
       words_from_glob(word)
+    end
+
+    # Replaces a command with some text. This is only used for the first
+    # (command) word in a command line. The command word is parsed after alias
+    # expansion, so the alias can contain multiple commands in a pipeline.
+    def alias_expansion
+      pos = @input.pos
+      w = word
+      if @shell.aliases[w]
+        @input.string = @input.string[pos..-1].sub(w, @shell.aliases[w])
+        @input.pos = 0
+      else
+        @input.pos = pos
+      end
     end
   end
 end

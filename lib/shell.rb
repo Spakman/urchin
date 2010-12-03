@@ -5,13 +5,22 @@
 module Urchin
   class Shell
     attr_reader :job_table, :terminal_modes
+    @@aliases = {}
 
     def initialize
       @job_table = JobTable.new
       @parser = Parser.new(self)
       define_sigchld_handler
-      @terminal_modes = Termios.tcgetattr(STDIN)
+      @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
       @interactive = false
+    end
+
+    def self.alias(hash)
+      @@aliases.merge! hash
+    end
+
+    def aliases
+      @@aliases
     end
 
     def is_interactive?

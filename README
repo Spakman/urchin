@@ -64,10 +64,16 @@ Tilde expansion:
 	ls ~/src/
 	ls ~mark
 
+Reading and setting environment variables:
+
+	echo $PATH
+	echo abx${HOME}xyz
+	export HELLO="Yo man!"
+
 Job control (uses fg, bg and jobs builtins).
 
 
 What doesn't work yet?
 ===
 
-Exit code logic, environment variables, persistent history... (you get the idea).
+Exit code logic, persistent history... (you get the idea).
