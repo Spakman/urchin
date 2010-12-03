@@ -62,12 +62,16 @@ module Urchin
       end
     end
 
-    # Of course, we can't simply set the exit code from Command#execute because
-    # that is only ever called after a fork. Instead, the Job will collect the
-    # exit status from the child process and set it from there.
-    def exit_code=(code)
-      completed!
-      @exit_code = code
+    # TODO: set exit code for when the status is #coredump? and #signaled?.
+    def change_status(status)
+      if status.stopped?
+        stopped!
+      else
+        completed!
+        if status.exited?
+          @exit_code = status.exitstatus
+        end
+      end
     end
 
     def running!

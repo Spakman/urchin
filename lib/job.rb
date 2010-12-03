@@ -170,13 +170,7 @@ module Urchin
     def reap_children(flags)
       running_commands.each do |command|
         pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
-        if pid
-          if status.stopped?
-            command.stopped!
-          elsif status.exited?
-            command.exit_code = status.exitstatus
-          end
-        end
+        command.change_status status unless pid.nil?
       end
 
       if uncompleted_commands.empty?
