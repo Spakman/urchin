@@ -49,6 +49,10 @@ begin
     Urchin.module_eval File.read(URCHIN_RB)
   end
 
+  unless defined? URCHIN_HISTORY
+    URCHIN_HISTORY = "#{ENV["HOME"]}/.urchin.history"
+  end
+
   if options[:command_string]
     Urchin::Shell.new.run(options[:command_string])
   else

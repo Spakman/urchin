@@ -27,6 +27,10 @@ Dir.glob("#{File.dirname(__FILE__)}/../builtins/*.rb").each do |path|
   require path
 end
 
+unless defined? URCHIN_HISTORY
+  URCHIN_HISTORY = "#{File.dirname(__FILE__)}/.urchin.test.history"
+end
+
 module Urchin
   module TestHelpers
 

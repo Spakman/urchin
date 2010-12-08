@@ -63,6 +63,8 @@ module Urchin
     end
 
     def test_job_pipeline_has_correct_output_and_closes_pipes
+      num_fds = (Dir.entries("/dev/fd/") - [ ".", ".." ]).size
+
       cat = Command.create("cat", @job_table) << "COPYING" << "README"
       grep = Command.create("grep", @job_table) << "-i" << "copyright"
       wc = Command.create("wc", @job_table) << "-l"
@@ -78,7 +80,7 @@ module Urchin
 
       # For some reason test/unit always seems to have a pipe open, which is
       # irritating when you're testing that pipes are closed!
-      assert_equal 4, (Dir.entries("/dev/fd/") - [ ".", ".." ]).size
+      assert_equal num_fds, (Dir.entries("/dev/fd/") - [ ".", ".." ]).size
       assert_raises(Errno::ECHILD) { Process.wait }
     end
 
@@ -254,6 +256,23 @@ module Urchin
       assert_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
     ensure
       Process.kill(:KILL, less.pid) rescue Errno::ESRCH
+    end
+
+    # I don't know how to perform this test cleanly on other platforms.
+    if RUBY_PLATFORM =~ /linux/
+      def test_shell_history_file_is_closed_after_fork
+        @shell.setup_history
+
+        sleep = Command.create("sleep", @job_table) << "1"
+        Thread.new do
+          job = Job.new([ sleep ], @shell)
+          job.run
+        end
+        sleep 0.01 until sleep.running?
+
+        num_fds = (Dir.entries("/proc/#{sleep.pid}/fd/") - [ ".", ".." ]).size
+        assert_equal 3, num_fds
+      end
     end
   end
 end
