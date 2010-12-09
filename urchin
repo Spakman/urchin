@@ -7,6 +7,7 @@ begin
   require "optparse"
   require "readline"
   require "strscan"
+  require "fileutils"
 
   begin
     require "termios"
@@ -29,6 +30,8 @@ begin
     require path
   end
 
+  require "environment"
+
   options = {}
   OptionParser.new do |opts|
     opts.banner = "Usage: urchin [options]"
@@ -42,16 +45,6 @@ begin
       options[:command_string] = command_string
     end
   end.parse!
-
-  URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
-
-  if File.exists?(URCHIN_RB) && File.readable?(URCHIN_RB)
-    Urchin.module_eval File.read(URCHIN_RB)
-  end
-
-  unless defined? URCHIN_HISTORY
-    URCHIN_HISTORY = "#{ENV["HOME"]}/.urchin.history"
-  end
 
   if options[:command_string]
     Urchin::Shell.new.run(options[:command_string])
