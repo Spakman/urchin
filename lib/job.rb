@@ -55,6 +55,9 @@ module Urchin
 
     def fork_and_exec(command, nextin, nextout)
       pid = fork do
+        if @shell.history && !@shell.history.closed?
+          @shell.history.close
+        end
         if @shell.is_interactive?
           # This process belongs in the same process group as the rest of the
           # pipeline. The process group leader is the first command.
