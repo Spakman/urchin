@@ -81,6 +81,11 @@ module Urchin
     def add_to_history(input)
       unless input.empty? || Readline::HISTORY.to_a.last == input
         Readline::HISTORY.push(input)
+
+        # Some versions of libedit have a bug where the first item isn't added
+        # to the history.
+        Readline::HISTORY.push(input) if Readline::HISTORY.to_a.empty?
+
         @history << "#{input}\n"
         @history.flush
       end

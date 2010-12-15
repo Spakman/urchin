@@ -55,9 +55,7 @@ module Urchin
       shell = Urchin::Shell.new
       shell.setup_history
 
-      assert_equal "the", Readline::HISTORY.to_a.first
-      assert_equal "populated", Readline::HISTORY.to_a.last
-      assert_equal 4, Readline::HISTORY.to_a.size
+      assert_equal %w( the history is populated ), Readline::HISTORY.to_a
     end
   end
 end
