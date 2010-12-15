@@ -31,7 +31,9 @@ unless defined? URCHIN_HISTORY
   URCHIN_HISTORY = "#{File.dirname(__FILE__)}/.urchin.test.history"
 end
 
-URCHIN_LAST_CD = "#{File.dirname(__FILE__)}/.urchin.last.cd"
+unless defined? URCHIN_LAST_CD
+  URCHIN_LAST_CD = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
+end
 
 module Urchin
   module TestHelpers
