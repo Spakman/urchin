@@ -58,19 +58,18 @@ module Urchin
         if @shell.history && !@shell.history.closed?
           @shell.history.close
         end
-        if @shell.is_interactive?
-          # This process belongs in the same process group as the rest of the
-          # pipeline. The process group leader is the first command.
-          @pgid = Process.pid if @pgid.nil?
-          Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
 
-          Signal.trap :INT, "DEFAULT"
-          Signal.trap :QUIT, "DEFAULT"
-          Signal.trap :TSTP, "DEFAULT"
-          Signal.trap :TTIN, "DEFAULT"
-          Signal.trap :TTOU, "DEFAULT"
-          Signal.trap :CHLD, "DEFAULT"
-        end
+        # This process belongs in the same process group as the rest of the
+        # pipeline. The process group leader is the first command.
+        @pgid = Process.pid if @pgid.nil?
+        Process.setpgid(Process.pid, @pgid) rescue Errno::EACCES
+
+        Signal.trap :INT, "DEFAULT"
+        Signal.trap :QUIT, "DEFAULT"
+        Signal.trap :TSTP, "DEFAULT"
+        Signal.trap :TTIN, "DEFAULT"
+        Signal.trap :TTOU, "DEFAULT"
+        Signal.trap :CHLD, "DEFAULT"
 
         if nextin != STDIN
           STDIN.reopen nextin
@@ -87,14 +86,12 @@ module Urchin
       command.pid = pid
       command.running!
 
-      if @shell.is_interactive?
-        # Set the process group here as well as in the child process to avoid
-        # a race condition.
-        #
-        # Errno::EACCESS will be raised in whichever process loses the race.
-        @pgid = pid if @pgid.nil?
-        Process.setpgid(pid, @pgid) rescue Errno::EACCES
-      end
+      # Set the process group here as well as in the child process to avoid
+      # a race condition.
+      #
+      # Errno::EACCESS will be raised in whichever process loses the race.
+      @pgid = pid if @pgid.nil?
+      Process.setpgid(pid, @pgid) rescue Errno::EACCES
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
@@ -124,11 +121,7 @@ module Urchin
 
       @shell.job_table.insert self
 
-      if @shell.is_interactive?
-        foreground! unless start_in_background?
-      else
-        reap_children(Process::WUNTRACED)
-      end
+      foreground! unless start_in_background?
     end
 
     def start_in_background!

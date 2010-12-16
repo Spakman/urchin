@@ -41,15 +41,16 @@ begin
       exit
     end
 
-    opts.on("-c", "--commands [COMMANDS]", "Run this command string, then exit") do |command_string|
+    opts.on("-c", "--commands [COMMANDS]", "Run this command string using /bin/sh") do |command_string|
       options[:command_string] = command_string
     end
   end.parse!
 
+  # For compatibility with scripts that use `$SHELL -c "command"`.
   if options[:command_string]
-    Urchin::Shell.new.run(options[:command_string])
+    exec options[:command_string]
   else
-    Urchin::Shell.new.run_interactively
+    Urchin::Shell.new.run
   end
 rescue Exception => exception
   puts "Urchin exited.\n\n"

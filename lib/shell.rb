@@ -12,7 +12,6 @@ module Urchin
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
-      @interactive = false
     end
 
     def setup_history
@@ -36,11 +35,7 @@ module Urchin
       @@aliases
     end
 
-    def is_interactive?
-      @interactive
-    end
-
-    def run(command_string)
+    def parse_and_run(command_string)
       @parser.jobs_from(command_string).each do |job|
         begin
           begin
@@ -57,13 +52,13 @@ module Urchin
     # Starts the command line processing loop.
     #
     # TODO: nicer history management.
-    def run_interactively
-      setup_interactivity
+    def run
+      setup_terminal_and_signals
       setup_history
       begin
         while input = Readline.readline(prompt)
           add_to_history input
-          run input
+          parse_and_run input
         end
       rescue Interrupt
         puts "\n^C"
@@ -93,7 +88,7 @@ module Urchin
 
     # Ensures the Shell is in the foreground and ignores job-control signals so
     # it can perform job control itself.
-    def setup_interactivity
+    def setup_terminal_and_signals
       unless STDIN.tty?
         STDERR.puts "STDIN is not a TTY."
         exit 1
@@ -115,8 +110,6 @@ module Urchin
       Signal.trap :TTOU, "IGNORE"
 
       Termios.tcsetpgrp(STDIN, Process.getpgrp)
-
-      @interactive = true
     end
 
     # Defines the prompt method.
