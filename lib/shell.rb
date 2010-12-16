@@ -12,19 +12,7 @@ module Urchin
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
-    end
-
-    def setup_history
-      if File.readable? URCHIN_HISTORY
-        File.readlines(URCHIN_HISTORY).each do |line|
-          Readline::HISTORY.push line.chomp
-        end
-      end
-      @history = File.open(URCHIN_HISTORY, "a+")
-      begin
-        @history.close_on_exec = true
-      rescue NoMethodError
-      end
+      @history = History.new
     end
 
     def self.alias(hash)
@@ -54,35 +42,14 @@ module Urchin
     # TODO: nicer history management.
     def run
       setup_terminal_and_signals
-      setup_history
       begin
         while input = Readline.readline(prompt)
-          add_to_history input
+          @history.append input
           parse_and_run input
         end
       rescue Interrupt
         puts "\n^C"
         retry
-      end
-      @history.close
-    end
-
-    # Appends the input to the Readline history (if it was not a duplicate of
-    # the previous line) and writes it to the history file.
-    #
-    # TODO: use /dev/shm or some other method to save constant flushing.
-    #
-    # TODO: limit the number of entries in the history file.
-    def add_to_history(input)
-      unless input.empty? || Readline::HISTORY.to_a.last == input
-        Readline::HISTORY.push(input)
-
-        # Some versions of libedit have a bug where the first item isn't added
-        # to the history.
-        Readline::HISTORY.push(input) if Readline::HISTORY.to_a.empty?
-
-        @history << "#{input}\n"
-        @history.flush
       end
     end
 

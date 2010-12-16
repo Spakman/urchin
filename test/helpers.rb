@@ -15,6 +15,7 @@ rescue LoadError
   STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
 end
 
+require "lib/history"
 require "lib/shell"
 require "lib/parser"
 require "lib/job_table"
@@ -76,6 +77,11 @@ module Urchin
         STDERR.puts exception.backtrace.join("\n")
       end
       reopen_stdout
+    end
+
+    def cleanup_history
+      @shell.history.cleanup
+      FileUtils.rm_f URCHIN_HISTORY
     end
   end
 end

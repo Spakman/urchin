@@ -18,6 +18,7 @@ begin
   end
 
   $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+  require "lib/history"
   require "lib/shell"
   require "lib/parser"
   require "lib/job_table"
@@ -50,9 +51,12 @@ begin
   if options[:command_string]
     exec options[:command_string]
   else
-    Urchin::Shell.new.run
+    @shell = Urchin::Shell.new.run
   end
 rescue Exception => exception
+  if @shell
+    @shell.history.cleanup
+  end
   puts "Urchin exited.\n\n"
   STDERR.puts "  #{exception.class}: #{exception.message}"
   STDERR.puts "  "+exception.backtrace.join("\n  ")

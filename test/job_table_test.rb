@@ -15,6 +15,12 @@ module Urchin
       @job_table = @shell.job_table
     end
 
+    def teardown
+      old_teardown
+      cleanup_history
+      @shell.history.cleanup
+    end
+
     def test_insert
       @job_table.insert Job.new(Command.create("ls", @job_table), @shell)
       assert_equal 1, @job_table.jobs.size

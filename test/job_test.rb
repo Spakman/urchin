@@ -59,6 +59,7 @@ module Urchin
 
     def teardown
       old_teardown
+      cleanup_history
       Process.waitall
     end
 
@@ -261,8 +262,6 @@ module Urchin
     # I don't know how to perform this test cleanly on other platforms.
     if RUBY_PLATFORM =~ /linux/
       def test_shell_history_file_is_closed_after_fork
-        @shell.setup_history
-
         sleep = Command.create("sleep", @job_table) << "1"
         Thread.new do
           job = Job.new([ sleep ], @shell)
