@@ -24,14 +24,6 @@ module Urchin
       @commands.empty?
     end
 
-    # Checks that every Command is able to be run in a child process.
-    #
-    # A pipeline only fails this test when one or more of the commands are a
-    # Builtin.
-    def valid_pipeline?
-      @commands.find_all { |c| c.kind_of? Command } == @commands
-    end
-
     def title
       @commands.first.to_s
     end

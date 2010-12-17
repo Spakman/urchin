@@ -206,19 +206,6 @@ module Urchin
       assert s2.completed?
     end
 
-    def test_validate_pipline
-      ls = Command.create("ls", @job_table)
-      tail = Command.create("tail", @job_table)
-      assert Job.new([ ls, tail ], @shell).valid_pipeline?
-
-      cd = Command.create("cd", @job_table)
-      assert !Job.new([ cd ], @shell).valid_pipeline?
-
-      ls = Command.create("ls", @job_table)
-      cd = Command.create("cd", @job_table)
-      assert !Job.new([ ls, cd ], @shell).valid_pipeline?
-    end
-
     def test_running_builtin_as_part_of_a_pipline
       open_fds = Dir.entries("/dev/fd/")
       builtin_echo = Command.create("builtinecho", @job_table) << "123"
