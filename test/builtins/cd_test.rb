@@ -9,7 +9,7 @@ module Urchin
     class Cd
       # Clean the environment for the tests.
       def reset_last_dir
-        @@last_dir = nil
+        @@previous_dir = nil
       end
     end
 

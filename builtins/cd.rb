@@ -9,8 +9,9 @@ module Urchin
     class Cd
       include Methods
 
+      @@previous_dir = nil
+
       def initialize(executable)
-        @@last_dir ||= nil
         super
       end
 
@@ -26,8 +27,8 @@ module Urchin
         valid_arguments?
         begin
           if @args.first == "-"
-            if @@last_dir
-              @args[0] = @@last_dir
+            if @@previous_dir
+              @args[0] = @@previous_dir
             else
               raise UrchinRuntimeError.new("There is no previous directory.")
             end
@@ -35,7 +36,7 @@ module Urchin
           if !File.directory? @args.first
             raise UrchinRuntimeError.new("Not a directory.")
           end
-          @@last_dir = Dir.getwd
+          @@previous_dir = Dir.getwd
           Dir.chdir @args.first
 
           # Write the directory to URCHIN_LAST_CD so new shells know where to
