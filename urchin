@@ -37,14 +37,20 @@ begin
   OptionParser.new do |opts|
     opts.banner = "Usage: urchin [options]"
 
-    opts.on("-h", "--help", "Show this message") do
-      puts opts
-      exit
-    end
-
     opts.on("-c", "--commands [COMMANDS]", "Run this command string using /bin/sh") do |command_string|
       options[:command_string] = command_string
     end
+
+    opts.on("-h", "--help", "Show this message") do
+      puts opts
+      exit 0
+    end
+
+    opts.on("--version", "Show version") do
+      puts `cd #{File.expand_path(File.dirname(__FILE__))}; git describe --always --dirty 2>/dev/null || echo "Can\'t find version information from Git."`
+      exit 0
+    end
+
   end.parse!
 
   # For compatibility with scripts that use `$SHELL -c "command"`.
@@ -54,6 +60,9 @@ begin
     @shell = Urchin::Shell.new.run
   end
 rescue Exception => exception
+  if exception.class == SystemExit
+    exit exception.status
+  end
   if @shell
     @shell.history.cleanup
   end
