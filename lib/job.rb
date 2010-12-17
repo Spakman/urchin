@@ -28,12 +28,12 @@ module Urchin
       @commands.first.to_s
     end
 
-    def exec_in_process(command, nextin, nextout)
+    def exec_in_process(command, next_in, next_out)
       old_stdin = STDIN.dup
       old_stdout = STDOUT.dup
 
-      STDIN.reopen nextin
-      STDOUT.reopen nextout
+      STDIN.reopen next_in
+      STDOUT.reopen next_out
 
       command.execute
 
@@ -45,7 +45,7 @@ module Urchin
       old_stdout.close
     end
 
-    def fork_and_exec(command, nextin, nextout)
+    def fork_and_exec(command, next_in, next_out)
       pid = fork do
         @shell.history.cleanup
 
@@ -61,13 +61,13 @@ module Urchin
         Signal.trap :TTOU, "DEFAULT"
         Signal.trap :CHLD, "DEFAULT"
 
-        if nextin != STDIN
-          STDIN.reopen nextin
-          nextin.close
+        if next_in != STDIN
+          STDIN.reopen next_in
+          next_in.close
         end
-        if nextout != STDOUT
-          STDOUT.reopen nextout
-          nextout.close
+        if next_out != STDOUT
+          STDOUT.reopen next_out
+          next_out.close
         end
 
         command.execute
@@ -86,27 +86,27 @@ module Urchin
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
     def run
-      nextin = STDIN
-      nextout = STDOUT
+      next_in = STDIN
+      next_out = STDOUT
       pipe = []
 
       @commands.each_with_index do |command, index|
         if index+1 < @commands.size
           pipe = IO.pipe
-          nextout = pipe.last
+          next_out = pipe.last
         else
-          nextout = STDOUT
+          next_out = STDOUT
         end
 
         if command.should_fork?
-          fork_and_exec(command, nextin, nextout)
+          fork_and_exec(command, next_in, next_out)
         else
-          exec_in_process(command, nextin, nextout)
+          exec_in_process(command, next_in, next_out)
         end
 
-        nextin.close if nextin != STDIN
-        nextout.close if nextout != STDOUT
-        nextin = pipe.first
+        next_in.close if next_in != STDIN
+        next_out.close if next_out != STDOUT
+        next_in = pipe.first
       end
 
       @shell.job_table.insert self
