@@ -5,18 +5,18 @@
 # Set up the runtime environment.
 
 if File.writable? "/dev/shm/"
-  URCHIN_TMP = "/dev/shm/urchin"
+  Urchin::TMP_DIR = "/dev/shm/urchin"
 else
-  URCHIN_TMP = "/tmp/.urchin"
+  Urchin::TMP_DIR = "/tmp/.urchin"
 end
-FileUtils.mkdir URCHIN_TMP unless File.directory? URCHIN_TMP
+FileUtils.mkdir Urchin::TMP_DIR unless File.directory? Urchin::TMP_DIR
 
 
 # Start in the last changed to directory.
-URCHIN_LAST_CD = "#{URCHIN_TMP}/lastdir"
+Urchin::Builtins::Cd::LAST_DIR = "#{Urchin::TMP_DIR}/lastdir"
 
-if File.readable? URCHIN_LAST_CD
-  last_dir = File.read(URCHIN_LAST_CD).chomp
+if File.readable? Urchin::Builtins::Cd::LAST_DIR
+  last_dir = File.read(Urchin::Builtins::Cd::LAST_DIR)
   unless last_dir.empty?
     begin
       Dir.chdir last_dir
@@ -27,13 +27,13 @@ end
 
 
 # Run any user defined configuration stuff.
-URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
+Urchin::URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
 
-if File.exists?(URCHIN_RB) && File.readable?(URCHIN_RB)
-  Urchin.module_eval File.read(URCHIN_RB)
+if File.exists?(Urchin::URCHIN_RB) && File.readable?(Urchin::URCHIN_RB)
+  Urchin.module_eval File.read(Urchin::URCHIN_RB)
 end
 
 
-unless defined? URCHIN_HISTORY
-  URCHIN_HISTORY = "#{ENV["HOME"]}/.urchin.history"
+unless defined? Urchin::History::FILE
+  Urchin::History::FILE = "#{ENV["HOME"]}/.urchin.history"
 end
