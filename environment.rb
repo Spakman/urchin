@@ -16,7 +16,7 @@ FileUtils.mkdir Urchin::TMP_DIR unless File.directory? Urchin::TMP_DIR
 Urchin::Builtins::Cd::LAST_DIR = "#{Urchin::TMP_DIR}/lastdir"
 
 if File.readable? Urchin::Builtins::Cd::LAST_DIR
-  last_dir = File.read(Urchin::Builtins::Cd::LAST_DIR)
+  last_dir = File.read(Urchin::Builtins::Cd::LAST_DIR).chomp
   unless last_dir.empty?
     begin
       Dir.chdir last_dir
