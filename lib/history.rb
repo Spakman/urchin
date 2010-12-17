@@ -16,12 +16,12 @@ module Urchin
     end
 
     def setup_history
-      if File.readable? URCHIN_HISTORY
-        File.readlines(URCHIN_HISTORY).each do |line|
+      if File.readable? FILE
+        File.readlines(FILE).each do |line|
           Readline::HISTORY.push line.chomp
         end
       end
-      @file = File.open(URCHIN_HISTORY, "a+")
+      @file = File.open(FILE, "a+")
       begin
         @file.close_on_exec = true
       rescue NoMethodError

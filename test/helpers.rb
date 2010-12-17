@@ -28,12 +28,12 @@ Dir.glob("#{File.dirname(__FILE__)}/../builtins/*.rb").each do |path|
   require path
 end
 
-unless defined? URCHIN_HISTORY
-  URCHIN_HISTORY = "#{File.dirname(__FILE__)}/.urchin.test.history"
+unless defined? Urchin::History::FILE
+  Urchin::History::FILE = "#{File.dirname(__FILE__)}/.urchin.test.history"
 end
 
-unless defined? URCHIN_LAST_CD
-  URCHIN_LAST_CD = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
+unless defined? Urchin::Builtins::Cd::LAST_DIR
+  Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
 end
 
 module Urchin
@@ -81,7 +81,7 @@ module Urchin
 
     def cleanup_history
       @shell.history.cleanup
-      FileUtils.rm_f URCHIN_HISTORY
+      FileUtils.rm_f History::FILE
     end
   end
 end

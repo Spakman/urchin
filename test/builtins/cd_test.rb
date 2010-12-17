@@ -20,7 +20,7 @@ module Urchin
 
       def teardown
         Dir.chdir @dir
-        FileUtils.rm_f URCHIN_LAST_CD
+        FileUtils.rm_f Cd::LAST_DIR
         Cd.new(nil).reset_last_dir
       end
 
@@ -88,20 +88,20 @@ module Urchin
       def test_directory_is_written_to_temporary_file
         cd = Cd.new(JobTable.new) << "/"
         assert_nothing_raised { cd.execute }
-        assert_equal "/", File.read(URCHIN_LAST_CD).chomp
+        assert_equal "/", File.read(Cd::LAST_DIR).chomp
 
         path = Pathname.new("/tmp")
 
         cd = Cd.new(JobTable.new) << path.to_s
         assert_nothing_raised { cd.execute }
-        assert_equal path.realpath.to_s, File.read(URCHIN_LAST_CD).chomp
+        assert_equal path.realpath.to_s, File.read(Cd::LAST_DIR).chomp
 
         cd = Cd.new(JobTable.new) << "/not/a/directory"
         begin
           cd.execute
         rescue UrchinRuntimeError
         end
-        assert_equal path.realpath.to_s, File.read(URCHIN_LAST_CD).chomp
+        assert_equal path.realpath.to_s, File.read(Cd::LAST_DIR).chomp
       end
     end
   end

@@ -40,7 +40,7 @@ module Urchin
 
           # Write the directory to URCHIN_LAST_CD so new shells know where to
           # start.
-          File.open(URCHIN_LAST_CD, "w") do |file|
+          File.open(LAST_DIR, "w") do |file|
             file << "#{Dir.getwd}\n"
           end
         rescue Errno::EACCES

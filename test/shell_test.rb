@@ -13,7 +13,7 @@ module Urchin
     ensure
       shell.history.cleanup
       shell2.history.cleanup
-      FileUtils.rm_f URCHIN_HISTORY
+      FileUtils.rm_f History::FILE
     end
 
     def test_setting_alias
@@ -23,7 +23,7 @@ module Urchin
       assert_equal "ls --color", shell.aliases["ls"]
     ensure
       shell.history.cleanup
-      FileUtils.rm_f URCHIN_HISTORY
+      FileUtils.rm_f History::FILE
     end
   end
 end
