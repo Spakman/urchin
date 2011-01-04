@@ -11,7 +11,7 @@ module Urchin
       end
 
       # Just to keep things working.
-      def environment_variables=(varaibles); end
+      def environment_variables=(variables); end
 
       def <<(arg)
         @args << arg
