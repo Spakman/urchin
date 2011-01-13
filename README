@@ -4,8 +4,9 @@ Urchin
 A Unix shell for Ruby programmers. If you have any ideas for what you think
 this should mean, please let me know!
 
-So far there is working job control, redirections, tilde expansion, aliasing,
-globbing and environment variables.
+Urchin does not aim to be POSIX compliant, but is heavily influenced by Bash
+and Zsh. Urchin aims to make Ruby a first class citizen in the shell and be a
+good place for experimenting with new shell ideas.
 
 
 Authors
@@ -14,24 +15,38 @@ Authors
 Mark Somerville <mark@scottishclimbs.com>
 http://mark.scottishclimbs.com/
 @_Spakman
+Spakman on Freenode
 
 
-Preparing for 0.1.0
+Current status
 ===
 
 Urchin has met my criteria for a first release (used as my login shell for a
-week without breaking or annoying me)!
+week without breaking or annoying me)! I've found version 0.1.0 really rather
+usable as my login shell for some weeks now (this doesn't mean you will!).
 
-Now mostly ready for a first release, mainly just some tidying up and
-refactoring to do.
+So far there is working job control, redirections, tilde expansion, aliasing,
+globbing and environment variables.
+
+Unfortunately, this means there isn't anything in Urchin right now that
+provides any advantage over Bash/Zsh. Once a couple of more things are sorted
+out, some integration with Ruby will put in place (allowing use of inline Ruby,
+without escaping things).
+
+Since this is really a preview release, there are no installation packages at
+all.
 
 
-What won't be in 0.1.0
----
-* Anything more than the Readline provided tab-completion
-* Exit code logic
-* Anymore more than really basic persistent history
-* Any Urchin installation packages
+Current problems
+===
+
+GitHub is used for ticket tracking: https://github.com/Spakman/urchin/issues
+
+Feel free to use this to suggest features too. I will, when I get a chance!
+
+I would like to see some things sorted before moving onto cooler features -
+primarily, better tab-completion. I'm finding making use of the included
+Readline module is hard work.
 
 
 Requirements
@@ -39,7 +54,7 @@ Requirements
 
 Ruby
 ---
-Tested with CRuby 1.8.7 and 1.9.2. If running using 1.9.2 on a laptop, be aware
+Tested with MRI 1.8.7 and 1.9.2. If running using 1.9.2 on a laptop, be aware
 of bug #3436 (http://redmine.ruby-lang.org/issues/show/3436).
 
 Readline support of some variety is needed. I've only really tested with GNU
