@@ -1,3 +1,5 @@
+require "test/unit"
+
 # If we are not the controlling process, we won't be able to set the foreground
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"

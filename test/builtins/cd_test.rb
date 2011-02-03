@@ -1,8 +1,7 @@
-require "test/unit"
-require "fileutils"
-require "pathname"
 require "#{File.dirname(__FILE__)}/../helpers"
 require "#{File.dirname(__FILE__)}/../../builtins/cd"
+require "fileutils"
+require "pathname"
 
 module Urchin
   module Builtins

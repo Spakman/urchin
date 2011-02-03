@@ -1,9 +1,8 @@
-require "test/unit"
-require "fileutils"
 require "#{File.dirname(__FILE__)}/helpers"
 require "#{File.dirname(__FILE__)}/../lib/job"
 require "#{File.dirname(__FILE__)}/../lib/command"
 require "#{File.dirname(__FILE__)}/../lib/shell"
+require "fileutils"
 
 module Termios
   class Termios

@@ -1,9 +1,7 @@
-require "test/unit"
-require "fileutils"
 require "#{File.dirname(__FILE__)}/../helpers"
 require "#{File.dirname(__FILE__)}/../../builtins/fg"
 require "#{File.dirname(__FILE__)}/../../lib/job_table"
-
+require "fileutils"
 
 module Urchin
   module Builtins

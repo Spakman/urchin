@@ -1,6 +1,5 @@
-require "test/unit"
-require "fileutils"
 require "#{File.dirname(__FILE__)}/../helpers"
+require "fileutils"
 
 module Urchin
   module Builtins

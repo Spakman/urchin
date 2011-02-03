@@ -1,8 +1,7 @@
-require "test/unit"
-require "fileutils"
 require "#{File.dirname(__FILE__)}/helpers"
 require "#{File.dirname(__FILE__)}/../lib/parser"
 require "#{File.dirname(__FILE__)}/../lib/shell"
+require "fileutils"
 
 module Urchin
   class Job; attr_reader :commands, :start_in_background; end
