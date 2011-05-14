@@ -5,19 +5,32 @@
 
 begin
   require "optparse"
-  require "readline"
   require "strscan"
   require "fileutils"
+
+  require "rbconfig"
+  unless File.exists? "#{RbConfig::CONFIG["sitelibdir"]}/readline.rb"
+    # Looks like rb-readline was not installed in site_ruby.
+    require "rubygems"
+  end
+  begin
+    require "rb-readline"
+  rescue LoadError
+    require "rubygems"
+    require "readline"
+  end
 
   begin
     require "termios"
   rescue LoadError
+    # Looks like termios was not installed in site_ruby or we loaded the Gem
+    # instead.
     require "rubygems"
     require "termios"
-    STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
   end
 
   $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+  require "lib/readline"
   require "lib/history"
   require "lib/shell"
   require "lib/parser"
