@@ -31,6 +31,7 @@ begin
 
   $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
   require "lib/readline"
+  require "lib/completer"
   require "lib/history"
   require "lib/shell"
   require "lib/parser"
@@ -70,6 +71,7 @@ begin
   if options[:command_string]
     exec options[:command_string]
   else
+    Readline.completion_proc = Urchin::Completer.new(ENV["PATH"]).completion_proc
     @shell = Urchin::Shell.new.run
   end
 rescue Exception => exception
