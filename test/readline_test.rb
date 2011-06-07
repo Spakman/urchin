@@ -27,5 +27,21 @@ module Urchin
       # The original variable should be left untouched.
       assert_equal original_filename, quoted_filename
     end
+
+    def test_filename_quoting_function_is_noop_without_backslash
+      filename = "'path with spaces'"
+      original_filename = filename.dup
+
+      assert_equal "'path with spaces'", RbReadline.filename_quoting_function(filename, nil, "'")
+      # The original variable should be left untouched.
+      assert_equal original_filename, filename
+
+      filename = '"path with spaces"'
+      original_filename = filename.dup
+
+      assert_equal '"path with spaces"', RbReadline.filename_quoting_function(filename, nil, '"')
+      # The original variable should be left untouched.
+      assert_equal original_filename, filename
+    end
   end
 end
