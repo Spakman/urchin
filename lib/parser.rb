@@ -159,10 +159,12 @@ module Urchin
     # it is a glob pattern. Otherwise, just return an array containing word.
     def words_from_glob(word)
       if is_a_glob? word
-        (Dir.glob(word) - [ ".", ".." ]).sort
-      else
-        [ word ]
+        files = Dir.glob(word) - [ ".", ".." ]
+        if files.any?
+          return files.sort
+        end
       end
+      [ word ]
     end
 
     # Returns a quoted word that is free from quotes and escaped quote

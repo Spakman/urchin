@@ -231,6 +231,10 @@ module Urchin
       assert_equal files.sort, files
     end
 
+    def test_empty_globs_return_the_glob_pattern
+      assert_equal [ "*.nothing" ], @parser.words_from_glob("*.nothing")
+    end
+
     def test_empty_job
       assert @parser.jobs_from('&').empty?
       assert @parser.jobs_from(';').empty?
