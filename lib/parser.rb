@@ -159,7 +159,7 @@ module Urchin
     # it is a glob pattern. Otherwise, just return an array containing word.
     def words_from_glob(word)
       if is_a_glob? word
-        Dir.glob(word) - [ ".", ".." ]
+        (Dir.glob(word) - [ ".", ".." ]).sort
       else
         [ word ]
       end

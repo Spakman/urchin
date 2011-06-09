@@ -226,6 +226,11 @@ module Urchin
       assert !@parser.words_from_glob(".*").include?("..")
     end
 
+    def test_globs_are_alphabetically_ordered
+      files = @parser.words_from_glob("*")
+      assert_equal files.sort, files
+    end
+
     def test_empty_job
       assert @parser.jobs_from('&').empty?
       assert @parser.jobs_from(';').empty?
