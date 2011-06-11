@@ -5,22 +5,14 @@
 module Urchin
   # TODO: handle the following:
   #
-  #   Command/alias expansion:
+  #   Command expansion:
   #
   #   * ls -lh `cat thepath` | head -2
-  #
-  #   Environment variables:
-  #
-  #   * VAR=hello echo $VAR; echo $VAR
   #
   #   Exit code logic:
   #
   #   * cd /dir && ls -l
   #   * cd ~ms || cd ~mark
-  #
-  #   Inline Ruby code:
-  #
-  #   * ls | ~@ p STDIN.gsub(/^*\..*/, "") @~ | tail
   #
   #   Simple calculations:
   #
