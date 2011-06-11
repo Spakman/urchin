@@ -6,6 +6,11 @@ module Urchin
   class Shell
     attr_reader :job_table, :terminal_modes, :history
 
+    @ruby_delimiter = "~@"
+    class << self
+      attr_accessor :ruby_delimiter
+    end
+
     @@aliases = {}
 
     def initialize

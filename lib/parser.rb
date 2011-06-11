@@ -49,7 +49,13 @@ module Urchin
         while var = environment_variable
           command_variables.merge! var
         end
-        if command = parse_command
+        if ruby = parse_ruby
+          ruby.environment_variables = command_variables
+          job << ruby
+          until end_of_command?
+            parse_redirects(ruby)
+          end
+        elsif command = parse_command
           command.environment_variables = command_variables
           until end_of_command?
             parse_redirects(command)
@@ -127,6 +133,18 @@ module Urchin
           command << arg
         end
         return command
+      else
+        false
+      end
+    end
+
+    # Returns a RubyCommand object to run the Ruby code between the next two
+    # Ruby delimiters or false.
+    def parse_ruby
+      remove_space
+      if source = @input.scan(/^#{Regexp.escape(Shell.ruby_delimiter)}(.+?)#{Regexp.escape(Shell.ruby_delimiter)}/)
+        source.gsub! Shell.ruby_delimiter, ""
+        RubyCommand.create source
       else
         false
       end

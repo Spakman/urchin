@@ -23,6 +23,7 @@ require "lib/parser"
 require "lib/job_table"
 require "lib/job"
 require "lib/command"
+require "lib/ruby_command"
 require "lib/builtin"
 require "lib/urchin_runtime_error"
 

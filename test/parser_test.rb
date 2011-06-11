@@ -345,5 +345,19 @@ module Urchin
     ensure
       Urchin::Shell.alias "ls" => nil
     end
+
+    def test_inline_ruby
+      jobs = @parser.jobs_from('~@ puts 123 ~@')
+      assert_equal 1, jobs.first.commands.size
+      ruby = jobs.first.commands.first
+      assert ruby.executable.index("ruby")
+      assert_equal "-e", ruby.args.first
+      assert_equal " puts 123 ", ruby.args.last
+
+      jobs = @parser.jobs_from('echo -n "hello" |~@ puts STDIN.read.reverse ~@')
+      assert_equal 2, jobs.first.commands.size
+      ruby = jobs.first.commands.last
+      assert ruby.executable.index("ruby")
+    end
   end
 end
