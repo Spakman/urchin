@@ -47,8 +47,6 @@ module Urchin
 
     def fork_and_exec(command, next_in, next_out)
       pid = fork do
-        @shell.history.cleanup
-
         # This process belongs in the same process group as the rest of the
         # pipeline. The process group leader is the first command.
         @pgid = Process.pid if @pgid.nil?
@@ -70,6 +68,8 @@ module Urchin
           next_out.close
         end
 
+        close_fds
+
         command.execute
       end
 
@@ -82,6 +82,15 @@ module Urchin
       # Errno::EACCESS will be raised in whichever process loses the race.
       @pgid = pid if @pgid.nil?
       Process.setpgid(pid, @pgid) rescue Errno::EACCES
+    end
+
+    # This closes all file descriptors except STDIN, STDOUT and STDERR.
+    def close_fds
+      Dir.entries("/dev/fd/").each do |file|
+        unless file == '.' or file == '..' or file.to_i < 3
+          IO.new(file.to_i).close rescue nil
+        end
+      end
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
