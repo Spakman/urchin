@@ -47,6 +47,16 @@ module Urchin
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal %w( parser_test.rb ), completer.completion_proc.call("p")
       end
+
+      Readline.module_eval do
+        def self.line_buffer
+          "stdin_writer "
+        end
+      end
+      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
+        assert_equal (Dir.entries(".") - [ ".", ".." ]), completer.completion_proc.call("")
+      end
     end
 
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_dot

@@ -23,7 +23,9 @@ module Urchin
     def completion_proc
       Proc.new do |word|
         line = Readline.line_buffer.lstrip
-        if line[0,1] != "." && line[0,1] != "/" && line[0,1] != "~" && line.index(word) == 0
+        if word.empty? && !line.empty?
+          Readline::FILENAME_COMPLETION_PROC.call(word)
+        elsif line[0,1] != "." && line[0,1] != "/" && line[0,1] != "~" && line.index(word) == 0
           complete_executable(word)
         else
           Readline::FILENAME_COMPLETION_PROC.call(word)
