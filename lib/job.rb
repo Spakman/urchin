@@ -87,9 +87,10 @@ module Urchin
     # This closes all file descriptors except STDIN, STDOUT and STDERR.
     def close_fds
       Dir.entries("/dev/fd/").each do |file|
-        unless file == '.' or file == '..' or file.to_i < 3
-          IO.new(file.to_i).close rescue nil
-        end
+        next if file == '.' || file == '..'
+        fd = file.to_i
+        next if fd < 3
+        IO.new(fd).close rescue nil
       end
     end
 
