@@ -4,6 +4,7 @@
 # See COPYING.
 
 begin
+  $LOAD_PATH.delete "."
   require "optparse"
   require "strscan"
   require "fileutils"
