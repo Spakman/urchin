@@ -30,7 +30,14 @@ end
 Urchin::URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
 
 if File.exists?(Urchin::URCHIN_RB) && File.readable?(Urchin::URCHIN_RB)
-  Urchin.module_eval File.read(Urchin::URCHIN_RB)
+  begin
+    Urchin.module_eval File.read(Urchin::URCHIN_RB)
+  rescue Exception => exception
+    STDERR.puts "Exception in #{Urchin::URCHIN_RB}:"
+    STDERR.puts exception.message
+    STDERR.puts exception.backtrace.join("\n")
+    STDERR.puts
+  end
 end
 
 
