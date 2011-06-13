@@ -32,8 +32,8 @@ module Urchin
           # If the terminal was resized while we were running a job in the
           # foreground, Urchin will not have received SIGWINCH and will have
           # incorrect LINES and COLUMNS envrironment variables set, so let's
-          # call the handler.
-          RbReadline.rl_sigwinch_handler(0)
+          # check the terminal size.
+          RbReadline._rl_get_screen_size(STDIN.fileno, 1)
         end
       rescue Interrupt
         puts "\n^C"
