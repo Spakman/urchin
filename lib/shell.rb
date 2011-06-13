@@ -28,6 +28,12 @@ module Urchin
         while input = Readline.readline(prompt)
           @history.append input
           parse_and_run input
+
+          # If the terminal was resized while we were running a job in the
+          # foreground, Urchin will not have received SIGWINCH and will have
+          # incorrect LINES and COLUMNS envrironment variables set, so let's
+          # call the handler.
+          RbReadline.rl_sigwinch_handler(0)
         end
       rescue Interrupt
         puts "\n^C"
