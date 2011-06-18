@@ -53,6 +53,13 @@ module Urchin
       rescue Errno::ENOENT
         STDERR.puts "Command not found: #{@executable}"
         exit 127
+      rescue Errno::EACCES
+        if File.directory? @executable
+          STDERR.puts "Is a directory: #{@executable}"
+        else
+          STDERR.puts "Permission denied: #{@executable}"
+        end
+        exit 127
       end
     end
 

@@ -129,6 +129,32 @@ module Urchin
       FileUtils.rm("stderr_testfile", :force => true)
     end
 
+    def test_executing_command_that_is_not_executable
+      command = Command.create(File.expand_path(__FILE__), JobTable.new)
+      command.add_redirect(STDERR, "stderr_testfile", "w")
+
+      pid = fork { command.execute }
+      pid, status = Process.waitpid2 pid
+
+      assert_equal "Permission denied: #{File.expand_path(__FILE__)}\n", File.read("stderr_testfile")
+      assert_equal 127, status.exitstatus
+    ensure
+      FileUtils.rm("stderr_testfile", :force => true)
+    end
+
+    def test_executing_command_that_is_a_directory
+      command = Command.create(File.dirname(__FILE__), JobTable.new)
+      command.add_redirect(STDERR, "stderr_testfile", "w")
+
+      pid = fork { command.execute }
+      pid, status = Process.waitpid2 pid
+
+      assert_equal "Is a directory: #{File.dirname(__FILE__)}\n", File.read("stderr_testfile")
+      assert_equal 127, status.exitstatus
+    ensure
+      FileUtils.rm("stderr_testfile", :force => true)
+    end
+
     def test_set_command_local_environment_variables
       command = Command.create("./env_var_writer", JobTable.new)
       command.add_redirect(STDOUT, "stdout_testfile", "w")
