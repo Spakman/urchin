@@ -5,7 +5,16 @@ end
 Readline.completer_quote_characters = "\\'\""
 Readline.filename_quote_characters = " "
 
+module Readline
+  def self.point
+    RbReadline.rl_point
+  end
+end
+
 module RbReadline
+  attr_accessor :rl_point
+  module_function :rl_point
+
   @rl_filename_dequoting_function = :filename_dequoting_function
   @rl_filename_quoting_function = :filename_quoting_function
   @rl_char_is_quoted_p = :char_is_quoted?
