@@ -181,11 +181,12 @@ module Urchin
     # characters.
     def quoted_word
       if char = @input.scan(/^["']/)
+        output = ""
         while part = (quoted_word_part(char) or escaped_char(char))
-          output ||= ""
           output << part
           break if end_of(char)
         end
+        end_of(char) if output.empty?
       end
       output
     end

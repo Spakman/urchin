@@ -51,6 +51,8 @@ module Urchin
       assert_equal [ 'two words' ], @parser.words
       @parser.setup '"a \"quote\" and stuff"'
       assert_equal [ 'a "quote" and stuff' ], @parser.words
+      @parser.setup '""'
+      assert_equal [ '' ], @parser.words
       @parser.setup 'find . -name "hello.*" -exec chmod 660 {} \;'
       assert_equal %w{ find . -name hello.* -exec chmod 660 \{\} ; }, @parser.words
     end
