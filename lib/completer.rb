@@ -1,7 +1,8 @@
 module Urchin
   class Completer
-    def initialize(env_path)
+    def initialize(env_path, shell)
       build_executables_list_from(env_path)
+      @shell = shell
     end
 
     def build_executables_list_from(env_path)
@@ -22,13 +23,20 @@ module Urchin
 
     def completion_proc
       Proc.new do |word|
-        line = Readline.line_buffer.lstrip
-        if word.empty? && !line.empty?
-          Readline::FILENAME_COMPLETION_PROC.call(word)
-        elsif line[0,1] != "." && line[0,1] != "/" && line[0,1] != "~" && line.index(word) == 0
-          complete_executable(word)
+        last_command = Parser.new(@shell).jobs_from(Readline.line_buffer).last.commands.last
+        constant = last_command.executable.capitalize
+
+        if(Completion.constants & [ constant, constant.to_sym ]).any?
+          Completion.const_get(constant.to_sym).complete(last_command, word)
         else
-          Readline::FILENAME_COMPLETION_PROC.call(word)
+          line = Readline.line_buffer.lstrip
+          if word.empty? && !line.empty?
+            Readline::FILENAME_COMPLETION_PROC.call(word)
+          elsif line[0,1] != "." && line[0,1] != "/" && line[0,1] != "~" && line.index(word) == 0
+            complete_executable(word)
+          else
+            Readline::FILENAME_COMPLETION_PROC.call(word)
+          end
         end
       end
     end

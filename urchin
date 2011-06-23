@@ -43,7 +43,7 @@ begin
   require "lib/builtin"
   require "lib/urchin_runtime_error"
 
-  Dir.glob("#{File.dirname(__FILE__)}/builtins/*.rb").each do |path|
+  Dir.glob("#{File.dirname(__FILE__)}/{builtins,completion}/*.rb").each do |path|
     require path
   end
 
@@ -73,8 +73,9 @@ begin
   if options[:command_string]
     exec options[:command_string]
   else
-    Readline.completion_proc = Urchin::Completer.new(ENV["PATH"]).completion_proc
-    @shell = Urchin::Shell.new.run
+    @shell = Urchin::Shell.new
+    Readline.completion_proc = Urchin::Completer.new(ENV["PATH"], @shell).completion_proc
+    @shell.run
   end
 rescue Exception => exception
   if exception.class == SystemExit

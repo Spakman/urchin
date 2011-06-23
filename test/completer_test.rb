@@ -4,6 +4,14 @@ require "#{File.dirname(__FILE__)}/../lib/completer"
 require "fileutils"
 
 module Urchin
+  module Completion
+    class Mycommand
+      def self.complete(command, word)
+        %w( one two )
+      end
+    end
+  end
+
   class CompleterTestCase < Test::Unit::TestCase
 
     def set_line_buffer(string)
@@ -38,25 +46,25 @@ module Urchin
     end
 
     def test_build_executables_list_from_path
-      completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}"
+      completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}", Shell.new
       assert_equal 3, completer.instance_eval("@executables").size
     end
 
     def test_completion_proc_calls_complete_executable_on_first_word
       set_line_buffer "st"
-      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal %w( stdout_stderr_writer stdin_writer ), completer.completion_proc.call("st")
     end
 
     def test_filename_completion_proc_is_called_for_second_word
       set_line_buffer "stdin_writer p"
-      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal %w( parser_test.rb ), completer.completion_proc.call("p")
       end
 
       set_line_buffer "stdin_writer "
-      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal (Dir.entries(".") - [ ".", ".." ]), completer.completion_proc.call("")
       end
@@ -64,7 +72,7 @@ module Urchin
 
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_dot
       set_line_buffer "./p"
-      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal %w( ./parser_test.rb ), completer.completion_proc.call("./p")
       end
@@ -73,7 +81,7 @@ module Urchin
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_slash
       dir = File.expand_path(File.dirname(__FILE__))
       set_line_buffer File.expand_path(File.dirname(__FILE__))
-      completer = Completer.new File.expand_path(File.dirname(__FILE__))
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(dir) do
         assert_equal [ dir ], completer.completion_proc.call(dir)
       end
@@ -84,10 +92,17 @@ module Urchin
       FileUtils.touch("#{@completer_dir}/~notalikelyrealuser")
       FileUtils.chmod(0744, "#{@completer_dir}/~notalikelyrealuser")
 
-      completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}"
+      completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}", Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_nil completer.completion_proc.call("~notalikelyrealuseruser")
       end
+    end
+
+    def test_sub_command_completion_is_called
+      set_line_buffer "mycommand o"
+
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
+      assert_equal %w( one two ), completer.completion_proc.call("o")
     end
   end
 end

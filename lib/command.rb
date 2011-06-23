@@ -7,7 +7,7 @@ module Urchin
     private_class_method :new
 
     attr_accessor :pid, :environment_variables
-    attr_reader :exit_code
+    attr_reader :exit_code, :executable, :args
 
     def initialize(executable)
       @executable = executable
