@@ -104,5 +104,12 @@ module Urchin
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal %w( one two ), completer.completion_proc.call("o")
     end
+
+    def test_sub_command_completion_for_builtin
+      set_line_buffer "cd o"
+
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
+      assert_nil completer.completion_proc.call("o")
+    end
   end
 end
