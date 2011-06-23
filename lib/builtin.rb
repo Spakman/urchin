@@ -13,6 +13,10 @@ module Urchin
       # Just to keep things working.
       def environment_variables=(variables); end
 
+      def executable
+        self.class.to_s.downcase
+      end
+
       def <<(arg)
         @args << arg
         self
