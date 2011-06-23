@@ -8,6 +8,9 @@ module Urchin
 
     def set_line_buffer(string)
       Readline.module_eval <<-EVAL
+        class << self
+          undef :line_buffer
+        end
         def self.line_buffer
           "#{string}"
         end
@@ -24,6 +27,9 @@ module Urchin
 
     def teardown
       Readline.module_eval do
+        class << self
+          undef :line_buffer
+        end
         def self.line_buffer
           RbReadline.rl_line_buffer
         end

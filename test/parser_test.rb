@@ -4,10 +4,10 @@ require "#{File.dirname(__FILE__)}/../lib/shell"
 require "fileutils"
 
 module Urchin
-  class Job; attr_reader :commands, :start_in_background; end
+  class Job; attr_reader :start_in_background; end
 
   class Command
-    attr_reader :executable, :args, :redirects, :environment_variables
+    attr_reader :redirects
 
     def ==(object)
       if object.class == Command

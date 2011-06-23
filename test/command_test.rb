@@ -7,10 +7,6 @@ module Urchin
 
     include TestHelpers
 
-    class Urchin::Command
-      attr_reader :args
-    end
-
     def setup
       @old_dir = Dir.getwd
       Dir.chdir File.dirname(__FILE__)
@@ -95,8 +91,8 @@ module Urchin
       pid = fork { command.execute }
       pid, status = Process.waitpid2 pid
 
-      assert_match /this is out\n/, File.read("stdout_testfile")
-      assert_match /this is err\n/, File.read("stdout_testfile")
+      assert_match(/this is out\n/, File.read("stdout_testfile"))
+      assert_match(/this is err\n/, File.read("stdout_testfile"))
       assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
@@ -110,7 +106,7 @@ module Urchin
       pid = fork { command.execute }
       pid, status = Process.waitpid2 pid
 
-      assert_match /this is in\n/, File.read("stdout_testfile")
+      assert_match(/this is in\n/, File.read("stdout_testfile"))
       assert_equal 0, status.exitstatus
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
