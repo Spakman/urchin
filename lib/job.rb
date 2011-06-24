@@ -91,7 +91,7 @@ module Urchin
         next if file == '.' || file == '..'
         fd = file.to_i
         next if fd < 3
-        IO.new(fd).close rescue nil
+        IO.new(fd).close rescue Errno::EBADF
       end
     end
 
