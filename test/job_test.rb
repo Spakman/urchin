@@ -247,7 +247,7 @@ module Urchin
           job = Job.new([ sleep ], @shell)
           job.run
         end
-        sleep 0.01 until sleep.running?
+        sleep 0.01 until sleep.running?; sleep 0.01
 
         num_fds = (Dir.entries("/proc/#{sleep.pid}/fd/") - [ ".", ".." ]).size
         assert_equal 3, num_fds

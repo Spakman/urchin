@@ -1,6 +1,18 @@
 require "helpers"
 require "fileutils"
 
+module Readline
+  attr_accessor :line_buffer_for_test
+  module_function :line_buffer_for_test=
+
+  class << self
+    undef :line_buffer
+  end
+  def self.line_buffer
+    @line_buffer_for_test
+  end
+end
+
 module Urchin
   module Completion
     class Mycommand
@@ -12,34 +24,12 @@ module Urchin
 
   class CompleterTestCase < Test::Unit::TestCase
 
-    def set_line_buffer(string)
-      Readline.module_eval <<-EVAL
-        class << self
-          undef :line_buffer
-        end
-        def self.line_buffer
-          "#{string}"
-        end
-      EVAL
-      RbReadline.module_eval <<-EVAL
-        @rl_point = #{string.length}
-      EVAL
-    end
-
     def setup
       @completer_dir = File.expand_path("#{File.dirname(__FILE__)}/empty_dir")
       FileUtils.mkdir(@completer_dir)
     end
 
     def teardown
-      Readline.module_eval do
-        class << self
-          undef :line_buffer
-        end
-        def self.line_buffer
-          RbReadline.rl_line_buffer
-        end
-      end
       FileUtils.rm_r(@completer_dir)
     end
 
@@ -49,19 +39,19 @@ module Urchin
     end
 
     def test_completion_proc_calls_complete_executable_on_first_word
-      set_line_buffer "st"
+      Readline.line_buffer_for_test = "st"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal %w( stdout_stderr_writer stdin_writer ), completer.completion_proc.call("st")
     end
 
     def test_filename_completion_proc_is_called_for_second_word
-      set_line_buffer "stdin_writer p"
+      Readline.line_buffer_for_test = "stdin_writer p"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal %w( parser_test.rb ), completer.completion_proc.call("p")
       end
 
-      set_line_buffer "stdin_writer "
+      Readline.line_buffer_for_test = "stdin_writer "
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal((Dir.entries(".") - [ ".", ".." ]), completer.completion_proc.call(""))
@@ -69,7 +59,7 @@ module Urchin
     end
 
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_dot
-      set_line_buffer "./p"
+      Readline.line_buffer_for_test = "./p"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
         assert_equal %w( ./parser_test.rb ), completer.completion_proc.call("./p")
@@ -78,7 +68,7 @@ module Urchin
 
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_slash
       dir = File.expand_path(File.dirname(__FILE__))
-      set_line_buffer File.expand_path(File.dirname(__FILE__))
+      Readline.line_buffer_for_test = File.expand_path(File.dirname(__FILE__))
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(dir) do
         assert_equal [ dir ], completer.completion_proc.call(dir)
@@ -86,7 +76,7 @@ module Urchin
     end
 
     def test_filename_completion_proc_is_called_for_lines_starting_with_a_tilde
-      set_line_buffer "~notalikelyrealuser"
+      Readline.line_buffer_for_test = "~notalikelyrealuser"
       FileUtils.touch("#{@completer_dir}/~notalikelyrealuser")
       FileUtils.chmod(0744, "#{@completer_dir}/~notalikelyrealuser")
 
@@ -97,14 +87,14 @@ module Urchin
     end
 
     def test_sub_command_completion_is_called
-      set_line_buffer "mycommand o"
+      Readline.line_buffer_for_test = "mycommand o"
 
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal %w( one two ), completer.completion_proc.call("o")
     end
 
     def test_sub_command_completion_for_builtin
-      set_line_buffer "cd o"
+      Readline.line_buffer_for_test = "cd o"
 
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_nil completer.completion_proc.call("o")
