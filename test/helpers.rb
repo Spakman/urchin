@@ -6,7 +6,18 @@ Signal.trap :TTOU, "IGNORE"
 
 $LOAD_PATH << "#{File.expand_path(File.dirname(__FILE__))}/../"
 
-require "readline"
+require "rbconfig"
+unless File.exists? "#{RbConfig::CONFIG["sitelibdir"]}/readline.rb"
+  # Looks like rb-readline was not installed in site_ruby.
+  require "rubygems"
+end
+begin
+  require "rb-readline"
+rescue LoadError
+  require "rubygems"
+  require "readline"
+end
+
 require "strscan"
 
 begin

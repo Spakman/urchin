@@ -2,6 +2,7 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+require "rbconfig"
 module Urchin
   class RubyCommand < Command
     RUBY_PATH = File.join(Config::CONFIG["bindir"],
