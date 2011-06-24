@@ -1,5 +1,4 @@
-require "#{File.dirname(__FILE__)}/../helpers"
-require "#{File.dirname(__FILE__)}/../../builtins/bg"
+require "helpers"
 require "fileutils"
 
 module Urchin

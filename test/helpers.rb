@@ -28,6 +28,9 @@ rescue LoadError
   STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
 end
 
+$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+require "lib/readline"
+require "lib/completer"
 require "lib/history"
 require "lib/shell"
 require "lib/parser"

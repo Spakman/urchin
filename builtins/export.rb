@@ -2,8 +2,6 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-require "#{File.dirname(__FILE__)}/../lib/builtin"
-
 module Urchin
   module Builtins
     class Export

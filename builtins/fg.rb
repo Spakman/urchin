@@ -2,9 +2,6 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
-require "#{File.dirname(__FILE__)}/../lib/builtin"
-require "#{File.dirname(__FILE__)}/../lib/job_table"
-
 module Urchin
   module Builtins
     class Fg

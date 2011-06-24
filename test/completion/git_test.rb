@@ -1,4 +1,4 @@
-require "#{File.dirname(__FILE__)}/../helpers"
+require "helpers"
 require "#{File.dirname(__FILE__)}/../../completion/git"
 
 module Urchin

@@ -1,6 +1,4 @@
-require "#{File.dirname(__FILE__)}/helpers"
-require "#{File.dirname(__FILE__)}/../lib/parser"
-require "#{File.dirname(__FILE__)}/../lib/shell"
+require "helpers"
 require "fileutils"
 
 module Urchin

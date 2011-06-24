@@ -1,6 +1,4 @@
-require "#{File.dirname(__FILE__)}/../helpers"
-require "#{File.dirname(__FILE__)}/../../builtins/fg"
-require "#{File.dirname(__FILE__)}/../../lib/job_table"
+require "helpers"
 require "fileutils"
 
 module Urchin

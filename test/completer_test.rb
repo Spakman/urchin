@@ -1,6 +1,4 @@
-require "#{File.dirname(__FILE__)}/helpers"
-require "#{File.dirname(__FILE__)}/../lib/readline"
-require "#{File.dirname(__FILE__)}/../lib/completer"
+require "helpers"
 require "fileutils"
 
 module Urchin

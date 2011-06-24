@@ -1,5 +1,4 @@
-require "#{File.dirname(__FILE__)}/../helpers"
-require "#{File.dirname(__FILE__)}/../../builtins/cd"
+require "helpers"
 require "fileutils"
 require "pathname"
 
