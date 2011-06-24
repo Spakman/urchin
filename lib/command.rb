@@ -14,6 +14,7 @@ module Urchin
       @args = []
       @redirects = []
       @environment_variables = {}
+      @status = nil
     end
 
     # Returns a new Command or an instance of one of the classes in Builtins.

@@ -28,7 +28,7 @@ module Urchin
 
       def self.complete(command, word)
         if command.args.empty? || (command.args.size == 1 && !word.empty?)
-          @commands.grep /^#{Regexp.escape(word)}/
+          @commands.grep(/^#{Regexp.escape(word)}/)
         elsif command.args.size >= 1
           send(command.args.first.to_sym, command.args[1..-1], word)
         end
@@ -42,7 +42,7 @@ module Urchin
         if (args & %w( -b -B )).empty?
           branches = local_branches
           if (local_branches & args).empty?
-            local_branches.grep /^#{Regexp.escape(word)}/
+            local_branches.grep(/^#{Regexp.escape(word)}/)
           else
             Readline::FILENAME_COMPLETION_PROC.call(args.last)
           end
@@ -53,7 +53,7 @@ module Urchin
 
       def self.branch(args, word)
         if args.include? "-D"
-          local_branches.grep /^#{Regexp.escape(word)}/
+          local_branches.grep(/^#{Regexp.escape(word)}/)
         else
           []
         end

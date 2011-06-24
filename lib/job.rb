@@ -14,6 +14,7 @@ module Urchin
       @shell = shell
       @pgid = nil
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
+      @start_in_background = false
     end
 
     def <<(command)

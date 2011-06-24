@@ -109,6 +109,7 @@ module Urchin
 
     # Defines the prompt method.
     def self.prompt(&block)
+      undef :prompt
       define_method :prompt do
         block.call
       end

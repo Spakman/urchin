@@ -161,7 +161,7 @@ module Urchin
         assert_equal "ABC\n", File.read("stdout_testfile")
       end
     ensure
-      FileUtils.rm("stdout_testfile", :force => true)
+      FileUtils.rm("#{File.dirname(__FILE__)}/stdout_testfile", :force => true)
     end
   end
 end

@@ -66,7 +66,7 @@ module Urchin
       set_line_buffer "stdin_writer "
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
-        assert_equal (Dir.entries(".") - [ ".", ".." ]), completer.completion_proc.call("")
+        assert_equal((Dir.entries(".") - [ ".", ".." ]), completer.completion_proc.call(""))
       end
     end
 

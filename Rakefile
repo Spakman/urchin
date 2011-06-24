@@ -3,7 +3,7 @@ task :default => :test
 desc "Run the tests"
 task :test do
   test_files = Dir.glob("test/**/*_test.rb")
-  exec "testrb #{test_files.join(" ")}"
+  exec "RUBYOPT='-w' testrb #{test_files.join(" ")}"
 end
 
 desc "Print out the TODO tasks"

@@ -11,6 +11,7 @@ module Urchin
       include Methods
 
       def valid_arguments?
+        @job_id = nil
         if @args.size == 1
           if @args.first =~ /^%(\d+)$/
             @job_id = $1.to_i
