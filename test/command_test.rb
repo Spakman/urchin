@@ -7,13 +7,7 @@ module Urchin
 
     include TestHelpers
 
-    def setup
-      @old_dir = Dir.getwd
-      Dir.chdir File.dirname(__FILE__)
-    end
-
     def teardown
-      Dir.chdir @old_dir
       old_teardown
     end
 
@@ -88,12 +82,14 @@ module Urchin
       command.add_redirect(STDOUT, "stdout_testfile", "w")
       command.add_redirect(STDERR, STDOUT, "w")
 
-      pid = fork { command.execute }
-      pid, status = Process.waitpid2 pid
+      Dir.chdir File.dirname(__FILE__) do
+        pid = fork { command.execute }
+        pid, status = Process.waitpid2 pid
 
-      assert_match(/this is out\n/, File.read("stdout_testfile"))
-      assert_match(/this is err\n/, File.read("stdout_testfile"))
-      assert_equal 0, status.exitstatus
+        assert_match(/this is out\n/, File.read("stdout_testfile"))
+        assert_match(/this is err\n/, File.read("stdout_testfile"))
+        assert_equal 0, status.exitstatus
+      end
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
@@ -103,11 +99,13 @@ module Urchin
       command.add_redirect(STDIN, "stdin_testfile", "r")
       command.add_redirect(STDOUT, "stdout_testfile", "w")
 
-      pid = fork { command.execute }
-      pid, status = Process.waitpid2 pid
+      Dir.chdir File.dirname(__FILE__) do
+        pid = fork { command.execute }
+        pid, status = Process.waitpid2 pid
 
-      assert_match(/this is in\n/, File.read("stdout_testfile"))
-      assert_equal 0, status.exitstatus
+        assert_match(/this is in\n/, File.read("stdout_testfile"))
+        assert_equal 0, status.exitstatus
+      end
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
@@ -156,10 +154,12 @@ module Urchin
       command.add_redirect(STDOUT, "stdout_testfile", "w")
       command.environment_variables = { "LETTERS" => "ABC" }
 
-      pid = fork { command.execute }
-      pid, status = Process.waitpid2 pid
+      Dir.chdir File.dirname(__FILE__) do
+        pid = fork { command.execute }
+        pid, status = Process.waitpid2 pid
 
-      assert_equal "ABC\n", File.read("stdout_testfile")
+        assert_equal "ABC\n", File.read("stdout_testfile")
+      end
     ensure
       FileUtils.rm("stdout_testfile", :force => true)
     end
