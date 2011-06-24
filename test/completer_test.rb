@@ -6,7 +6,7 @@ module Readline
   module_function :line_buffer_for_test=
 
   class << self
-    undef :line_buffer
+    remove_method :line_buffer
   end
   def self.line_buffer
     @line_buffer_for_test
