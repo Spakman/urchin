@@ -29,6 +29,7 @@ rescue LoadError
 end
 
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+require "lib/string"
 require "lib/readline"
 require "lib/completer"
 require "lib/history"
