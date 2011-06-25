@@ -21,7 +21,7 @@ module Urchin
             assert_equal %w( master my-completion-test-branch ), Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m")
             assert_equal [], Git.new.complete((Command.create("git", nil) << "checkout" << "-b"), "")
           ensure
-            `git br -D my-completion-test-branch`
+            `git branch -D my-completion-test-branch`
           end
         end
       end
