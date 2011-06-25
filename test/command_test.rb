@@ -5,6 +5,7 @@ module Urchin
   
   module Builtins
     class BuiltinUpperCase
+      include Methods
       EXECUTABLE = "Uppercase"
     end
   end
