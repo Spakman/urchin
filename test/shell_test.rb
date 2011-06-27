@@ -24,5 +24,9 @@ module Urchin
       shell.history.cleanup
       FileUtils.rm_f History::FILE
     end
+
+    def test_eval
+      assert_equal "123", Shell.new.eval("echo -n 123")
+    end
   end
 end

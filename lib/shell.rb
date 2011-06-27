@@ -56,6 +56,28 @@ module Urchin
       end
     end
 
+    # Runs the jobs in the command_string and returns the output. It waits for
+    # all of the jobs to complete.
+    def eval(command_string)
+      stdout_read, stdout_write = IO.pipe
+      stderr_write = stdout_write.dup
+
+      old_stdout = STDOUT.dup
+      STDOUT.reopen stdout_write
+
+      old_stderr = STDERR.dup
+      STDERR.reopen stderr_write
+
+      parse_and_run command_string
+
+      stdout_write.close
+      stderr_write.close
+      STDOUT.reopen old_stdout
+      STDERR.reopen old_stderr
+      output = stdout_read.read and stdout_read.close
+      output
+    end
+
     # Ensures the Shell is in the foreground and ignores job-control signals so
     # it can perform job control itself.
     def setup_terminal_and_signals
