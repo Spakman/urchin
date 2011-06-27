@@ -16,7 +16,7 @@ end
 module Urchin
   module Completion
     class Mycommand
-      def self.complete(command, word)
+      def complete(command, word)
         %w( one two )
       end
     end

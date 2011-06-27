@@ -2,6 +2,9 @@ module Urchin
   module Completion
     class Git
 
+      class << self
+        attr_reader :commands
+      end
       @commands = %w( 
         add am archive annotate archimport
         bisect branch bundle blame
@@ -23,26 +26,23 @@ module Urchin
         whatchanged
       )
 
-      # TODO: it feels rather wrong calling out to /bin/sh from a shell!
-      @commands += `git config --get-regexp alias.*`.gsub(/^alias\.([^ ]+) .+$/, '\1').split("\n")
-
-      def self.complete(command, word)
+      def complete(command, word)
         if command.args.empty? || (command.args.size == 1 && !word.empty?)
-          @commands.grep(/^#{Regexp.escape(word)}/)
+          Git.commands.grep(/^#{Regexp.escape(word)}/)
         elsif command.args.size >= 1
           send(command.args.first.to_sym, command.args[1..-1], word)
         end
       end
 
-      def self.method_missing(name, *args)
+      def method_missing(name, *args)
         Readline::FILENAME_COMPLETION_PROC.call(args.last)
       end
 
-      def self.checkout(args, word)
+      def checkout(args, word)
         if (args & %w( -b -B )).empty?
           branches = local_branches
-          if (local_branches & args).empty?
-            local_branches.grep(/^#{Regexp.escape(word)}/)
+          if (branches & args).empty?
+            branches.grep(/^#{Regexp.escape(word)}/)
           else
             Readline::FILENAME_COMPLETION_PROC.call(args.last)
           end
@@ -51,7 +51,7 @@ module Urchin
         end 
       end
 
-      def self.branch(args, word)
+      def branch(args, word)
         if args.include? "-D"
           local_branches.grep(/^#{Regexp.escape(word)}/)
         else
@@ -59,9 +59,8 @@ module Urchin
         end
       end
 
-      # TODO: it feels rather wrong calling out to /bin/sh from a shell!
-      def self.local_branches
-        `git branch --no-color`.gsub(/^[ *] /, "").split("\n")
+      def local_branches
+        Shell.new.eval("git branch --no-color").gsub(/^[ *] /, "").split("\n")
       end
     end
   end

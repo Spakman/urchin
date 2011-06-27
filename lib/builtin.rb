@@ -5,6 +5,8 @@
 module Urchin
   module Builtins
     module Methods
+      attr_reader :args
+
       def initialize(job_table)
         @args = []
         @job_table = job_table

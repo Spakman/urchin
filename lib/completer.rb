@@ -21,13 +21,17 @@ module Urchin
       end
     end
 
+    # TODO: refactor this mess.
     def completion_proc
       Proc.new do |word|
         last_command = Parser.new(@shell).jobs_from(Readline.line_buffer).last.commands.last
-        constant = last_command.executable.capitalize
 
-        if(Completion.constants & [ constant, constant.to_sym ]).any?
-          Completion.const_get(constant.to_sym).complete(last_command, word)
+        if last_command.args.size > 0 || Readline.line_buffer[Readline.point-1,1] == " "
+          constant = last_command.executable.capitalize
+        end
+
+        if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
+          Completion.const_get(constant.to_sym).new.complete(last_command, word)
         else
           line = Readline.line_buffer.lstrip
           if word.empty? && !line.empty?
