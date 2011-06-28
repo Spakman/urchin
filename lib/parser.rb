@@ -21,6 +21,7 @@ module Urchin
     def initialize(shell, input = nil)
       @shell = shell
       @input = StringScanner.new(input) if input
+      @expecting_new_command = false
     end
 
     def jobs_from(input)
@@ -32,6 +33,10 @@ module Urchin
         end
       end
       jobs
+    end
+
+    def start_of_new_command?
+      @expecting_new_command
     end
 
     def parse_job
@@ -73,7 +78,12 @@ module Urchin
 
     def end_of_command?
       remove_space
-      @input.eos? || @input.scan(/^\|/) || end_of_job?
+      if @input.scan(/^\|/)
+        @expecting_new_command = true
+      else
+        return false unless @input.eos? || end_of_job?
+      end
+      true
     end
 
     # TODO: clean this up.

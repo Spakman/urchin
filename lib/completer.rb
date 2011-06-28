@@ -21,32 +21,30 @@ module Urchin
       end
     end
 
-    # TODO: refactor this mess.
     def completion_proc
       Proc.new do |word|
-        last_command = Parser.new(@shell).jobs_from(Readline.line_buffer).last.commands.last
+        parser = Parser.new(@shell)
+        last_job = parser.jobs_from(Readline.line_buffer[0,Readline.point]).last
 
-        if last_command.args.size > 0 || Readline.line_buffer[Readline.point-1,1] == " "
-          constant = last_command.executable.capitalize
-        end
-
-        if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
-          Completion.const_get(constant.to_sym).new.complete(last_command, word)
+        if parser.start_of_new_command?
+          complete_executable(word)
         else
-          line = Readline.line_buffer.lstrip
-          if word.empty? && !line.empty?
-            Readline::FILENAME_COMPLETION_PROC.call(word)
-          elsif line[0,1] != "." && line[0,1] != "/" && line[0,1] != "~" && line.index(word) == 0
-            complete_executable(word)
+          command = last_job.commands.last
+          if command && (command.args.any? || Readline.line_buffer[Readline.point-1,1] == " ")
+            command.complete or Readline::FILENAME_COMPLETION_PROC.call(word)
           else
-            Readline::FILENAME_COMPLETION_PROC.call(word)
+            complete_executable(word)
           end
         end
       end
     end
 
     def complete_executable(word)
-      @executables.grep(/^#{Regexp.escape(word)}/)
+      if %w( . / ~ ).include? word.lstrip[0,1]
+        Readline::FILENAME_COMPLETION_PROC.call(word)
+      else
+        @executables.grep(/^#{Regexp.escape(word)}/)
+      end
     end
   end
 end

@@ -17,6 +17,16 @@ module Urchin
       @status = nil
     end
 
+    # This is duplicated in the Command class.
+    def complete
+      constant = @executable.capitalize
+      if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
+        Completion.const_get(constant.to_sym).new.complete(self, @args.last || "")
+      else
+        false
+      end
+    end
+
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
       constant = executable.capitalize

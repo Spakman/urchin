@@ -19,6 +19,16 @@ module Urchin
         self.class.to_s.downcase
       end
 
+      # This is duplicated in the Builtin class.
+      def complete
+        constant = self.class.to_s
+        if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
+          Completion.const_get(constant.to_sym).new.complete(self, @args.last || "")
+        else
+          false
+        end
+      end
+
       def <<(arg)
         @args << arg
         self
