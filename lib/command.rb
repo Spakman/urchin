@@ -60,16 +60,20 @@ module Urchin
       perform_redirects
       set_local_environment_variables
       begin
+        # Errno::EACCES can be thrown for many errors, so we detect directories
+        # before calling exec().
+        if File.directory? @executable
+          STDERR.puts "Is a directory: #{@executable}"
+          exit 127
+        end
         exec @executable, *@args
+
       rescue Errno::ENOENT
         STDERR.puts "Command not found: #{@executable}"
         exit 127
+
       rescue Errno::EACCES
-        if File.directory? @executable
-          STDERR.puts "Is a directory: #{@executable}"
-        else
-          STDERR.puts "Permission denied: #{@executable}"
-        end
+        STDERR.puts "Permission denied: #{@executable}"
         exit 127
       end
     end
