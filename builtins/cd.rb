@@ -5,6 +5,9 @@
 module Urchin
   module Builtins
     class Cd
+
+      EXECUTABLE = "cd"
+
       include Methods
 
       @@previous_dir = nil

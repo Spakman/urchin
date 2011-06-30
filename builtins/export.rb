@@ -5,6 +5,9 @@
 module Urchin
   module Builtins
     class Export
+
+      EXECUTABLE = "export"
+
       include Methods
 
       def valid_arguments?

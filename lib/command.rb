@@ -9,6 +9,33 @@ module Urchin
     attr_accessor :pid, :environment_variables
     attr_reader :exit_code, :executable, :args
 
+    class << self
+      attr_reader :builtins
+    end
+
+    # Loads the class instance variable @builtins with
+    #
+    #   "builtin_executable" => BuiltinClassName
+    #
+    # pairs.
+    def self.read_builtins
+      @builtins = {}
+      Urchin::Builtins.constants.each do |b|
+        next if b == :Methods || b == "Methods"
+        klass = Builtins.const_get(b)
+        @builtins[klass::EXECUTABLE] = klass
+      end
+    end
+
+    # Returns a new Command or an instance of one of the classes in Builtins.
+    def self.create(executable, job_table)
+      if klass = @builtins[executable]
+        klass.new(job_table)
+      else
+        new executable
+      end
+    end
+
     def initialize(executable)
       @executable = executable
       @args = []
@@ -17,23 +44,13 @@ module Urchin
       @status = nil
     end
 
-    # This is duplicated in the Command class.
+    # This is duplicated in the Builtin module.
     def complete
       constant = @executable.capitalize
       if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
         Completion.const_get(constant.to_sym).new.complete(self, @args.last || "")
       else
         false
-      end
-    end
-
-    # Returns a new Command or an instance of one of the classes in Builtins.
-    def self.create(executable, job_table)
-      constant = executable.capitalize
-      if(Builtins.constants & [ constant, constant.to_sym ]).empty?
-        new executable
-      else
-        Builtins.const_get(constant.to_sym).new(job_table)
       end
     end
 

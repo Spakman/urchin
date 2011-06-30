@@ -2,9 +2,17 @@ require "helpers"
 require "fileutils"
 
 module Urchin
+  
+  module Builtins
+    class BuiltinUpperCase
+      EXECUTABLE = "Uppercase"
+    end
+  end
+
   class CommandTestCase < Test::Unit::TestCase
 
     include TestHelpers
+    Command.read_builtins
 
     def teardown
       old_teardown
@@ -26,9 +34,15 @@ module Urchin
       assert_equal 0, status.exitstatus
     end
 
+    def test_read_builtins
+      assert_equal Urchin::Builtins::Jobs, Command.builtins["jobs"]
+      assert_equal Urchin::Builtins::BuiltinUpperCase, Command.builtins["Uppercase"]
+    end
+
     def test_create
       assert_kind_of Command, Command.create("ls", JobTable.new)
       assert_kind_of Builtins::Cd, Command.create("cd", JobTable.new)
+      assert_kind_of Builtins::BuiltinUpperCase, Command.create("Uppercase", JobTable.new)
     end
 
     def test_to_s

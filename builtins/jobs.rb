@@ -5,6 +5,9 @@
 module Urchin
   module Builtins
     class Jobs
+
+      EXECUTABLE = "jobs"
+
       include Methods
 
       def valid_arguments?

@@ -5,6 +5,9 @@
 module Urchin
   module Builtins
     class Fg
+
+      EXECUTABLE = "fg"
+
       include Methods
 
       def valid_arguments?

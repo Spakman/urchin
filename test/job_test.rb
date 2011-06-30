@@ -21,6 +21,7 @@ end
 module Urchin
   module Builtins
     class Builtinecho
+      EXECUTABLE = "builtinecho"
       include Methods
       def execute
         puts @args.first
@@ -28,6 +29,7 @@ module Urchin
     end
 
     class Reverse
+      EXECUTABLE = "reverse"
       include Methods
       def execute
         puts STDIN.read.chomp.reverse
@@ -38,6 +40,7 @@ module Urchin
   class JobTestCase < Test::Unit::TestCase
 
     include TestHelpers
+    Command.read_builtins
 
     class Urchin::Shell
       attr_writer :interactive

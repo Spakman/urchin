@@ -19,7 +19,7 @@ module Urchin
         self.class.to_s.downcase
       end
 
-      # This is duplicated in the Builtin class.
+      # This is duplicated in the Command class.
       def complete
         constant = self.class.to_s
         if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
