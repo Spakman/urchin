@@ -18,7 +18,8 @@ module Urchin
             `git branch my-completion-test-branch`
             branches = `git branch --no-color`.gsub(/^[ *] /, "").split("\n")
 
-            assert_equal %w( master my-completion-test-branch ), Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m")
+            assert Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m").include? "master"
+            assert Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m").include? "my-completion-test-branch"
             assert_equal [], Git.new.complete((Command.create("git", nil) << "checkout" << "-b"), "")
           ensure
             `git branch -D my-completion-test-branch`
