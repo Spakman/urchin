@@ -4,12 +4,19 @@ require "#{File.dirname(__FILE__)}/../../completion/git"
 module Urchin
   module Completion
     class GitTestCase < Test::Unit::TestCase
+
+      def setup
+        @command = Command.create("git", nil)
+        @command.send(:extend, Git)
+      end
+
       def test_commands_with_empty_first_arg
-        assert_equal Git.commands, Git.new.complete((Command.create("git", nil)), "")
+        assert_equal Git.commands, @command.complete
       end
 
       def test_commands_with_partial_first_arg
-        assert_equal %w( checkout ), Git.new.complete((Command.create("git", nil) << "checko"), "checko")
+        @command << "checko"
+        assert_equal %w( checkout ), @command.complete
       end
 
       def test_checkout
@@ -18,9 +25,13 @@ module Urchin
             `git branch my-completion-test-branch`
             branches = `git branch --no-color`.gsub(/^[ *] /, "").split("\n")
 
-            assert Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m").include? "master"
-            assert Git.new.complete((Command.create("git", nil) << "checkout" << "m"), "m").include? "my-completion-test-branch"
-            assert_equal [], Git.new.complete((Command.create("git", nil) << "checkout" << "-b"), "")
+            @command << "checkout" << "m"
+            assert @command.complete.include? "master"
+            assert @command.complete.include? "my-completion-test-branch"
+
+            setup
+            @command << "checkout" << "-b"
+            assert_equal [], @command.complete
           ensure
             `git branch -D my-completion-test-branch`
           end

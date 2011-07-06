@@ -1,10 +1,11 @@
 module Urchin
   module Completion
-    class Git
+    module Git
 
       class << self
         attr_reader :commands
       end
+
       @commands = %w( 
         add am archive annotate archimport
         bisect branch bundle blame
@@ -26,11 +27,12 @@ module Urchin
         whatchanged
       )
 
-      def complete(command, word)
-        if command.args.empty? || (command.args.size == 1 && !word.empty?)
+      def complete
+        word = args.last || ""
+        if args.empty? || (args.size == 1 && !word.empty?)
           Git.commands.grep(/^#{Regexp.escape(word)}/)
-        elsif command.args.size >= 1
-          send(command.args.first.to_sym, command.args[1..-1], word)
+        elsif args.size >= 1
+          send(args.first.to_sym, args[1..-1], word)
         end
       end
 

@@ -22,8 +22,8 @@ end
 
 module Urchin
   module Completion
-    class Mycommand
-      def complete(command, word)
+    module Mycommand
+      def complete
         %w( one two )
       end
     end

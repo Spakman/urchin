@@ -26,7 +26,8 @@ module Urchin
     def complete
       constant = @executable.capitalize
       if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
-        Completion.const_get(constant.to_sym).new.complete(self, @args.last || "")
+        extend Completion.const_get(constant.to_sym)
+        complete
       else
         false
       end

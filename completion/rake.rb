@@ -1,19 +1,19 @@
 module Urchin
   module Completion
-    class Rake
+    module Rake
 
       # Complicated Rakefiles (like Rails) can take a long time to parse, so
       # we cache the last result. 
       @@last_dir = @@last_tasks = nil
 
       # Complete task names.
-      def complete(command, word)
+      def complete
         pwd = Dir.getwd
         unless @@last_dir == pwd
           @@last_dir = pwd
           @@last_tasks = tasks
         end
-        return @@last_tasks.grep(/^#{Regexp.escape(word)}/)
+        return @@last_tasks.grep(/^#{Regexp.escape(args.last || "")}/)
       end
 
       def tasks
