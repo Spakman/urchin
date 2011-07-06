@@ -48,8 +48,6 @@ begin
     require path
   end
 
-  Urchin::Command.read_builtins
-
   require "environment"
 
   options = {}

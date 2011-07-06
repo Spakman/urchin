@@ -13,7 +13,6 @@ module Urchin
   class CommandTestCase < Test::Unit::TestCase
 
     include TestHelpers
-    Command.read_builtins
 
     def teardown
       old_teardown
@@ -33,11 +32,6 @@ module Urchin
 
       assert_equal "123", output.chomp
       assert_equal 0, status.exitstatus
-    end
-
-    def test_read_builtins
-      assert_equal Urchin::Builtins::Jobs, Command.builtins["jobs"]
-      assert_equal Urchin::Builtins::BuiltinUpperCase, Command.builtins["Uppercase"]
     end
 
     def test_create

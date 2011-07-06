@@ -13,27 +13,9 @@ module Urchin
       attr_reader :builtins
     end
 
-    # Loads the class instance variable @builtins with
-    #
-    #   "builtin_executable" => BuiltinClassName
-    #
-    # pairs.
-    def self.read_builtins
-      @builtins = {}
-      Urchin::Builtins.constants.each do |b|
-        next if b == :Methods || b == "Methods"
-        klass = Builtins.const_get(b)
-        @builtins[klass::EXECUTABLE] = klass
-      end
-    end
-
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
-      if klass = @builtins[executable]
-        klass.new(job_table)
-      else
-        new executable
-      end
+      Builtins.command_for(executable, job_table) || new(executable)
     end
 
     def initialize(executable)

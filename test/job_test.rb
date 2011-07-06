@@ -40,7 +40,6 @@ module Urchin
   class JobTestCase < Test::Unit::TestCase
 
     include TestHelpers
-    Command.read_builtins
 
     class Urchin::Shell
       attr_writer :interactive

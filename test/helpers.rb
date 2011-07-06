@@ -46,8 +46,6 @@ Dir.glob("#{File.dirname(__FILE__)}/../builtins/*.rb").each do |path|
   require path
 end
 
-Urchin::Command.read_builtins
-
 unless defined? Urchin::History::FILE
   Urchin::History::FILE = "#{File.dirname(__FILE__)}/.urchin.test.history"
 end
