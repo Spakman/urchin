@@ -4,8 +4,7 @@ require "fileutils"
 module Urchin
   
   module Builtins
-    class BuiltinUpperCase
-      include Methods
+    class BuiltinUpperCase < Builtin
       EXECUTABLE = "Uppercase"
     end
   end
@@ -43,7 +42,7 @@ module Urchin
     def test_to_s
       command = Command.create("sleep", JobTable.new)
       command << "20"
-      assert_equal "sleep 20", command.to_s
+      assert_equal "sleep 20", command.to_str
     end
 
     def test_appending_an_argument_returns_self

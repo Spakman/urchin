@@ -4,11 +4,9 @@
 
 module Urchin
   module Builtins
-    class Fg
+    class Fg < Builtin
 
       EXECUTABLE = "fg"
-
-      include Methods
 
       def valid_arguments?
         @job_id = nil

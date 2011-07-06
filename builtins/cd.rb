@@ -4,17 +4,11 @@
 
 module Urchin
   module Builtins
-    class Cd
+    class Cd < Builtin
 
       EXECUTABLE = "cd"
 
-      include Methods
-
       @@previous_dir = nil
-
-      def initialize(executable)
-        super
-      end
 
       def valid_arguments?
         if @args.size > 1

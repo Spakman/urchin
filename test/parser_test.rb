@@ -6,9 +6,11 @@ module Urchin
 
   class Command
     attr_reader :redirects
+  end
 
+  class OSProcess
     def ==(object)
-      if object.class == Command
+      if object.class == self.class
         if @executable == object.executable && @args == object.args
           return true
         end
@@ -26,7 +28,6 @@ module Urchin
   class ParserTestCase < Test::Unit::TestCase
     def setup
       @parser = Parser.new(Shell.new)
-      Urchin::Command.send(:public_class_method, :new)
     end
 
     def test_word
@@ -58,35 +59,35 @@ module Urchin
     def test_simple_command
       jobs = @parser.jobs_from('ls')
       assert_equal 1, jobs.size
-      assert_equal Command.new('ls'), jobs.first.commands.first
+      assert_equal OSProcess.new('ls'), jobs.first.commands.first
 
       jobs = @parser.jobs_from('ls -l -a')
       assert_equal 1, jobs.size
-      assert_equal Command.new('ls') << '-l' << '-a', jobs.first.commands.first
+      assert_equal OSProcess.new('ls') << '-l' << '-a', jobs.first.commands.first
 
       jobs = @parser.jobs_from('echo "word" word2')
       assert_equal 1, jobs.size
-      assert_equal Command.new('echo') << 'word' << 'word2', jobs.first.commands.first
+      assert_equal OSProcess.new('echo') << 'word' << 'word2', jobs.first.commands.first
     end
 
     def test_pipeline
       jobs = @parser.jobs_from("ls -l |head| wc -l")
       assert_equal 1, jobs.size
       assert_equal 3, jobs.first.commands.size
-      assert_equal Command.new("ls") << "-l", jobs.first.commands.first
-      assert_equal Command.new("head"), jobs.first.commands[1]
-      assert_equal Command.new("wc") << "-l", jobs.first.commands.last
+      assert_equal OSProcess.new("ls") << "-l", jobs.first.commands.first
+      assert_equal OSProcess.new("head"), jobs.first.commands[1]
+      assert_equal OSProcess.new("wc") << "-l", jobs.first.commands.last
     end
 
     def test_background_job
       jobs = @parser.jobs_from("sleep 60 &")
       assert_equal 1, jobs.size
-      assert_equal Command.new("sleep") << "60", jobs.first.commands.first
+      assert_equal OSProcess.new("sleep") << "60", jobs.first.commands.first
       assert jobs.first.start_in_background
 
       jobs = @parser.jobs_from("sleep 60&")
       assert_equal 1, jobs.size
-      assert_equal Command.new("sleep") << "60", jobs.first.commands.first
+      assert_equal OSProcess.new("sleep") << "60", jobs.first.commands.first
       assert jobs.first.start_in_background
     end
 
@@ -94,25 +95,25 @@ module Urchin
       jobs = @parser.jobs_from("uptime; echo 123")
       assert_equal 2, jobs.size
       assert_equal 1, jobs.first.commands.size
-      assert_equal Command.new("uptime"), jobs.first.commands.first
+      assert_equal OSProcess.new("uptime"), jobs.first.commands.first
       assert_equal 1, jobs.last.commands.size
-      assert_equal Command.new("echo") << "123", jobs.last.commands.first
+      assert_equal OSProcess.new("echo") << "123", jobs.last.commands.first
 
       jobs = @parser.jobs_from("uptime ;echo 123")
       assert_equal 2, jobs.size
       assert_equal 1, jobs.first.commands.size
-      assert_equal Command.new("uptime"), jobs.first.commands.first
+      assert_equal OSProcess.new("uptime"), jobs.first.commands.first
       assert_equal 1, jobs.last.commands.size
-      assert_equal Command.new("echo") << "123", jobs.last.commands.first
+      assert_equal OSProcess.new("echo") << "123", jobs.last.commands.first
     end
 
     def test_multiple_jobs_with_background_job
       jobs = @parser.jobs_from("uptime & echo 123")
       assert_equal 2, jobs.size
       assert_equal 1, jobs.first.commands.size
-      assert_equal Command.new("uptime"), jobs.first.commands.first
+      assert_equal OSProcess.new("uptime"), jobs.first.commands.first
       assert_equal 1, jobs.last.commands.size
-      assert_equal Command.new("echo") << "123", jobs.last.commands.first
+      assert_equal OSProcess.new("echo") << "123", jobs.last.commands.first
       assert jobs.first.start_in_background
       assert !jobs.last.start_in_background
     end
@@ -312,18 +313,18 @@ module Urchin
     def test_command_local_environment_variables
       commands = @parser.jobs_from('VAR=123 ./env_var_writer').first.commands
       assert_equal 1, commands.size
-      assert_equal Command.new('./env_var_writer'), commands.first
+      assert_equal OSProcess.new('./env_var_writer'), commands.first
       assert_equal "123", commands.first.environment_variables["VAR"]
 
       commands = @parser.jobs_from('NUMBERS=123 LETTERS=abc ./env_var_writer').first.commands
       assert_equal 1, commands.size
-      assert_equal Command.new('./env_var_writer'), commands.first
+      assert_equal OSProcess.new('./env_var_writer'), commands.first
       assert_equal "123", commands.first.environment_variables["NUMBERS"]
       assert_equal "abc", commands.first.environment_variables["LETTERS"]
 
       commands = @parser.jobs_from('NUMBERS=123 ./env_var_writer LETTERS=abc').first.commands
       assert_equal 1, commands.size
-      assert_equal Command.new('./env_var_writer') << "LETTERS=abc", commands.first
+      assert_equal OSProcess.new('./env_var_writer') << "LETTERS=abc", commands.first
       assert_equal 1, commands.first.environment_variables.size
       assert_equal "123", commands.first.environment_variables["NUMBERS"]
     end

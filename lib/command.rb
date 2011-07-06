@@ -3,26 +3,29 @@
 # See COPYING.
 
 module Urchin
+
+  # An abstract base class for all types of command (processes, builtins and
+  # shell functions).
   class Command
     private_class_method :new
 
-    attr_accessor :pid, :environment_variables
-    attr_reader :exit_code, :executable, :args
+    attr_accessor :environment_variables
+    attr_reader :executable, :args
 
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
-      Builtins.command_for(executable, job_table) || new(executable)
+      Builtin.command_for(executable, job_table) || OSProcess.new(executable)
     end
 
-    def initialize(executable)
+    def initialize(executable, job_table = nil)
       @executable = executable
       @args = []
       @redirects = []
       @environment_variables = {}
       @status = nil
+      @job_table = job_table
     end
 
-    # This is duplicated in the Builtin module.
     def complete
       constant = @executable.capitalize
       if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
@@ -38,57 +41,9 @@ module Urchin
       self
     end
 
-    def add_redirect(from, to, mode)
-      @redirects << { :from => from, :to => to, :mode => mode }
-    end
-
-    def perform_redirects
-      @redirects.each do |redirect|
-        if redirect[:to].respond_to? :reopen
-          redirect[:from].reopen(redirect[:to])
-        else
-          redirect[:from].reopen(redirect[:to], redirect[:mode])
-        end
-      end
-    end
-
-    def execute
-      perform_redirects
-      set_local_environment_variables
-      begin
-        # Errno::EACCES can be thrown for many errors, so we detect directories
-        # before calling exec().
-        if File.directory? @executable
-          STDERR.puts "Is a directory: #{@executable}"
-          exit 127
-        end
-        exec @executable, *@args
-
-      rescue Errno::ENOENT
-        STDERR.puts "Command not found: #{@executable}"
-        exit 127
-
-      rescue Errno::EACCES
-        STDERR.puts "Permission denied: #{@executable}"
-        exit 127
-      end
-    end
-
     def set_local_environment_variables
       @environment_variables.each_pair do |variable, value|
         ENV[variable] = value
-      end
-    end
-
-    # TODO: set exit code for when the status is #coredump? and #signaled?.
-    def change_status(status)
-      if status.stopped?
-        stopped!
-      else
-        completed!
-        if status.exited?
-          @exit_code = status.exitstatus
-        end
       end
     end
 
@@ -116,12 +71,8 @@ module Urchin
       @status == :completed
     end
 
-    def to_s
+    def to_str
       "#{@executable} #{@args.join(" ")}"
-    end
-
-    def should_fork?
-      true
     end
   end
 end

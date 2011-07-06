@@ -4,7 +4,7 @@
 
 require "rbconfig"
 module Urchin
-  class RubyCommand < Command
+  class RubyProcess < OSProcess
     RUBY_PATH = File.join(Config::CONFIG["bindir"],
                           Config::CONFIG["RUBY_INSTALL_NAME"] +
                           Config::CONFIG["EXEEXT"])

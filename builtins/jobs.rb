@@ -4,11 +4,9 @@
 
 module Urchin
   module Builtins
-    class Jobs
+    class Jobs < Builtin
 
       EXECUTABLE = "jobs"
-
-      include Methods
 
       def valid_arguments?
         unless @args.empty?

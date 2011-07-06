@@ -20,17 +20,15 @@ end
 
 module Urchin
   module Builtins
-    class Builtinecho
+    class Builtinecho < Builtin
       EXECUTABLE = "builtinecho"
-      include Methods
       def execute
         puts @args.first
       end
     end
 
-    class Reverse
+    class Reverse < Builtin
       EXECUTABLE = "reverse"
-      include Methods
       def execute
         puts STDIN.read.chomp.reverse
       end
@@ -216,11 +214,11 @@ module Urchin
     def test_title
       ls = Command.create("ls", @job_table)
       cd = Command.create("cd", @job_table)
-      assert_equal ls.to_s, Job.new([ ls, cd ], @shell).title
+      assert_equal ls.to_str, Job.new([ ls, cd ], @shell).title
     end
 
     def test_terminal_modes_are_saved_and_restored
-      less = Command.new("less") << "#{File.dirname(__FILE__)}/../README"
+      less = Command.create("less", @job_table) << "#{File.dirname(__FILE__)}/../README"
 
       job = Job.new([ less ], @shell)
       Thread.new do

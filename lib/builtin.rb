@@ -3,7 +3,21 @@
 # See COPYING.
 
 module Urchin
-  module Builtins
+  class Builtin < Command
+    public_class_method :new
+
+    def initialize(job_table)
+      @job_table = job_table
+      super(self.class::EXECUTABLE, job_table)
+    end
+
+    def should_fork?
+      false
+    end
+
+    def completed?
+      true
+    end
 
     # Loads the class instance variable @builtins with
     #
@@ -13,9 +27,8 @@ module Urchin
     def self.builtins
       @builtins ||= {}
       if @builtins.empty?
-        constants.each do |b|
-          next if b == :Methods || b == "Methods"
-          klass = const_get(b)
+        Builtins.constants.each do |b|
+          klass = Builtins.const_get(b)
           @builtins[klass::EXECUTABLE] = klass
         end
       end
@@ -26,51 +39,6 @@ module Urchin
     def self.command_for(executable, job_table)
       if builtins[executable]
         builtins[executable].new(job_table)
-      end
-    end
-
-    module Methods
-      attr_reader :args
-
-      def initialize(job_table)
-        @args = []
-        @job_table = job_table
-      end
-
-      # Just to keep things working.
-      def environment_variables=(variables); end
-
-      def executable
-        self.class.to_s.downcase
-      end
-
-      # This is duplicated in the Command class.
-      def complete
-        constant = self.class.to_s
-        if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
-          Completion.const_get(constant.to_sym).new.complete(self, @args.last || "")
-        else
-          false
-        end
-      end
-
-      def <<(arg)
-        @args << arg
-        self
-      end
-
-      def should_fork?
-        false
-      end
-
-      # This will only get called after execute has completed.
-      def completed?
-        true
-      end
-
-      # This will only get called after execute has completed.
-      def running?
-        false
       end
     end
   end

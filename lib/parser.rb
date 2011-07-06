@@ -146,7 +146,7 @@ module Urchin
       remove_space
       if source = @input.scan(/^#{Regexp.escape(Shell.ruby_delimiter)}(.+?)#{Regexp.escape(Shell.ruby_delimiter)}/)
         source.gsub! Shell.ruby_delimiter, ""
-        RubyCommand.create source
+        RubyProcess.create source
       else
         false
       end

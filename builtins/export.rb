@@ -4,11 +4,9 @@
 
 module Urchin
   module Builtins
-    class Export
+    class Export < Builtin
 
       EXECUTABLE = "export"
-
-      include Methods
 
       def valid_arguments?
         if @args.empty?

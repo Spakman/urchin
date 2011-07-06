@@ -26,7 +26,7 @@ module Urchin
     end
 
     def title
-      @commands.first.to_s
+      @commands.first.to_str
     end
 
     def exec_in_process(command, next_in, next_out)
