@@ -9,10 +9,6 @@ module Urchin
     attr_accessor :pid, :environment_variables
     attr_reader :exit_code, :executable, :args
 
-    class << self
-      attr_reader :builtins
-    end
-
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
       Builtins.command_for(executable, job_table) || new(executable)
