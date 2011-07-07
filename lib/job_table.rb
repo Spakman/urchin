@@ -16,6 +16,12 @@ module Urchin
       @jobs << job
     end
 
+    # Re-order the jobs in the job table.
+    def last_job=(job)
+      @jobs.delete job
+      @jobs << job
+    end
+
     def get_job_id
       if @jobs.empty?
         1

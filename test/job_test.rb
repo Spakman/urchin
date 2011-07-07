@@ -114,7 +114,9 @@ module Urchin
       Thread.new do
         job.run
       end
-      sleep 0.1
+      sleep 0.2
+      new_job = Job.new([ Command.create("sleep", @job_table) << "2" ], @shell)
+      @shell.job_table.insert new_job
 
       assert s1.running?
       assert s2.running?
@@ -128,6 +130,7 @@ module Urchin
       assert s1.stopped?
       assert s2.stopped?
       assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+      assert_equal job, @shell.job_table.jobs.last
 
     ensure
       Process.kill("-KILL", job.pgid) rescue Errno::ESRCH

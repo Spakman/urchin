@@ -165,12 +165,19 @@ module Urchin
     # which catches exiting commands that are part of background jobs. Flags
     # are passed to waitpid2 directly (and can be a logical OR).
     def reap_children(flags)
+      reaped_a_pid = false
       running_commands.each do |command|
         pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
-        command.change_status status unless pid.nil?
+        unless pid.nil?
+          command.change_status status
+          reaped_a_pid = true
+        end
       end
 
-      if uncompleted_commands.empty?
+      if reaped_a_pid && stopped?
+        # Re-order the jobs in the job table.
+        @shell.job_table.last_job = self
+      elsif uncompleted_commands.empty?
         # All of the commands are completed so we must be done.
         @shell.job_table.delete self
       end
