@@ -1,12 +1,16 @@
 module Urchin
   class Completer
     def initialize(env_path, shell)
-      build_executables_list_from(env_path)
       @shell = shell
+      build_executables_list_from(env_path)
+    end
+
+    def aliases
+      @shell.aliases.keys
     end
 
     def build_executables_list_from(env_path)
-      @executables = []
+      @executables = aliases
       env_path.split(":").uniq.each do |path|
         if File.directory?(path) && File.executable?(path)
           Dir.entries(path).each do |entry|
@@ -30,7 +34,9 @@ module Urchin
           complete_executable(word)
         else
           command = last_job.commands.last
-          if command && (command.args.any? || Readline.line_buffer[Readline.point-1,1] == " ")
+          if !parser.finished_entering_alias?
+            complete_executable(word)
+          elsif command && (command.args.any? || Readline.line_buffer[Readline.point-1,1] == " ")
             command.complete or Readline::FILENAME_COMPLETION_PROC.call(word)
           else
             complete_executable(word)

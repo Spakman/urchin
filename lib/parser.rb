@@ -22,6 +22,7 @@ module Urchin
       @shell = shell
       @input = StringScanner.new(input) if input
       @expecting_new_command = false
+      @finished_entering_alias = true
     end
 
     def jobs_from(input)
@@ -128,16 +129,25 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
-      alias_expansion
+      if alias_end_pos = alias_expansion
+        @finished_entering_alias = false
+      end
       if executable = tilde_expansion(word)
         command = Command.create(executable, @shell.job_table)
         words.each do |arg|
           command << arg
         end
+        if @input.pos > alias_end_pos
+          @finished_entering_alias = true
+        end
         return command
       else
         false
       end
+    end
+
+    def finished_entering_alias?
+      @finished_entering_alias
     end
 
     # Returns a RubyCommand object to run the Ruby code between the next two
@@ -291,14 +301,18 @@ module Urchin
     # Replaces a command with some text. This is only used for the first
     # (command) word in a command line. The command word is parsed after alias
     # expansion, so the alias can contain multiple commands in a pipeline.
+    #
+    # Returns the position of the last character of the alias or 0.
     def alias_expansion
       pos = @input.pos
       w = word
       if @shell.aliases[w]
         @input.string = @input.string[pos..-1].sub(w, @shell.aliases[w])
         @input.pos = 0
+        @shell.aliases[w].length
       else
         @input.pos = pos
+        0
       end
     end
   end
