@@ -360,5 +360,15 @@ module Urchin
       ruby = jobs.first.commands.last
       assert ruby.executable.index("ruby")
     end
+
+    def test_jobs_starting_with_a_number_evals_and_prints_remainder_of_line_as_ruby
+      jobs = @parser.jobs_from('2 * 2')
+      assert_equal 1, jobs.first.commands.size
+      ruby = jobs.first.commands.first
+      assert ruby.executable.index("ruby")
+      assert_equal "-e", ruby.args.first
+      assert_equal "puts eval(ARGV.last)", ruby.args[1]
+      assert_equal "2 * 2", ruby.args.last
+    end
   end
 end

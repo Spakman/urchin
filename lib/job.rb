@@ -19,6 +19,7 @@ module Urchin
 
     def <<(command)
       @commands << command
+      self
     end
 
     def empty?

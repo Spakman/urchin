@@ -13,10 +13,6 @@ module Urchin
   #
   #   * cd /dir && ls -l
   #   * cd ~ms || cd ~mark
-  #
-  #   Simple calculations:
-  #
-  #   * (12 * 56) - 33
   class Parser
     def initialize(shell, input = nil)
       @shell = shell
@@ -28,12 +24,24 @@ module Urchin
     def jobs_from(input)
       @input = StringScanner.new(input)
       jobs = []
-      until @input.eos?
-        if job = parse_job
-          jobs << job
+      if source = parse_line_of_ruby
+        ruby = RubyProcess.create("puts eval(ARGV.last)") << source
+        jobs << (Job.new([], @shell) << ruby)
+      else
+        until @input.eos?
+          if job = parse_job
+            jobs << job
+          end
         end
       end
       jobs
+    end
+
+    def parse_line_of_ruby
+      remove_space
+      if source = @input.scan(/^[0-9].*$/)
+        source
+      end
     end
 
     def start_of_new_command?
