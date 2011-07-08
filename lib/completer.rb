@@ -9,8 +9,12 @@ module Urchin
       @shell.aliases.keys
     end
 
+    def builtins
+      Builtin.builtins.keys
+    end
+
     def build_executables_list_from(env_path)
-      @executables = aliases
+      @executables = aliases | builtins
       env_path.split(":").uniq.each do |path|
         if File.directory?(path) && File.executable?(path)
           Dir.entries(path).each do |entry|

@@ -43,7 +43,9 @@ module Urchin
 
     def test_build_executables_list_from_path
       completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}", Shell.new
-      assert_equal 4, completer.instance_eval("@executables").size
+      executables = completer.instance_eval("@executables")
+      assert_equal (4 + Builtin.builtins.size), executables.size
+      assert executables.include? "bg"
     end
 
     def test_completion_proc_calls_complete_executable_on_first_word
@@ -114,7 +116,8 @@ module Urchin
     def test_executables_are_completed_for_second_command_when_it_is_empty
       Readline.line_buffer_for_test = "ls | "
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
-      assert_equal %w( ello env_var_writer stdout_stderr_writer stdin_writer ).sort, completer.completion_proc.call("").sort
+      expected_exectables = %w( ello env_var_writer stdout_stderr_writer stdin_writer ) + Builtin.builtins.keys
+      assert_equal expected_exectables.sort, completer.completion_proc.call("").sort
     end
 
     def test_executables_are_completed_for_first_command_of_second_job
@@ -126,13 +129,14 @@ module Urchin
     def test_executables_are_completed_for_first_command_of_second_job_when_it_is_empty
       Readline.line_buffer_for_test = "ls & "
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
-      assert_equal %w( ello env_var_writer stdout_stderr_writer stdin_writer ).sort, completer.completion_proc.call("").sort
+      expected_exectables = %w( ello env_var_writer stdout_stderr_writer stdin_writer ) + Builtin.builtins.keys
+      assert_equal expected_exectables.sort, completer.completion_proc.call("").sort
     end
 
     def test_completion_proc_calls_complete_executable_for_an_alias_to_a_multi_word_command
       Readline.line_buffer_for_test = "e"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
-      assert_equal %w( env_var_writer ello ).sort, completer.completion_proc.call("e").sort
+      assert_equal %w( env_var_writer ello export ).sort, completer.completion_proc.call("e").sort
     end
   end
 end
