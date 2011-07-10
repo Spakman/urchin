@@ -44,7 +44,7 @@ module Urchin
     def test_build_executables_list_from_path
       completer = Completer.new "#{File.expand_path(File.dirname(__FILE__))}:#{@completer_dir}", Shell.new
       executables = completer.instance_eval("@executables")
-      assert_equal (4 + Builtin.builtins.size), executables.size
+      assert_equal((4 + Builtin.builtins.size), executables.size)
       assert executables.include? "bg"
     end
 
