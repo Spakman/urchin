@@ -41,5 +41,23 @@ module Urchin
     ensure
       history.cleanup
     end
+
+    def test_history_file_is_truncated_file_if_it_is_too_long
+      File.open(History::FILE, "w+") do |history|
+        history << "the\n"
+        history << "history\n"
+        history << "is\n"
+        history << "populated\n"
+      end
+
+      history = Urchin::History.new
+      history.append "again"
+
+      lines = File.readlines(History::FILE)
+      assert_equal Urchin::History::LINES_TO_STORE, lines.size
+      assert_equal "again\n", lines.last
+    ensure
+      history.cleanup
+    end
   end
 end

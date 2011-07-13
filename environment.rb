@@ -44,3 +44,7 @@ end
 unless defined? Urchin::History::FILE
   Urchin::History::FILE = "#{ENV["HOME"]}/.urchin.history"
 end
+
+unless defined? Urchin::History::LINES_TO_STORE
+  Urchin::History::LINES_TO_STORE = 1000
+end

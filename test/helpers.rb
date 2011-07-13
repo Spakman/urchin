@@ -51,6 +51,10 @@ unless defined? Urchin::History::FILE
   Urchin::History::FILE = "#{File.dirname(__FILE__)}/.urchin.test.history"
 end
 
+unless defined? Urchin::History::LINES_TO_STORE
+  Urchin::History::LINES_TO_STORE = 3
+end
+
 unless defined? Urchin::Builtins::Cd::LAST_DIR
   Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
 end

@@ -33,7 +33,7 @@ module Urchin
     #
     # TODO: use /dev/shm or some other method to save constant flushing.
     #
-    # TODO: limit the number of entries in the history file.
+    # TODO: the code to limit the history is rather crude.
     def append(input)
       unless input.empty? || Readline::HISTORY.to_a.last == input
         Readline::HISTORY.push(input)
@@ -43,6 +43,14 @@ module Urchin
         Readline::HISTORY.push(input) if Readline::HISTORY.to_a.empty?
 
         @file << "#{input}\n"
+
+        @file.seek(0)
+        lines = @file.readlines
+        if lines.size > LINES_TO_STORE
+          @file.truncate(0)
+          @file << lines[lines.size-LINES_TO_STORE,LINES_TO_STORE].join
+        end
+
         @file.flush
       end
     end
