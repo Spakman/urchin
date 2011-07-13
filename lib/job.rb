@@ -30,6 +30,10 @@ module Urchin
       @commands.first.to_str
     end
 
+    def <=>(object)
+      self.id <=> object.id
+    end
+
     def exec_in_process(command, next_in, next_out)
       old_stdin = STDIN.dup
       old_stdout = STDOUT.dup

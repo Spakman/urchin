@@ -35,7 +35,7 @@ module Urchin
     end
 
     def to_s
-      @jobs.map { |j| "[#{j.id}] #{j.status}     #{j.title}" }.join("\n")
+      @jobs.sort.map { |j| "[#{j.id}] #{j.status}     #{j.title}" }.join("\n")
     end
 
     def find_by_id(id)

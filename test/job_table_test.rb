@@ -54,11 +54,14 @@ module Urchin
       assert_equal job, @job_table.find_by_id(2)
     end
 
-    def test_to_s
-      job = JobForTest.new
-      job.title = "for_test"
+    def test_to_s_prints_jobs_ordered_by_id
+      job = Job.new([ Command.create("sleep", @job_table) << "1" ], nil)
       @job_table.insert job
-      assert_equal "[1] running     for_test", @job_table.to_s
+      job2 = Job.new([ Command.create("echo", @job_table) << "job 2" ], nil)
+      @job_table.insert job2
+      @job_table.last_job = job
+
+      assert_equal "[1] stopped     sleep 1\n[2] stopped     echo job 2", @job_table.to_s
     end
   end
 end
