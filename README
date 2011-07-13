@@ -1,8 +1,10 @@
 Urchin
 ===
 
-A Unix shell for Ruby programmers. If you have any ideas for what you think
-this should mean, please let me know!
+A Unix shell for Ruby programmers.
+
+If you have any ideas for what you think this should mean, please submit a
+ticket!
 
 Urchin does not aim to be POSIX compliant, but is heavily influenced by Bash
 and Zsh. Urchin aims to make Ruby a first class citizen in the shell and be a
@@ -21,20 +23,21 @@ Spakman on Freenode
 Current status
 ===
 
-Urchin has met my criteria for a first release (used as my login shell for a
-week without breaking or annoying me)! I've found version 0.1.0 really rather
-usable as my login shell for some weeks now (this doesn't mean you will!).
+Preparing to release version 0.2.0. On Linux this will be beta quality. It is
+considerably less tested on other platforms. I have been using it as my login
+shell since version 0.1.0 and it has been pretty stable.
 
-So far there is working job control, redirections, tilde expansion, aliasing,
-globbing and environment variables.
+Quite a lot of common Unix shell stuff is implemented: job control,
+redirections, tilde expansion, aliasing, globbing and environment variables.
+Obvious things that are missing from that list are command expansion and
+functions. These will most likely appear in 0.3.0.
 
-Unfortunately, this means there isn't anything in Urchin right now that
-provides any advantage over Bash/Zsh. Once a couple of more things are sorted
-out, some integration with Ruby will put in place (allowing use of inline Ruby,
-without escaping things).
+Straightforward inline Ruby is available! This was the original inspiration for
+the project (although the vision has grown somewhat now). This allows writing
+Ruby processes directly on the command line, without the need to escape special
+characters. This will likely be expanded and improved upon in later releases.
 
-Since this is really a preview release, there are no installation packages at
-all.
+I will create a gem for version 0.2.0.
 
 
 Current problems
@@ -42,31 +45,31 @@ Current problems
 
 GitHub is used for ticket tracking: https://github.com/Spakman/urchin/issues
 
-Feel free to use this to suggest features too. I will, when I get a chance!
-
-I would like to see some things sorted before moving onto cooler features -
-primarily, better tab-completion. I'm finding making use of the included
-Readline module is hard work.
-
 
 Requirements
 ===
 
 Ruby
 ---
-Tested with MRI 1.8.7 and 1.9.2. If running using 1.9.2 on a laptop, be aware
-of bug #3436 (http://redmine.ruby-lang.org/issues/show/3436).
+Tested with MRI 1.8.7, 1.9.2 and 1.9.3-dev on Linux.
 
-Readline support of some variety is needed. I've only really tested with GNU
-Readline on Linux. Users of editline, rb-readline, RawLine, etc are welcome to
-report/fix bugs!
+If running using 1.9.2 on a laptop, be aware of bug #3436
+(http://redmine.ruby-lang.org/issues/show/3436). This should be fixed when
+1.9.3 is released.
+
+
+rb-readline
+---
+Since version 0.2.0, Urchin relies on rb-readline. Use the latest version or
+check it out from GitHub[1]. I'm one of the maintainers for rb-readline and
+always check that Urchin works with the latest version.
+
+1 - https://github.com/luislavena/rb-readline
 
 
 ruby-termios
 ---
 Tested with version 0.9.6.
-
-Using via Rubygems is discouraged to save memory, but will work.
 
 
 Some examples that work
@@ -75,6 +78,10 @@ Some examples that work
 Pipelines:
 
 	ls -la | head -n2
+
+Calling a new Ruby process (~@ is the default delimiter):
+
+	ls --no-color |~@ puts STDIN.read.reverse ~@ | sort
 
 Redirecting STDOUT, STDIN, STDERR:
 
@@ -114,5 +121,9 @@ Reading and setting environment variables:
 	echo $PATH
 	echo abx${HOME}xyz
 	export HELLO="Yo man!"
+
+Simple arithmetic (lines starting with a digit are eval-ed as Ruby):
+
+	17 * 123
 
 Job control (uses fg, bg and jobs builtins).
