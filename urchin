@@ -4,6 +4,11 @@
 # See COPYING.
 
 begin
+  if ARGV.empty?
+    $0 = "urchin"
+  else
+    $0 = "urchin #{ARGV.join(" ")}"
+  end
   $LOAD_PATH.delete "."
   require "optparse"
   require "strscan"
