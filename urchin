@@ -72,10 +72,10 @@ begin
   end.parse!
 
   # For compatibility with scripts that use `$SHELL -c "command"`.
+  @shell = Urchin::Shell.new
   if options[:command_string]
-    exec options[:command_string]
+    @shell.parse_and_run options[:command_string]
   else
-    @shell = Urchin::Shell.new
     Readline.completion_proc = Urchin::Completer.new(ENV["PATH"], @shell).completion_proc
     @shell.run
   end
