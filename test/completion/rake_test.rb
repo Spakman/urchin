@@ -13,7 +13,7 @@ module Urchin
       def test_commands_with_empty_first_arg
         command = RakeTestCommand.new
         command.send(:extend, Rake)
-        assert_equal %w( test todo ), command.complete
+        assert_equal %w( build test todo ), command.complete
       end
     end
   end
