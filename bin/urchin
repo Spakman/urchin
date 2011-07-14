@@ -35,7 +35,7 @@ begin
     require "termios"
   end
 
-  $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+  $LOAD_PATH << File.expand_path("#{File.dirname(__FILE__)}/../")
   require "lib/string"
   require "lib/readline"
   require "lib/completer"
@@ -50,11 +50,12 @@ begin
   require "lib/builtin"
   require "lib/urchin_runtime_error"
 
-  Dir.glob("#{File.dirname(__FILE__)}/{builtins,completion}/*.rb").each do |path|
+  Dir.glob("#{File.dirname(__FILE__)}/../{builtins,completion}/*.rb").each do |path|
     require path
   end
 
   require "environment"
+  require "version"
 
   options = {}
   OptionParser.new do |opts|
@@ -70,13 +71,12 @@ begin
     end
 
     opts.on("--version", "Show version") do
-      puts `cd #{File.expand_path(File.dirname(__FILE__))}; git describe --always --dirty 2>/dev/null || echo "Can\'t find version information from Git."`
+      puts Urchin::VERSION
       exit 0
     end
 
   end.parse!
 
-  # For compatibility with scripts that use `$SHELL -c "command"`.
   @shell = Urchin::Shell.new
   if options[:command_string]
     @shell.parse_and_run options[:command_string]
