@@ -1,9 +1,13 @@
+require 'rake/testtask'
+
 task :default => :test
 
-desc "Run the tests"
-task :test do
-  test_files = Dir.glob("test/**/*_test.rb")
-  exec "RUBYOPT='-w -Itest' testrb #{test_files.join(" ")}"
+Rake::TestTask.new do |t|
+  t.warning = true
+  t.verbose = true
+  t.test_files = FileList["test/**/*_test.rb"]
+  t.ruby_opts << "-Itest"
+  t.ruby_opts << "-w"
 end
 
 desc "Print out the TODO tasks"
