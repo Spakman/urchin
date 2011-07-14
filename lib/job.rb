@@ -152,7 +152,7 @@ module Urchin
     # have already completed before execution reaches here.
     def foreground!
       Termios.tcsetpgrp(STDIN, @pgid) rescue Errno::EINVAL
-      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes)
+      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes) if @terminal_modes
       unless running?
         Process.kill("-CONT", @pgid) rescue Errno::ESRCH
       end
