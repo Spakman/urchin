@@ -17,7 +17,8 @@ module Urchin
       end
 
       def tasks
-        lines = Shell.new.eval("rake -T").split("\n")[1..-1] || []
+        lines = Shell.new.eval("rake -T").split("\n")
+        lines.shift if lines.first =~ /^\(in /
         lines.map { |l| l.sub(/^rake (.+?) .*$/, '\1') }
       end
     end
