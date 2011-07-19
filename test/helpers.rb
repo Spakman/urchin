@@ -4,59 +4,25 @@ require "test/unit"
 # process group unless we ignore or block SIGTTOU.
 Signal.trap :TTOU, "IGNORE"
 
-$LOAD_PATH << "#{File.expand_path(File.dirname(__FILE__))}/../"
+require "#{File.dirname(__FILE__)}/../boot"
 
-require "rbconfig"
-unless File.exists? "#{RbConfig::CONFIG["sitelibdir"]}/readline.rb"
-  # Looks like rb-readline was not installed in site_ruby.
-  require "rubygems"
+if defined? Urchin::History::FILE
+  Urchin::History.send(:remove_const, :FILE)
 end
-begin
-  require "rb-readline"
-rescue LoadError
-  require "rubygems"
-  require "readline"
+Urchin::History::FILE = "#{File.dirname(__FILE__)}/.urchin.test.history"
+
+if defined? Urchin::History::LINES_TO_STORE
+  Urchin::History.send(:remove_const, :LINES_TO_STORE)
 end
+Urchin::History::LINES_TO_STORE = 3
 
-require "strscan"
-
-begin
-  require "termios"
-rescue LoadError
-  require "rubygems"
-  require "termios"
-  STDERR.puts "Loaded Termios using Rubygems. This is discouraged in order to save memory. You may want to consider installing it in site_ruby instead."
+if defined? Urchin::Builtins::Cd::LAST_DIR
+  Urchin::Builtins::Cd.send(:remove_const, :LAST_DIR)
 end
+Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
 
-$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
-require "lib/string"
-require "lib/readline"
-require "lib/completer"
-require "lib/history"
-require "lib/shell"
-require "lib/parser"
-require "lib/job_table"
-require "lib/job"
-require "lib/command"
-require "lib/os_process"
-require "lib/ruby_process"
-require "lib/builtin"
-require "lib/urchin_runtime_error"
-
-Dir.glob("#{File.dirname(__FILE__)}/../builtins/*.rb").each do |path|
-  require path
-end
-
-unless defined? Urchin::History::FILE
-  Urchin::History::FILE = "#{File.dirname(__FILE__)}/.urchin.test.history"
-end
-
-unless defined? Urchin::History::LINES_TO_STORE
-  Urchin::History::LINES_TO_STORE = 3
-end
-
-unless defined? Urchin::Builtins::Cd::LAST_DIR
-  Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
+class Urchin::Shell
+  @@aliases = {}
 end
 
 module Urchin

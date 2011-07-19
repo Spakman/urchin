@@ -9,59 +9,16 @@ begin
   else
     $0 = "urchin #{ARGV.join(" ")}"
   end
+
   $LOAD_PATH.delete "."
-  require "optparse"
-  require "strscan"
-  require "fileutils"
 
-  require "rbconfig"
-  unless File.exists? "#{RbConfig::CONFIG["sitelibdir"]}/readline.rb"
-    # Looks like rb-readline was not installed in site_ruby.
-    require "rubygems"
-  end
-  begin
-    require "rb-readline"
-  rescue LoadError
-    require "rubygems"
-    require "readline"
-  end
-
-  begin
-    require "termios"
-  rescue LoadError
-    # Looks like termios was not installed in site_ruby or we loaded the Gem
-    # instead.
-    require "rubygems"
-    require "termios"
-  end
-
-  $LOAD_PATH << File.expand_path("#{File.dirname(__FILE__)}/../")
-  require "lib/string"
-  require "lib/readline"
-  require "lib/completer"
-  require "lib/history"
-  require "lib/shell"
-  require "lib/parser"
-  require "lib/job_table"
-  require "lib/job"
-  require "lib/command"
-  require "lib/os_process"
-  require "lib/ruby_process"
-  require "lib/builtin"
-  require "lib/urchin_runtime_error"
-
-  Dir.glob("#{File.dirname(__FILE__)}/../{builtins,completion}/*.rb").each do |path|
-    require path
-  end
-
-  require "environment"
-  require "version"
+  require "#{File.dirname(__FILE__)}/../boot"
 
   options = {}
   OptionParser.new do |opts|
     opts.banner = "Usage: urchin [options]"
 
-    opts.on("-c", "--commands [COMMANDS]", "Run this command string using /bin/sh") do |command_string|
+    opts.on("-c", "--commands [COMMANDS]", "Run this command string") do |command_string|
       options[:command_string] = command_string
     end
 
@@ -74,7 +31,6 @@ begin
       puts Urchin::VERSION
       exit 0
     end
-
   end.parse!
 
   @shell = Urchin::Shell.new
@@ -84,6 +40,7 @@ begin
     Readline.completion_proc = Urchin::Completer.new(ENV["PATH"], @shell).completion_proc
     @shell.run
   end
+
 rescue Exception => exception
   if exception.class == SystemExit
     exit exception.status
