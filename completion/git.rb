@@ -27,8 +27,7 @@ module Urchin
         whatchanged
       )
 
-      def complete
-        word = args.last || ""
+      def complete(word)
         if args.empty? || (args.size == 1 && !word.empty?)
           Git.commands.grep(/^#{Regexp.escape(word)}/)
         elsif args.size >= 1

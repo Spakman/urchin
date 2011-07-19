@@ -41,7 +41,7 @@ module Urchin
           if !parser.finished_entering_alias?
             complete_executable(word)
           elsif command && (command.args.any? || Readline.line_buffer[Readline.point-1,1] == " ")
-            command.complete or Readline::FILENAME_COMPLETION_PROC.call(word)
+            command.complete(word) or Readline::FILENAME_COMPLETION_PROC.call(word)
           else
             complete_executable(word)
           end

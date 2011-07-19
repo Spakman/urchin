@@ -11,12 +11,12 @@ module Urchin
       end
 
       def test_commands_with_empty_first_arg
-        assert_equal Git.commands, @command.complete
+        assert_equal Git.commands, @command.complete("")
       end
 
       def test_commands_with_partial_first_arg
         @command << "checko"
-        assert_equal %w( checkout ), @command.complete
+        assert_equal %w( checkout ), @command.complete("checko")
       end
 
       def test_checkout
@@ -26,12 +26,12 @@ module Urchin
             branches = `git branch --no-color`.gsub(/^[ *] /, "").split("\n")
 
             @command << "checkout" << "m"
-            assert @command.complete.include? "master"
-            assert @command.complete.include? "my-completion-test-branch"
+            assert @command.complete("m").include? "master"
+            assert @command.complete("m").include? "my-completion-test-branch"
 
             setup
             @command << "checkout" << "-b"
-            assert_equal [], @command.complete
+            assert_equal [], @command.complete("-b")
           ensure
             `git branch -D my-completion-test-branch`
           end

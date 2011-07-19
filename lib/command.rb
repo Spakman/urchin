@@ -26,11 +26,11 @@ module Urchin
       @job_table = job_table
     end
 
-    def complete
+    def complete(word)
       constant = @executable.capitalize
       if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
         extend Completion.const_get(constant.to_sym)
-        complete
+        complete(word)
       else
         false
       end

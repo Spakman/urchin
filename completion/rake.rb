@@ -7,13 +7,16 @@ module Urchin
       @@last_dir = @@last_tasks = nil
 
       # Complete task names.
-      def complete
+      def complete(word)
+        if @args.size > 1 || (@args.any? && word.empty?)
+          return nil
+        end
         pwd = Dir.getwd
         unless @@last_dir == pwd
           @@last_dir = pwd
           @@last_tasks = tasks
         end
-        return @@last_tasks.grep(/^#{Regexp.escape(args.last || "")}/)
+        return @@last_tasks.grep(/^#{Regexp.escape(word)}/)
       end
 
       def tasks

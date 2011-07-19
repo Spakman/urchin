@@ -23,7 +23,7 @@ end
 module Urchin
   module Completion
     module Mycommand
-      def complete
+      def complete(word)
         %w( one two )
       end
     end
