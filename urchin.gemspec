@@ -23,4 +23,18 @@ spec = Gem::Specification.new do |s|
   s.licenses = [ "GPLv3" ]
   s.authors = [ "Mark Somerville" ]
   s.email = [ "mark@scottishclimbs.com" ]
+
+  s.add_dependency("rb-readline", "~> 0.4.1")
+
+  s.post_install_message = <<POST_INSTALL
+*******************************************************************************
+
+  If you have checked that it is stable enough on your system and want to use
+  Urchin as your login shell, these steps are required:
+
+    (as root) $ echo /path/to/urchin >> /etc/shells
+    (as user) $ chsh -s /path/to/urchin
+
+*******************************************************************************
+POST_INSTALL
 end
