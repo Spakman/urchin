@@ -380,5 +380,17 @@ module Urchin
       assert_equal "puts eval(ARGV.last)", ruby.args[ruby.args.size-2]
       assert_equal "2 * 2", ruby.args.last
     end
+
+    def test_command_expansion_as_command
+      command = @parser.jobs_from("`echo ls` 999").first.commands.first
+      assert_equal "ls", command.executable
+      assert_equal "999", command.args.first
+    end
+
+    def test_command_expansion_within_parameter
+      command = @parser.jobs_from("ls `echo 123`").first.commands.first
+      assert_equal "ls", command.executable
+      assert_equal "123", command.args.first
+    end
   end
 end

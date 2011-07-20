@@ -29,8 +29,8 @@ shell since version 0.1.0 and it has been pretty stable.
 
 Quite a lot of common Unix shell stuff is implemented: job control,
 redirections, tilde expansion, aliasing, globbing and environment variables.
-Obvious things that are missing from that list are command expansion and
-functions. These will most likely appear in 0.3.0.
+Functions are the most obvious thing missing from that list. These will most
+likely appear in 0.3.0.
 
 Straightforward inline Ruby is available! This was the original inspiration for
 the project (although the vision has grown somewhat now). This allows writing
@@ -82,6 +82,7 @@ Pipelines:
 Calling a new Ruby process (~@ is the default delimiter):
 
 	ls --no-color |~@ puts STDIN.read.reverse ~@ | sort
+	ls --no-color |~@ o s.reverse ~@ | sort
 
 Redirecting STDOUT, STDIN, STDERR:
 
@@ -125,5 +126,9 @@ Reading and setting environment variables:
 Simple arithmetic (lines starting with a digit are eval-ed as Ruby):
 
 	17 * 123
+
+Command expansion:
+
+	ps `pgrep urchin`
 
 Job control (uses fg, bg and jobs builtins).

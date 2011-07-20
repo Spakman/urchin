@@ -5,10 +5,6 @@
 module Urchin
   # TODO: handle the following:
   #
-  #   Command expansion:
-  #
-  #   * ls -lh `cat thepath` | head -2
-  #
   #   Exit code logic:
   #
   #   * cd /dir && ls -l
@@ -137,6 +133,7 @@ module Urchin
     # Returns the Command object associated with the next words in the input
     # string. Otherwise, nil.
     def parse_command
+      command_expansion
       if alias_end_pos = alias_expansion
         @finished_entering_alias = false
       end
@@ -251,6 +248,7 @@ module Urchin
     def words
       words = []
       begin
+        command_expansion
         remove_space
         w = nil
         if w = quoted_word
@@ -325,6 +323,22 @@ module Urchin
       else
         @input.pos = pos
         0
+      end
+    end
+
+    # Replaces a command string encapsulated in backticks with the result of
+    # running it in a sub-shell.
+    #
+    # Trailing newlines are removed.
+    def command_expansion
+      remove_space
+      pos = @input.pos
+      if job_string = @input.scan(/^`.*?`/)
+        result = Shell.new.eval(job_string[1...-1]).chomp
+        string = @input.string[pos..-1]
+        string.sub!(job_string, result)
+        @input.string = string
+        @input.pos = 0
       end
     end
   end
