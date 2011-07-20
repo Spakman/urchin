@@ -352,7 +352,7 @@ module Urchin
       assert_equal 1, jobs.first.commands.size
       ruby = jobs.first.commands.first
       assert ruby.executable.index("ruby")
-      assert_equal "-e", ruby.args.first
+      assert_equal "-e", ruby.args[ruby.args.size-2]
       assert_equal " puts 123 ", ruby.args.last
 
       jobs = @parser.jobs_from('echo -n "hello" |~@ puts STDIN.read.reverse ~@')
@@ -361,13 +361,23 @@ module Urchin
       assert ruby.executable.index("ruby")
     end
 
+    def test_inline_ruby_with_parameters
+      jobs = @parser.jobs_from('~@-vp puts 123 ~@')
+      assert_equal 1, jobs.first.commands.size
+      ruby = jobs.first.commands.first
+      assert ruby.executable.index("ruby")
+      assert_equal " puts 123 ", ruby.args[ruby.args.size-2]
+      assert_equal "-e", ruby.args[ruby.args.size-3]
+      assert_equal "-vp", ruby.args.last
+    end
+
     def test_jobs_starting_with_a_number_evals_and_prints_remainder_of_line_as_ruby
       jobs = @parser.jobs_from('2 * 2')
       assert_equal 1, jobs.first.commands.size
       ruby = jobs.first.commands.first
       assert ruby.executable.index("ruby")
-      assert_equal "-e", ruby.args.first
-      assert_equal "puts eval(ARGV.last)", ruby.args[1]
+      assert_equal "-e", ruby.args[ruby.args.size-3]
+      assert_equal "puts eval(ARGV.last)", ruby.args[ruby.args.size-2]
       assert_equal "2 * 2", ruby.args.last
     end
   end

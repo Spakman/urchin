@@ -11,6 +11,7 @@ module Urchin
 
     def self.create(source)
       ruby = new RUBY_PATH
+      ruby << "-r" << File.expand_path("#{File.dirname(__FILE__)}/ruby_require.rb")
       ruby << "-e" << source
     end
   end

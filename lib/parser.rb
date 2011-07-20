@@ -162,9 +162,13 @@ module Urchin
     # Ruby delimiters or false.
     def parse_ruby
       remove_space
-      if source = @input.scan(/^#{Regexp.escape(Shell.ruby_delimiter)}(.+?)#{Regexp.escape(Shell.ruby_delimiter)}/)
+      if @input.scan(/^#{Regexp.escape(Shell.ruby_delimiter)}/)
+        extra_args = @input.scan(/^[^\s]+/)
+        source = @input.scan(/(.+?)#{Regexp.escape(Shell.ruby_delimiter)}/)
         source.gsub! Shell.ruby_delimiter, ""
-        RubyProcess.create source
+        ruby = RubyProcess.create(source)
+        ruby << extra_args if extra_args
+        ruby
       else
         false
       end
