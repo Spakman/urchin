@@ -22,7 +22,6 @@ module Urchin
         Dir.chdir("#{File.dirname(__FILE__)}/../../") do
           begin
             `git branch my-completion-test-branch`
-            branches = `git branch --no-color`.gsub(/^[ *] /, "").split("\n")
 
             @command << "checkout" << "m"
             assert @command.complete("m").include? "master"

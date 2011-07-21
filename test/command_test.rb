@@ -26,7 +26,7 @@ module Urchin
         pid = fork do
           command.execute
         end
-        pits, status = Process.waitpid2 pid
+        pid, status = Process.waitpid2 pid
       end
 
       assert_equal "123", output.chomp
@@ -163,7 +163,7 @@ module Urchin
 
       Dir.chdir File.dirname(__FILE__) do
         pid = fork { command.execute }
-        pid, status = Process.waitpid2 pid
+        Process.waitpid2 pid
 
         assert_equal "ABC\n", File.read("stdout_testfile")
       end
