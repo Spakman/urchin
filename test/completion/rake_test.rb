@@ -1,5 +1,4 @@
 require "helpers"
-require "#{File.dirname(__FILE__)}/../../completion/rake"
 
 module Urchin
   module Completion
