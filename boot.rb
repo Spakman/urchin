@@ -23,7 +23,8 @@ rescue LoadError
   require "termios"
 end
 
-$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+this_directory = File.expand_path(File.dirname(__FILE__))
+$LOAD_PATH << this_directory
 require "lib/string"
 require "lib/readline"
 require "lib/completer"
@@ -38,7 +39,7 @@ require "lib/ruby_process"
 require "lib/builtin"
 require "lib/urchin_runtime_error"
 
-Dir.glob("{builtins,completion}/*.rb").each do |path|
+Dir.glob("#{this_directory}/{builtins,completion}/*.rb").each do |path|
   require path
 end
 
