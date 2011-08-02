@@ -37,7 +37,7 @@ module Urchin
         if parser.start_of_new_command?
           complete_executable(word)
         else
-          command = last_job.commands.last
+          command = last_job.commands.last if last_job
           if !parser.finished_entering_alias?
             complete_executable(word)
           elsif command && (command.args.any? || Readline.line_buffer[Readline.point-1,1] == " ")

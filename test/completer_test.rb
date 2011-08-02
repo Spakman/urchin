@@ -29,6 +29,10 @@ module Urchin
     end
   end
 
+  class Completer
+    attr_reader :executables
+  end
+
   class CompleterTestCase < Test::Unit::TestCase
 
     def setup
@@ -137,6 +141,12 @@ module Urchin
       Readline.line_buffer_for_test = "e"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal %w( env_var_writer ello export ).sort, completer.completion_proc.call("e").sort
+    end
+
+    def test_completion_proc_with_empty_line_buffer
+      Readline.line_buffer_for_test = ""
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
+      assert_equal completer.executables.sort, completer.completion_proc.call("").sort
     end
   end
 end
