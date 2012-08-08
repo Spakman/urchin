@@ -181,6 +181,25 @@ module Urchin
       output
     end
 
+    # Returns an argument with an equals in it if it is next in the input
+    # string. For example:
+    #
+    #   --my-arg="here's a value"
+    #
+    # Otherwise, nil.
+    def arg_with_equals(options = { :trim => true })
+      pos = @input.pos
+      remove_space unless options[:trim] == false
+      arg = word
+      if equals = @input.scan(/^=/)
+        arg << equals
+        arg << (quoted_word(:strip => false) or word(:trim => false))
+      else
+        @input.pos = pos
+        nil
+      end
+    end
+
     def environment_variable
       remove_space
       if variable = @input.scan(/^[A-Z0-9a-z_]+=/)
@@ -208,12 +227,18 @@ module Urchin
 
     # Returns a quoted word that is free from quotes and escaped quote
     # characters.
-    def quoted_word
+    def quoted_word(options =  { :strip => true })
       if char = @input.scan(/^["']/)
         output = ""
+        unless options[:strip]
+          output << char
+        end
         while part = (quoted_word_part(char) or escaped_char(char))
           output << part
           break if end_of(char)
+        end
+        unless options[:strip]
+          output << char
         end
         end_of(char) if output.empty?
       end
@@ -233,7 +258,7 @@ module Urchin
       if @input.check(/^\d+>/)
         false
       else
-        @input.scan(/^[^&|;><\s\\]+/)
+        @input.scan(/^[^&=|;><\s\\]+/)
       end
     end
 
@@ -253,7 +278,7 @@ module Urchin
         w = nil
         if w = quoted_word
           words << w
-        elsif w = word
+        elsif w = (arg_with_equals or word)
           words += perform_expansions(w)
         end
       end until w.nil?

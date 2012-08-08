@@ -41,6 +41,15 @@ module Urchin
       assert_equal '-la', @parser.word
       @parser.setup '/usr/bin/ls'
       assert_equal '/usr/bin/ls', @parser.word
+      @parser.setup 'something=here'
+      assert_equal 'something', @parser.word
+    end
+
+    def test_quoted_word
+      @parser.setup '"this is quoted"'
+      assert_equal 'this is quoted', @parser.quoted_word
+      @parser.setup '"this is quoted"'
+      assert_equal '"this is quoted"', @parser.quoted_word(:strip => false)
     end
 
     def test_words
@@ -308,6 +317,17 @@ module Urchin
 
       @parser.setup 'VAR= something'
       assert_equal({ 'VAR' => nil }, @parser.environment_variable)
+    end
+
+    def test_parsing_environment_variable_with_special_characters
+      command = @parser.jobs_from('mycommand VAR="123"').first.commands.first
+      assert_equal 'VAR="123"', command.args.first
+
+      command = @parser.jobs_from('mycommand --arg="123"').first.commands.first
+      assert_equal '--arg="123"', command.args.first
+
+      command = @parser.jobs_from('mycommand --arg="<123"').first.commands.first
+      assert_equal '--arg="<123"', command.args.last
     end
 
     def test_command_local_environment_variables
