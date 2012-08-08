@@ -7,10 +7,15 @@ module Termios
     #
     #   Termios.tcgetattr(STDIN) != Termios.tcgetattr(STDIN)
     #
-    # Override this method in a slightly cheeky way.
+    # Override this method by checking each of the instance variables.
     def ==(object)
       if object.kind_of? Termios
-        self.inspect == object.inspect
+        object.instance_variables.each do |var|
+          unless object.instance_variable_get(var) == instance_variable_get(var)
+            return false
+          end
+        end
+        true
       else
         false
       end
