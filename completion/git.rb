@@ -1,3 +1,5 @@
+require "set"
+
 module Urchin
   module Completion
     module Git
@@ -25,7 +27,24 @@ module Urchin
         tag
         verify-tag
         whatchanged
-      )
+      ).to_set
+
+      # Sets up completion for any aliases that are defined. As well as adding
+      # the alises to the command list, this defines methods to pass any calls
+      # for sub-command specific completion to the command being alised.
+      def self.extended(instance)
+        Shell.new.eval("git config --get-regex alias").lines.each do |line|
+          line.chomp!
+          if line =~ /^alias\.(\w+?) (.+)$/
+            instance.instance_eval <<-METH
+              def #{$1}(args, word)
+                send :"#{$2.split.first}", args, word
+              end
+            METH
+            @commands << $1
+          end
+        end
+      end
 
       def complete(word)
         if args.empty? || (args.size == 1 && !word.empty?)
