@@ -148,5 +148,11 @@ module Urchin
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
       assert_equal completer.executables.sort, completer.completion_proc.call("").sort
     end
+
+    def test_completing_environment_variable
+      Readline.line_buffer_for_test = "echo $PAT"
+      completer = Completer.new File.expand_path(File.dirname(__FILE__)), Shell.new
+      assert_equal %w( PATH ), completer.completion_proc.call("PAT").sort
+    end
   end
 end

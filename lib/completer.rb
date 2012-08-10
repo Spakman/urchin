@@ -36,6 +36,8 @@ module Urchin
 
         if parser.start_of_new_command?
           complete_executable(word)
+        elsif Readline.line_buffer[Readline.point-(word.length)-1,1] == "$"
+          complete_environment_variable(word)
         else
           command = last_job.commands.last if last_job
           if !parser.finished_entering_alias?
@@ -55,6 +57,10 @@ module Urchin
       else
         @executables.grep(/^#{Regexp.escape(word)}/)
       end
+    end
+
+    def complete_environment_variable(word)
+      ENV.keys.grep(/^#{Regexp.escape(word)}/)
     end
   end
 end
