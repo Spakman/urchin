@@ -151,8 +151,10 @@ module Urchin
     # EINVAL and ESRCH are rescued because, in rare cases, process groups may
     # have already completed before execution reaches here.
     def foreground!
-      Termios.tcsetpgrp(STDIN, @pgid) rescue Errno::EINVAL
-      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes) if @terminal_modes
+      if STDIN.tty?
+        Termios.tcsetpgrp(STDIN, @pgid) rescue Errno::EINVAL
+        Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes) if @terminal_modes
+      end
       unless running?
         Process.kill("-CONT", @pgid) rescue Errno::ESRCH
       end
@@ -162,9 +164,11 @@ module Urchin
 
       # Move the shell back to the foreground now that the job is stopped or
       # completed.
-      Termios.tcsetpgrp(STDIN, Process.getpgrp)
-      @terminal_modes = Termios.tcgetattr(STDIN)
-      Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @shell.terminal_modes)
+      if STDIN.tty?
+        Termios.tcsetpgrp(STDIN, Process.getpgrp)
+        @terminal_modes = Termios.tcgetattr(STDIN)
+        Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @shell.terminal_modes)
+      end
     end
 
     # Collect and process child status changes.

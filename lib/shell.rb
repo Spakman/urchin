@@ -90,9 +90,11 @@ module Urchin
         exit 1
       end
 
-      # Ensure we are the foreground job before starting to run interactively.
-      while Termios.tcgetpgrp(STDIN) != Process.getpgrp
-        Process.kill("-TTIN", Process.getpgrp)
+      if STDIN.tty?
+        # Ensure we are the foreground job before starting to run interactively.
+        while Termios.tcgetpgrp(STDIN) != Process.getpgrp
+          Process.kill("-TTIN", Process.getpgrp)
+        end
       end
 
       # Ignore interactive and job-control signals.
@@ -101,7 +103,7 @@ module Urchin
       Signal.trap :TTIN, "IGNORE"
       Signal.trap :TTOU, "IGNORE"
 
-      Termios.tcsetpgrp(STDIN, Process.getpgrp)
+      Termios.tcsetpgrp(STDIN, Process.getpgrp) if STDIN.tty?
     end
 
     # Foreground child processes can also be caught by the
