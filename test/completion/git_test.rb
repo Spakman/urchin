@@ -10,7 +10,7 @@ module Urchin
       end
 
       def test_commands_with_empty_first_arg
-        assert_equal Git.commands, @command.complete("")
+        assert_equal Git.commands.to_a, @command.complete("")
       end
 
       def test_commands_with_partial_first_arg
