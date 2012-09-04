@@ -85,10 +85,6 @@ module Urchin
         STDERR.puts "STDIN is not a TTY."
         exit 1
       end
-      unless STDERR.tty?
-        STDERR.puts "STDERR is not a TTY."
-        exit 1
-      end
 
       if STDIN.tty?
         # Ensure we are the foreground job before starting to run interactively.
