@@ -73,14 +73,26 @@ module Urchin
 
       def branch(args, word)
         if args.include? "-D"
-          local_branches.grep(/^#{Regexp.escape(word)}/)
+          complete_local_branches(word)
         else
           []
         end
       end
 
+      def log(args, word)
+        complete_local_branches(word)
+      end
+
+      def cherry(args, word)
+        complete_local_branches(word)
+      end
+
       def local_branches
         Shell.new.eval("git branch --no-color").gsub(/^[ *] /, "").split("\n")
+      end
+
+      def complete_local_branches(word)
+        local_branches.grep(/^#{Regexp.escape(word)}/)
       end
     end
   end
