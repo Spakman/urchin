@@ -1,4 +1,4 @@
-require "helpers"
+require_relative "../helpers"
 
 module Urchin
   module Completion
