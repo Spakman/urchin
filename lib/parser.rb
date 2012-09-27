@@ -138,7 +138,7 @@ module Urchin
         @finished_entering_alias = false
       end
       if executable = tilde_expansion(word)
-        command = Command.create(executable, @shell.job_table)
+        command = Command.create(variable_expansion(executable), @shell.job_table)
         words.each do |arg|
           command << arg
         end

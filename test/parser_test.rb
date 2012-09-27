@@ -303,6 +303,12 @@ module Urchin
 
       command = @parser.jobs_from("echo $PATH1234").first.commands.first
       assert_equal "", command.args.first
+
+      ENV["COMMAND"] = "ls"
+      command = @parser.jobs_from("$COMMAND").first.commands.first
+      assert_equal OSProcess.new("ls"), command
+    ensure
+      ENV["COMMAND"] = nil
     end
 
     def test_parsing_environment_variable
