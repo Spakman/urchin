@@ -43,16 +43,21 @@ module Urchin
 
     # Parse the command string and run any jobs within it in turn.
     def parse_and_run(command_string)
-      @parser.jobs_from(command_string).each do |job|
-        begin
+      jobs = @parser.jobs_from(command_string)
+      if jobs.any?
+        time = Time.now
+        jobs.each do |job|
           begin
-            job.run
-          rescue UrchinRuntimeError => error
-            STDERR.puts error.message
+            begin
+              job.run
+            rescue UrchinRuntimeError => error
+              STDERR.puts error.message
+            end
+          rescue Interrupt
+            puts ""
           end
-        rescue Interrupt
-          puts ""
         end
+        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s"
       end
     end
 

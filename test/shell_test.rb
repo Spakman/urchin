@@ -28,5 +28,10 @@ module Urchin
     def test_eval
       assert_equal "123", Shell.new.eval("echo -n 123")
     end
+
+    def test_urchin_last_time_is_set
+      Shell.new.parse_and_run("sleep 0.4")
+      assert_equal 0.4, ENV["URCHIN_LAST_TIME"].chop.to_f.round(1)
+    end
   end
 end
