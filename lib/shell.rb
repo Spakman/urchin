@@ -7,8 +7,10 @@ module Urchin
     attr_reader :job_table, :terminal_modes, :history
 
     @ruby_delimiter = "~@"
+    @completion_highlight_color = Colors::Reset
+    @completion_next_character_color = Colors::Reset
     class << self
-      attr_accessor :ruby_delimiter
+      attr_accessor :ruby_delimiter, :completion_highlight_color, :completion_next_character_color
     end
 
     @@aliases = {}
