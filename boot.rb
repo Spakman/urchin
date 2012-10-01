@@ -25,6 +25,7 @@ end
 
 this_directory = File.expand_path(File.dirname(__FILE__))
 $LOAD_PATH << this_directory
+require "lib/colors"
 require "lib/string"
 require "lib/readline"
 require "lib/completer"
