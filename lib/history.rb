@@ -1,11 +1,28 @@
-# Copyright (c) 2010 Mark Somerville <mark@scottishclimbs.com>
+# Copyright (c) 2010-2012 Mark Somerville <mark@scottishclimbs.com>
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+require "ostruct"
+
 module Urchin
   class History
+
+    @before_appending_proc = nil
+
+    class << self
+      attr_reader :before_appending_proc
+    end
+
     def initialize
-      setup_history
+      @entries = []
+      @file = File.open(FILE, "a+")
+      @file.sync = true
+      @file.close_on_exec = true
+      read_history
+    end
+
+    def self.before_appending(&block)
+      @before_appending_proc = block
     end
 
     def cleanup
@@ -15,16 +32,13 @@ module Urchin
       end
     end
 
-    def setup_history
-      if File.readable? FILE
-        File.readlines(FILE).each do |line|
-          Readline::HISTORY.push line.chomp
+    def read_history
+      contents = @file.read
+      unless contents.empty?
+        Marshal.load(contents).each do |line|
+          @entries << line
+          Readline::HISTORY.push line.input
         end
-      end
-      @file = File.open(FILE, "a+")
-      begin
-        @file.close_on_exec = true
-      rescue NoMethodError
       end
     end
 
@@ -32,26 +46,29 @@ module Urchin
     # the previous line) and writes it to the history file.
     #
     # TODO: use /dev/shm or some other method to save constant flushing.
-    #
-    # TODO: the code to limit the history is rather crude.
-    def append(input)
-      unless input.empty? || Readline::HISTORY.to_a.last == input
-        Readline::HISTORY.push(input)
+    def append(history_line)
+      unless history_line.input.empty? || Readline::HISTORY.to_a.last == history_line.input
 
-        # Some versions of libedit have a bug where the first item isn't added
-        # to the history.
-        Readline::HISTORY.push(input) if Readline::HISTORY.to_a.empty?
-
-        @file << "#{input}\n"
-
-        @file.seek(0)
-        lines = @file.readlines
-        if lines.size > LINES_TO_STORE
-          @file.truncate(0)
-          @file << lines[lines.size-LINES_TO_STORE,LINES_TO_STORE].join
+        if History.before_appending_proc
+          History.before_appending_proc.call(history_line)
         end
 
-        @file.flush
+        Readline::HISTORY.push(history_line.input)
+
+        @entries << history_line
+        if @entries.size > LINES_TO_STORE
+          @entries.slice!(0, @entries.size-LINES_TO_STORE)
+        end
+
+        difference = Readline::HISTORY.size - LINES_TO_STORE
+        if difference > 0
+          difference.times do
+            Readline::HISTORY.shift
+          end
+        end
+
+        @file.truncate(0)
+        @file.write Marshal.dump(@entries)
       end
     end
   end

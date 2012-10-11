@@ -9,8 +9,11 @@ module Urchin
     @ruby_delimiter = "~@"
     @completion_highlight_color = Colors::Reset
     @completion_next_character_color = Colors::Reset
+
     class << self
-      attr_accessor :ruby_delimiter, :completion_highlight_color, :completion_next_character_color
+      attr_accessor :ruby_delimiter
+      attr_accessor :completion_highlight_color
+      attr_accessor :completion_next_character_color
     end
 
     @@aliases = {}
@@ -28,8 +31,9 @@ module Urchin
       setup_terminal_and_signals
       begin
         while input = Readline.readline(prompt)
-          @history.append input
-          parse_and_run input
+          start_time = Time.now
+          parse_and_run(input)
+          write_history_for(input, start_time)
 
           # If the terminal was resized while we were running a job in the
           # foreground, Urchin will not have received SIGWINCH and will have
@@ -41,6 +45,13 @@ module Urchin
         puts "\n^C"
         retry
       end
+    end
+
+    def write_history_for(input, start_time)
+      history_line = OpenStruct.new
+      history_line.date = start_time
+      history_line.input = input
+      @history.append history_line
     end
 
     # Parse the command string and run any jobs within it in turn.
