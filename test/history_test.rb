@@ -65,5 +65,16 @@ module Urchin
     ensure
       history.cleanup
     end
+
+    def test_fields
+      lines = []
+      lines <<  OpenStruct.new(input: "hello", date: Time.now, notes: "Clouds are interesting")
+      lines <<  OpenStruct.new(input: "hello", date: Time.now, more_notes: "Balance, awareness and peace")
+      File.open(History::FILE, "w") do |history|
+        history << Marshal.dump(lines)
+      end
+
+      assert_equal Set.new([ :input, :date, :notes, :more_notes ]), History.new.fields
+    end
   end
 end

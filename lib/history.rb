@@ -7,6 +7,8 @@ require "ostruct"
 module Urchin
   class History
 
+    attr_reader :fields, :entries
+
     @before_appending_proc = nil
 
     class << self
@@ -15,6 +17,7 @@ module Urchin
 
     def initialize
       @entries = []
+      @fields = Set.new
       @file = File.open(FILE, "a+")
       @file.sync = true
       @file.close_on_exec = true
@@ -36,9 +39,20 @@ module Urchin
       contents = @file.read
       unless contents.empty?
         Marshal.load(contents).each do |line|
-          @entries << line
-          Readline::HISTORY.push line.input
+          add_entry(line)
         end
+      end
+    end
+
+    # Adds and entry to the Readline history buffer and keeps track of the
+    # fields stored.
+    def add_entry(line)
+      Readline::HISTORY.push line.input
+      @entries << line
+      @fields = @fields + line.instance_variable_get(:@table).keys
+
+      if @entries.size > LINES_TO_STORE
+        @entries.slice!(0, @entries.size-LINES_TO_STORE)
       end
     end
 
@@ -53,12 +67,7 @@ module Urchin
           History.before_appending_proc.call(history_line)
         end
 
-        Readline::HISTORY.push(history_line.input)
-
-        @entries << history_line
-        if @entries.size > LINES_TO_STORE
-          @entries.slice!(0, @entries.size-LINES_TO_STORE)
-        end
+        add_entry(history_line)
 
         difference = Readline::HISTORY.size - LINES_TO_STORE
         if difference > 0

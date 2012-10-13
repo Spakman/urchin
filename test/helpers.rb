@@ -26,6 +26,16 @@ class Urchin::Shell
 end
 
 module Urchin
+
+  # Override #initialize to make writing the tests a little neater.
+  class JobTable
+    alias_method :old_initialize, :initialize
+
+    def initialize(shell = Shell.new)
+      old_initialize(shell)
+    end
+  end
+
   module TestHelpers
 
     class JobForTest
@@ -42,7 +52,7 @@ module Urchin
     alias_method :old_teardown, :teardown
 
     def redirect_stdout
-      FileUtils.mkdir("/tmp/urchin.test_unit")
+      FileUtils.mkdir_p("/tmp/urchin.test_unit")
       @old_stdout = STDOUT.dup
       @redirected_stdout = File.open("/tmp/urchin.test_unit/stdout", "w+")
       STDOUT.reopen @redirected_stdout

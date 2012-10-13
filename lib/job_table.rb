@@ -5,10 +5,11 @@
 module Urchin
   # Stores the list of running and suspended jobs along with job IDs.
   class JobTable
-    attr_reader :jobs
+    attr_reader :jobs, :shell
 
-    def initialize
+    def initialize(shell)
       @jobs = []
+      @shell = shell
     end
 
     def insert(job)

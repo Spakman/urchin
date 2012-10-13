@@ -19,7 +19,7 @@ module Urchin
     @@aliases = {}
 
     def initialize
-      @job_table = JobTable.new
+      @job_table = JobTable.new(self)
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
