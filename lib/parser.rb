@@ -359,7 +359,7 @@ module Urchin
       remove_space
       pos = @input.pos
       if job_string = @input.scan(/^`.*?`/)
-        result = Shell.new.eval(job_string[1...-1]).chomp
+        result = Shell.subshell(job_string[1...-1]).chomp
         string = @input.string[pos..-1]
         string.sub!(job_string, result)
         @input.string = string

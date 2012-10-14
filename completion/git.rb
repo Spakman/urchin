@@ -33,7 +33,7 @@ module Urchin
       # the alises to the command list, this defines methods to pass any calls
       # for sub-command specific completion to the command being alised.
       def self.extended(instance)
-        Shell.new.eval("git config --get-regex alias").lines.each do |line|
+        Shell.subshell("git config --get-regex alias").lines.each do |line|
           line.chomp!
           if line =~ /^alias\.(\w+?) (.+)$/
             instance.instance_eval <<-METH
@@ -88,7 +88,7 @@ module Urchin
       end
 
       def local_branches
-        Shell.new.eval("git branch --no-color").gsub(/^[ *] /, "").split("\n")
+        Shell.subshell("git branch --no-color").gsub(/^[ *] /, "").split("\n")
       end
 
       def complete_local_branches(word)
