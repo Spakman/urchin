@@ -18,12 +18,19 @@ module Urchin
 
     @@aliases = {}
 
-    def initialize
-      @job_table = JobTable.new(self)
+    def initialize(options = { subshell: false })
       @parser = Parser.new(self)
       define_sigchld_handler
+      @job_table = JobTable.new(self)
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
-      @history = History.new
+      unless @is_subshell = options[:subshell]
+        @history = History.new
+      end
+    end
+
+    # Subshells don't need history and it only slows down initialisation.
+    def self.subshell(input)
+      new(subshell: true).eval(input)
     end
 
     # Starts the command line processing loop.
@@ -70,7 +77,7 @@ module Urchin
             puts ""
           end
         end
-        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s"
+        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s" unless @is_subshell
       end
     end
 
