@@ -1,5 +1,6 @@
 require_relative "helpers"
 require "fileutils"
+require "ruby_reserved_fds"
 
 module Termios
   class Termios
@@ -257,8 +258,9 @@ module Urchin
         end
         sleep 0.01 until sleep.running?; sleep 0.01
 
-        num_fds = (Dir.entries("/proc/#{sleep.pid}/fd/") - [ ".", ".." ]).size
-        assert_equal 3, num_fds
+        fds = Dir.entries("/proc/#{sleep.pid}/fd/") - %w( . .. )
+        unreserved_fds = fds.delete_if { |e| not RubyReservedFDs.reserved_fd?(e.to_i) }
+        assert_equal 0, unreserved_fds.size
       end
     end
   end

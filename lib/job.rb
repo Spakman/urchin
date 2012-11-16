@@ -74,8 +74,6 @@ module Urchin
           next_out.close
         end
 
-        close_fds
-
         command.execute
       end
 
@@ -88,16 +86,6 @@ module Urchin
       # Errno::EACCESS will be raised in whichever process loses the race.
       @pgid = pid if @pgid.nil?
       Process.setpgid(pid, @pgid) rescue Errno::EACCES
-    end
-
-    # This closes all file descriptors except STDIN, STDOUT and STDERR.
-    def close_fds
-      Dir.entries("/dev/fd/").each do |file|
-        next if file == '.' || file == '..'
-        fd = file.to_i
-        next if fd < 3
-        IO.new(fd).close rescue Errno::EBADF
-      end
     end
 
     # Builds a pipeline of programs, fork and exec'ing as it goes.
