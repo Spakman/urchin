@@ -35,7 +35,7 @@ module Urchin
 
     # Starts the command line processing loop.
     def run
-      setup_terminal_and_signals
+      perform_pre_run_tasks
       begin
         while input = Readline.readline(prompt)
           start_time = Time.now
@@ -101,6 +101,26 @@ module Urchin
       STDERR.reopen old_stderr
       output = stdout_read.read and stdout_read.close
       output
+    end
+
+    def perform_pre_run_tasks
+      setup_terminal_and_signals
+      set_urchin_info_env_var
+    end
+
+    def set_urchin_info_env_var
+      Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
+        version = Urchin::Shell.subshell("git log --pretty=format:%h -1 2>/dev/null").chomp
+        if version.empty?
+          version = Urchin::VERSION
+        else
+          diffstat = Urchin::Shell.subshell("git diff --shortstat 2>/dev/null").chomp
+          unless diffstat.empty?
+            version = "#{version}-dirty"
+          end
+        end
+        ENV["URCHIN_INFO"] = "#{version} - #{RUBY_DESCRIPTION}"
+      end
     end
 
     # Ensures the Shell is in the foreground and ignores job-control signals so

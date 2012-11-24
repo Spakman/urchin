@@ -48,3 +48,6 @@ end
 unless defined? Urchin::History::LINES_TO_STORE
   Urchin::History::LINES_TO_STORE = 1000
 end
+
+
+ENV["URCHIN_PID"] = Process.pid.to_s
