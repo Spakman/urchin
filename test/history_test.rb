@@ -4,6 +4,10 @@ require "ostruct"
 
 module Urchin
   class HistoryTestCase < Test::Unit::TestCase
+    def setup
+      @shell = Shell.new
+    end
+
     def teardown
       FileUtils.rm_f History::FILE
     end
@@ -15,13 +19,14 @@ module Urchin
         line
       end
 
+      FileUtils.rm_f History::FILE
       File.open(History::FILE, "w") do |history|
         history << Marshal.dump(inputs)
       end
     end
 
     def test_history_file_is_written_to
-      history = Urchin::History.new
+      history = Urchin::History.new(@shell)
 
       size = File.size(History::FILE)
       history.append(OpenStruct.new(input: "this is in the history"))
@@ -47,7 +52,8 @@ module Urchin
 
     def test_readline_history_is_populated_from_history_file
       marshal_to_history %w( the history is populated )
-      history = Urchin::History.new
+
+      history = Urchin::History.new(@shell)
 
       assert_equal %w( the history is populated ), Readline::HISTORY.to_a
     ensure
@@ -56,7 +62,7 @@ module Urchin
 
     def test_history_file_is_truncated_file_if_it_is_too_long
       marshal_to_history %w( the history is populated )
-      history = Urchin::History.new
+      history = Urchin::History.new(@shell)
       history.append OpenStruct.new(input: "again")
 
       lines = Marshal.load(File.read(History::FILE))
@@ -74,7 +80,7 @@ module Urchin
         history << Marshal.dump(lines)
       end
 
-      assert_equal Set.new([ :input, :date, :notes, :more_notes ]), History.new.fields
+      assert_equal Set.new([ :input, :date, :notes, :more_notes ]), History.new(@shell).fields
     end
   end
 end

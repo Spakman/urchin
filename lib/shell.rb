@@ -23,7 +23,7 @@ module Urchin
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
-      @history = History.new
+      @history = History.new(self)
     end
 
     # Starts the command line processing loop.

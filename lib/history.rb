@@ -15,7 +15,8 @@ module Urchin
       attr_reader :before_appending_proc
     end
 
-    def initialize
+    def initialize(shell)
+      @shell = shell
       @entries = []
       @fields = Set.new
       @file = File.open(FILE, "a+")
@@ -64,7 +65,7 @@ module Urchin
       unless history_line.input.empty? || Readline::HISTORY.to_a.last == history_line.input
 
         if History.before_appending_proc
-          History.before_appending_proc.call(history_line)
+          History.before_appending_proc.call(history_line, @shell)
         end
 
         add_entry(history_line)
