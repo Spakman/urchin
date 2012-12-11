@@ -18,19 +18,12 @@ module Urchin
 
     @@aliases = {}
 
-    def initialize(options = { subshell: false })
+    def initialize
+      @job_table = JobTable.new(self)
       @parser = Parser.new(self)
       define_sigchld_handler
-      @job_table = JobTable.new(self)
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
-      unless @is_subshell = options[:subshell]
-        @history = History.new
-      end
-    end
-
-    # Subshells don't need history and it only slows down initialisation.
-    def self.subshell(input)
-      new(subshell: true).eval(input)
+      @history = History.new
     end
 
     # Starts the command line processing loop.
@@ -77,7 +70,7 @@ module Urchin
             puts ""
           end
         end
-        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s" unless @is_subshell
+        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s"
       end
     end
 
@@ -110,11 +103,11 @@ module Urchin
 
     def set_urchin_info_env_var
       Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
-        version = Urchin::Shell.subshell("git log --pretty=format:%h -1 2>/dev/null").chomp
+        version = self.eval("git log --pretty=format:%h -1 2>/dev/null").chomp
         if version.empty?
           version = Urchin::VERSION
         else
-          diffstat = Urchin::Shell.subshell("git diff --shortstat 2>/dev/null").chomp
+          diffstat = self.eval("git diff --shortstat 2>/dev/null").chomp
           unless diffstat.empty?
             version = "#{version}-dirty"
           end

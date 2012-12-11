@@ -1,11 +1,15 @@
+require "ostruct"
 require_relative "../helpers"
 
 module Urchin
   module Completion
 
     class RakeTestCommand
-      attr_accessor :args
-      def initialize; @args = []; end
+      attr_accessor :args, :shell
+      def initialize
+        @args = []
+        @shell = Shell.new
+      end
     end
 
     class RakeTestCase < Test::Unit::TestCase

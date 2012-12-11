@@ -10,11 +10,11 @@ module Urchin
     private_class_method :new
 
     attr_accessor :environment_variables
-    attr_reader :executable, :args
+    attr_reader :executable, :args, :job_table
 
     # Returns a new Command or an instance of one of the classes in Builtins.
     def self.create(executable, job_table)
-      Builtin.command_for(executable, job_table) || OSProcess.new(executable)
+      Builtin.command_for(executable, job_table) || OSProcess.new(executable, job_table)
     end
 
     def initialize(executable, job_table = nil)
@@ -24,6 +24,10 @@ module Urchin
       @environment_variables = {}
       @status = nil
       @job_table = job_table
+    end
+
+    def shell
+      job_table.shell
     end
 
     def complete(word)

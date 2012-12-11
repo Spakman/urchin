@@ -1,3 +1,4 @@
+require "ostruct"
 require_relative "../helpers"
 
 module Urchin
@@ -5,7 +6,7 @@ module Urchin
     class GitTestCase < Test::Unit::TestCase
 
       def setup
-        @command = Command.create("git", nil)
+        @command = Command.create("git", OpenStruct.new(shell: Shell.new))
         @command.send(:extend, Git)
       end
 
