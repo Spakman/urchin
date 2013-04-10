@@ -77,8 +77,15 @@ module Urchin
           end
         end
 
+        @file.rewind
+        begin
+          history_file_contents = Marshal.load(@file.read)
+        rescue ArgumentError
+          history_file_contents = []
+        end
+        history_file_contents << history_line
         @file.truncate(0)
-        @file.write Marshal.dump(@entries)
+        @file.write Marshal.dump(history_file_contents.last(LINES_TO_STORE))
       end
     end
   end
