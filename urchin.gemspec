@@ -7,11 +7,11 @@ spec = Gem::Specification.new do |s|
   s.summary = "A Unix shell for Ruby programmers"
   s.description = "Inspired by and trying to cherry-pick the best bits from Bash/Zsh and Ruby."
 
-  s.required_ruby_version = ">= 1.8.6"
+  s.required_ruby_version = ">= 1.9.3"
 
   s.add_development_dependency "rake"
 
-  s.files = Dir.glob("{lib,builtins,completion,test}/**/*.rb") + %w( README COPYING Rakefile environment.rb )
+  s.files = Dir.glob("{lib,builtins,completion,bin,test}/**/*.rb") + %w( README COPYING Rakefile environment.rb boot.rb version.rb )
 
   s.require_path = "lib"
   s.executables = [ "urchin" ]
@@ -24,7 +24,7 @@ spec = Gem::Specification.new do |s|
   s.authors = [ "Mark Somerville" ]
   s.email = [ "mark@scottishclimbs.com" ]
 
-  s.add_dependency("rb-readline", "~> 0.4.1")
+  s.add_dependency("rb-readline", ">= 0.5.0")
 
   s.post_install_message = <<POST_INSTALL
 *******************************************************************************
