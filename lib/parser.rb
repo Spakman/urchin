@@ -35,7 +35,7 @@ module Urchin
 
     def parse_line_of_ruby
       remove_space
-      if source = @input.scan(/^[0-9].*$/)
+      if source = @input.scan(/^[0-9(].*$/)
         source
       end
     end

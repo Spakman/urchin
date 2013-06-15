@@ -407,6 +407,16 @@ module Urchin
       assert_equal "2 * 2", ruby.args.last
     end
 
+    def test_jobs_starting_with_a_left_bracket_evals_and_prints_output_as_ruby
+      jobs = @parser.jobs_from('(2 * 2)')
+      assert_equal 1, jobs.first.commands.size
+      ruby = jobs.first.commands.first
+      assert ruby.executable.index("ruby")
+      assert_equal "-e", ruby.args[ruby.args.size-3]
+      assert_equal "puts eval(ARGV.last)", ruby.args[ruby.args.size-2]
+      assert_equal "(2 * 2)", ruby.args.last
+    end
+
     def test_command_expansion_as_command
       command = @parser.jobs_from("`echo ls` 999").first.commands.first
       assert_equal "ls", command.executable
