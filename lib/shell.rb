@@ -62,7 +62,9 @@ module Urchin
         jobs.each do |job|
           begin
             begin
+              @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
               job.run
+              Termios.tcsetattr(STDIN, Termios::TCSADRAIN, @terminal_modes) if STDIN.tty?
             rescue UrchinRuntimeError => error
               STDERR.puts error.message
             end
