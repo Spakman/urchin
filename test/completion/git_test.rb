@@ -27,10 +27,6 @@ module Urchin
             @command << "checkout" << "m"
             assert @command.complete("m").include? "master"
             assert @command.complete("m").include? "my-completion-test-branch"
-
-            setup
-            @command << "checkout" << "-b"
-            assert_equal [], @command.complete("-b")
           ensure
             `git branch -D my-completion-test-branch`
           end

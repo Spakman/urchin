@@ -55,20 +55,7 @@ module Urchin
       end
 
       def method_missing(name, *args)
-        Readline::FILENAME_COMPLETION_PROC.call(args.last)
-      end
-
-      def checkout(args, word)
-        if (args & %w( -b -B )).empty?
-          branches = local_branches
-          if (branches & args).empty?
-            branches.grep(/^#{Regexp.escape(word)}/)
-          else
-            Readline::FILENAME_COMPLETION_PROC.call(args.last)
-          end
-        else
-          []
-        end 
+        complete_local_branches(args.last)
       end
 
       def branch(args, word)
@@ -79,20 +66,17 @@ module Urchin
         end
       end
 
-      def log(args, word)
-        complete_local_branches(word)
-      end
-
-      def cherry(args, word)
-        complete_local_branches(word)
-      end
-
       def local_branches
         shell.eval("git branch --no-color").gsub(/^[ *] /, "").split("\n")
       end
 
       def complete_local_branches(word)
-        local_branches.grep(/^#{Regexp.escape(word)}/)
+        branches = local_branches.grep(/^#{Regexp.escape(word)}/)
+        if branches.any?
+          branches
+        else
+          false
+        end
       end
     end
   end
