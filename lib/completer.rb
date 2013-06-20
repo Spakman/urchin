@@ -30,9 +30,9 @@ module Urchin
     end
 
     def completion_proc
-      Proc.new do |word|
+      Proc.new do |word, line = Readline.line_buffer[0,Readline.point]|
         parser = Parser.new(@shell)
-        last_job = parser.jobs_from(Readline.line_buffer[0,Readline.point]).last
+        last_job = parser.jobs_from(line).last
 
         if parser.start_of_new_command?
           complete_executable(word)
