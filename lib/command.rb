@@ -31,12 +31,20 @@ module Urchin
     end
 
     def complete(word)
-      constant = @executable.capitalize
+      constant = get_completion_constant
       if constant && (Completion.constants & [ constant, constant.to_sym ]).any?
         extend Completion.const_get(constant.to_sym)
         complete(word)
       else
         false
+      end
+    end
+
+    def get_completion_constant
+      if self.kind_of? Builtin
+        self.class.to_s.split("::").last
+      else
+        @executable.capitalize
       end
     end
 
