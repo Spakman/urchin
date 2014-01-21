@@ -24,7 +24,7 @@ spec = Gem::Specification.new do |s|
   s.authors = [ "Mark Somerville" ]
   s.email = [ "mark@scottishclimbs.com" ]
 
-  s.add_dependency("rb-readline", ">= 0.5.0")
+  s.add_dependency("rb-readline", ">= 0.5.1")
 
   s.post_install_message = <<POST_INSTALL
 *******************************************************************************
