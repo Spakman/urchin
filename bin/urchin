@@ -12,7 +12,13 @@ begin
 
   $LOAD_PATH.delete "."
 
-  require "#{File.dirname(__FILE__)}/../boot"
+  # Handle a symlinked bin/urchin
+  bin_urchin_path = if File.symlink?(__FILE__)
+    File.readlink(__FILE__)
+  else
+    __FILE__
+  end
+  require "#{File.dirname(bin_urchin_path)}/../boot"
 
   options = {}
   OptionParser.new do |opts|
