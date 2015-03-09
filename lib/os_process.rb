@@ -28,7 +28,7 @@ module Urchin
       begin
         # Errno::EACCES can be thrown for many errors, so we detect directories
         # before calling exec().
-        if File.directory? @executable
+        if /^(\.|\/)/ =~ @executable && File.directory?(@executable)
           STDERR.puts "Is a directory: #{@executable}"
           exit 127
         end
