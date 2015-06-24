@@ -400,22 +400,40 @@ module Urchin
 
     def test_jobs_starting_with_a_number_evals_and_prints_remainder_of_line_as_ruby
       jobs = @parser.jobs_from('2 * 2')
-      assert_equal 1, jobs.first.commands.size
-      ruby = jobs.first.commands.first
-      assert ruby.executable.index("ruby")
-      assert_equal "-e", ruby.args[ruby.args.size-3]
-      assert_equal "puts eval(ARGV.last)", ruby.args[ruby.args.size-2]
-      assert_equal "2 * 2", ruby.args.last
+      assert_equal 2, jobs.first.commands.size
+
+      echo = jobs.last.commands.first
+      assert echo.executable.index("echo")
+      assert_equal "2 * 2", echo.args.first
+
+      ruby = jobs.last.commands.last
+      assert_equal "-e", ruby.args[ruby.args.size-2]
+      assert_equal "puts eval(STDIN.read)", ruby.args.last
     end
 
     def test_jobs_starting_with_a_left_bracket_evals_and_prints_output_as_ruby
       jobs = @parser.jobs_from('(2 * 2)')
-      assert_equal 1, jobs.first.commands.size
-      ruby = jobs.first.commands.first
-      assert ruby.executable.index("ruby")
-      assert_equal "-e", ruby.args[ruby.args.size-3]
-      assert_equal "puts eval(ARGV.last)", ruby.args[ruby.args.size-2]
-      assert_equal "(2 * 2)", ruby.args.last
+      assert_equal 2, jobs.first.commands.size
+
+      echo = jobs.last.commands.first
+      assert echo.executable.index("echo")
+      assert_equal "(2 * 2)", echo.args.first
+
+      ruby = jobs.last.commands.last
+      assert_equal "-e", ruby.args[ruby.args.size-2]
+      assert_equal "puts eval(STDIN.read)", ruby.args.last
+    end
+
+    def test_jobs_starting_with_a_minus_evals_and_prints_output_as_ruby
+      jobs = @parser.jobs_from('-5 + 10')
+      assert_equal 2, jobs.first.commands.size
+
+      echo = jobs.last.commands.first
+      assert_equal "-5 + 10", echo.args.last
+
+      ruby = jobs.first.commands.last
+      assert_equal "-e", ruby.args[ruby.args.size-2]
+      assert_equal "puts eval(STDIN.read)", ruby.args.last
     end
 
     def test_command_expansion_as_command

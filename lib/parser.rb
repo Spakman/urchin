@@ -21,8 +21,9 @@ module Urchin
       @input = StringScanner.new(input)
       jobs = []
       if source = parse_line_of_ruby
-        ruby = RubyProcess.create("puts eval(ARGV.last)") << source
-        jobs << (Job.new([], @shell) << ruby)
+        echo = Command.create("echo", @shell.job_table) << source
+        ruby = RubyProcess.create("puts eval(STDIN.read)")
+        jobs << (Job.new([], @shell) << echo << ruby)
       else
         until @input.eos?
           if job = parse_job
@@ -35,7 +36,7 @@ module Urchin
 
     def parse_line_of_ruby
       remove_space
-      if source = @input.scan(/^[0-9(].*$/)
+      if source = @input.scan(/^[0-9(\-].*$/)
         source
       end
     end
