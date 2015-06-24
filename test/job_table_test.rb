@@ -2,7 +2,7 @@ require_relative "helpers"
 require "fileutils"
 
 module Urchin
-  class JobTableTestCase < Test::Unit::TestCase
+  describe "JobTable" do
     include TestHelpers
 
     def setup
@@ -35,10 +35,10 @@ module Urchin
     def test_get_job_id
       assert_equal 1, @job_table.get_job_id
 
-      @job_table.insert JobForTest.new
+      @job_table.insert TestHelpers::JobForTest.new
       assert_equal 2, @job_table.get_job_id
 
-      job = JobForTest.new
+      job = TestHelpers::JobForTest.new
       @job_table.insert job
       assert_equal 3, @job_table.get_job_id
 
@@ -47,10 +47,10 @@ module Urchin
     end
 
     def test_find_by_id
-      @job_table.insert JobForTest.new
-      job = JobForTest.new
+      @job_table.insert TestHelpers::JobForTest.new
+      job = TestHelpers::JobForTest.new
       @job_table.insert job
-      @job_table.insert JobForTest.new
+      @job_table.insert TestHelpers::JobForTest.new
       assert_equal job, @job_table.find_by_id(2)
     end
 

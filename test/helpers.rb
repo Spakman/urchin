@@ -1,4 +1,9 @@
-require "test/unit"
+module Readline
+end
+require "rb-readline"
+
+require "minitest"
+require "minitest/autorun"
 
 # If we are not the controlling process, we won't be able to set the foreground
 # process group unless we ignore or block SIGTTOU.

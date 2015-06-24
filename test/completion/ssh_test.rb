@@ -8,7 +8,7 @@ module Urchin
       def initialize; @args = []; end
     end
 
-    class SshTestCase < Test::Unit::TestCase
+    describe "Ssh" do
       def test_hostnames_from_known_hosts_line
         command = SshTestCommand.new
         command.send(:extend, Ssh)

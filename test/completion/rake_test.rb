@@ -12,7 +12,7 @@ module Urchin
       end
     end
 
-    class RakeTestCase < Test::Unit::TestCase
+    describe "Rake" do
       def test_commands_with_empty_first_arg
         command = RakeTestCommand.new
         command.send(:extend, Rake)

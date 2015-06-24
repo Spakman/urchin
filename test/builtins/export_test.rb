@@ -2,7 +2,7 @@ require_relative "../helpers"
 require "fileutils"
 
 module Urchin
-  class ExportTestCase < Test::Unit::TestCase
+  describe "Export" do
     def setup
       @dir = Dir.getwd
     end
@@ -36,13 +36,13 @@ module Urchin
       assert_equal "Argument is malformed.", exception.message
 
       export = Builtins::Export.new(JobTable.new) << "VAR=123"
-      assert_nothing_raised { export.valid_arguments? }
+      export.valid_arguments?
 
       export = Builtins::Export.new(JobTable.new) << "VAR="
-      assert_nothing_raised { export.valid_arguments? }
+      export.valid_arguments?
 
       export = Builtins::Export.new(JobTable.new) << "VAR=  "
-      assert_nothing_raised { export.valid_arguments? }
+      export.valid_arguments?
     end
 
     def test_correctly_sets_environment_variable

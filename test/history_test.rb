@@ -3,9 +3,18 @@ require "fileutils"
 require "ostruct"
 
 module Urchin
-  class HistoryTestCase < Test::Unit::TestCase
+  class Shell
+    def self.aliases=(aliases)
+      @@aliases = aliases
+    end
+  end
+
+  describe "History" do
     def setup
       @shell = Shell.new
+      Readline::HISTORY.length.times do
+        Readline::HISTORY.pop
+      end
     end
 
     def teardown

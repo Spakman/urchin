@@ -10,7 +10,7 @@ module Urchin
     end
   end
 
-  class CdTestCase < Test::Unit::TestCase
+  describe "Cd" do
     def setup
       @dir = Dir.getwd
     end
@@ -22,10 +22,10 @@ module Urchin
     end
 
     def test_validate_arguments
-      assert_nothing_raised { Builtins::Cd.new(JobTable.new).valid_arguments? }
+      Builtins::Cd.new(JobTable.new).valid_arguments?
 
       cd = Builtins::Cd.new(JobTable.new) << "/"
-      assert_nothing_raised { cd.valid_arguments? }
+      cd.valid_arguments?
 
       cd << "/another"
       exception = assert_raises(UrchinRuntimeError) { cd.valid_arguments? }
@@ -34,13 +34,13 @@ module Urchin
 
     def test_no_parameters
       cd = Builtins::Cd.new(JobTable.new)
-      assert_nothing_raised { cd.execute }
+      cd.execute
       assert_equal ENV["HOME"], Dir.getwd
     end
 
     def test_one_parameter
       cd = Builtins::Cd.new(JobTable.new) << "/"
-      assert_nothing_raised { cd.execute }
+      cd.execute
       assert_equal "/", Dir.getwd
     end
 
@@ -53,11 +53,11 @@ module Urchin
       assert_equal dir, Dir.getwd
 
       cd = Builtins::Cd.new(JobTable.new) << File.dirname(__FILE__)
-      assert_nothing_raised { cd.execute }
-      assert_not_equal dir, Dir.getwd
+      cd.execute
+      refute_equal dir, Dir.getwd
 
       cd = Builtins::Cd.new(JobTable.new) << "-"
-      assert_nothing_raised { cd.execute }
+      cd.execute
       assert_equal dir, Dir.getwd
     end
 
@@ -84,13 +84,13 @@ module Urchin
 
     def test_directory_is_written_to_temporary_file
       cd = Builtins::Cd.new(JobTable.new) << "/"
-      assert_nothing_raised { cd.execute }
+      cd.execute
       assert_equal "/", File.read(Builtins::Cd::LAST_DIR).chomp
 
       path = Pathname.new("/tmp")
 
       cd = Builtins::Cd.new(JobTable.new) << path.to_s
-      assert_nothing_raised { cd.execute }
+      cd.execute
       assert_equal path.realpath.to_s, File.read(Builtins::Cd::LAST_DIR).chomp
 
       cd = Builtins::Cd.new(JobTable.new) << "/not/a/directory"

@@ -10,7 +10,7 @@ module Urchin
 
   module_function :eval_config_file
 
-  class UnderscoreTestCase < Test::Unit::TestCase
+  describe "Underscore" do
     include TestHelpers
 
     def setup

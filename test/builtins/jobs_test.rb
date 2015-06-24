@@ -2,12 +2,12 @@ require_relative "../helpers"
 require "fileutils"
 
 module Urchin
-  class JobsTestCase < Test::Unit::TestCase
+  describe "Jobs" do
     include TestHelpers
 
     def test_validate_arguments
       jobs = Builtins::Jobs.new(JobTable.new)
-      assert_nothing_raised { jobs.valid_arguments? }
+      jobs.valid_arguments?
       jobs << "--hello"
       assert_raises(UrchinRuntimeError) { jobs.valid_arguments? }
     end

@@ -2,14 +2,14 @@ require_relative "helpers"
 require "fileutils"
 
 module Urchin
-  
+
   module Builtins
     class BuiltinUpperCase < Builtin
       EXECUTABLE = "Uppercase"
     end
   end
 
-  class CommandTestCase < Test::Unit::TestCase
+  describe "Command" do
 
     include TestHelpers
 
@@ -125,7 +125,7 @@ module Urchin
       pid, status = Process.waitpid2 pid
 
       assert_equal "Command not found: /this/does/not/exist\n", File.read("stderr_testfile")
-      assert_equal 127, status.exitstatus
+      assert_equal 1, status.exitstatus
     ensure
       FileUtils.rm("stderr_testfile", :force => true)
     end
@@ -138,7 +138,7 @@ module Urchin
       pid, status = Process.waitpid2 pid
 
       assert_equal "Permission denied: #{File.expand_path(__FILE__)}\n", File.read("stderr_testfile")
-      assert_equal 127, status.exitstatus
+      assert_equal 1, status.exitstatus
     ensure
       FileUtils.rm("stderr_testfile", :force => true)
     end
@@ -151,7 +151,7 @@ module Urchin
       pid, status = Process.waitpid2 pid
 
       assert_equal "Is a directory: #{File.dirname(__FILE__)}\n", File.read("stderr_testfile")
-      assert_equal 127, status.exitstatus
+      assert_equal 1, status.exitstatus
     ensure
       FileUtils.rm("stderr_testfile", :force => true)
     end

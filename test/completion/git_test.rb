@@ -3,7 +3,7 @@ require_relative "../helpers"
 
 module Urchin
   module Completion
-    class GitTestCase < Test::Unit::TestCase
+    describe "Git" do
 
       def setup
         @command = Command.create("git", OpenStruct.new(shell: Shell.new))

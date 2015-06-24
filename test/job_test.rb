@@ -41,7 +41,7 @@ module Urchin
     end
   end
 
-  class JobTestCase < Test::Unit::TestCase
+  describe "Job" do
 
     include TestHelpers
 
@@ -98,7 +98,7 @@ module Urchin
 
       assert_equal Process.getpgid(s1.pid), Process.getpgid(s2.pid)
       assert_equal job.pgid, Process.getpgid(s2.pid)
-      assert_not_equal Process.getpgrp, job.pgid
+      refute_equal Process.getpgrp, job.pgid
 
       # ensure the Job process group is in the foreground
       assert_equal job.pgid, Termios.tcgetpgrp(STDIN)
@@ -135,7 +135,7 @@ module Urchin
       assert_equal :stopped, job.status
       assert s1.stopped?
       assert s2.stopped?
-      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+      refute_equal s1.pid, Termios.tcgetpgrp(STDIN)
       assert_equal job, @shell.job_table.jobs.last
 
     ensure
@@ -161,7 +161,7 @@ module Urchin
       assert job.running?
       assert s1.running?
       assert s2.running?
-      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+      refute_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
     ensure
       Process.kill("-KILL", job.pgid) rescue Errno::ESRCH
@@ -180,7 +180,7 @@ module Urchin
 
       assert s1.running?
       assert s2.running?
-      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+      refute_equal s1.pid, Termios.tcgetpgrp(STDIN)
 
       # check the processes are reaped
       sleep 0.5
@@ -201,7 +201,7 @@ module Urchin
       end
       sleep 0.01 until s1.running?; sleep 0.1
 
-      assert_not_equal s1.pid, Termios.tcgetpgrp(STDIN)
+      refute_equal s1.pid, Termios.tcgetpgrp(STDIN)
       job.foreground!
       assert_raises(Errno::ECHILD) { Process.wait }
       assert s1.completed?
@@ -237,7 +237,7 @@ module Urchin
       sleep 0.01 until less.running?
       sleep 0.2 # give it time to set the terminal modes
 
-      assert_not_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
+      refute_equal Termios.tcgetattr(STDIN), @shell.terminal_modes
 
       Process.kill("-TSTP", job.pgid)
 

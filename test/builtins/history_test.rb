@@ -2,7 +2,7 @@ require_relative "../helpers"
 require "fileutils"
 
 module Urchin
-  class HistoryBuiltinTestCase < Test::Unit::TestCase
+  describe "History" do
     include TestHelpers
 
     def add_to_history(inputs, history)

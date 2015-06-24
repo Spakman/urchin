@@ -25,8 +25,9 @@ module Urchin
     end
   end
 
-  class ParserTestCase < Test::Unit::TestCase
-    def setup
+  describe "Parser" do
+    before do
+      Shell.aliases = {}
       @parser = Parser.new(Shell.new)
     end
 

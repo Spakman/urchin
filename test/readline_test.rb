@@ -2,7 +2,7 @@ require_relative "helpers"
 require "fileutils"
 
 module Urchin
-  class ReadlineTestCase < Test::Unit::TestCase
+  describe "Readline" do
     def setup
       RbReadline.module_eval do
         @rl_filename_quote_characters = " |-\\"

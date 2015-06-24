@@ -2,13 +2,13 @@ require_relative "helpers"
 require "fileutils"
 
 module Urchin
-  class ShellTestCase < Test::Unit::TestCase
+  describe "Shell" do
     def test_setting_a_prompt
       Urchin::Shell.prompt { "hello" }
       Urchin::Shell.prompt { Time.now.usec }
       shell, shell2 = Urchin::Shell.new, Urchin::Shell.new
       prompt = shell.prompt
-      assert_not_equal prompt, shell2.prompt
+      refute_equal prompt, shell2.prompt
     ensure
       shell.history.cleanup
       shell2.history.cleanup
