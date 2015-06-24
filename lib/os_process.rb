@@ -17,7 +17,7 @@ module Urchin
         if redirect[:to].respond_to? :reopen
           redirect[:from].reopen(redirect[:to])
         else
-          redirect[:from].reopen(redirect[:to], redirect[:mode])
+          redirect[:from].reopen(File.expand_path(redirect[:to]), redirect[:mode])
         end
       end
     end
