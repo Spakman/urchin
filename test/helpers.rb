@@ -26,14 +26,6 @@ if defined? Urchin::Builtins::Cd::LAST_DIR
 end
 Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.urchin.last.cd")
 
-class Urchin::Shell
-  @@aliases = {}
-
-  def self.clear_aliases
-    @@aliases = {}
-  end
-end
-
 module Urchin
 
   # Override #initialize to make writing the tests a little neater.

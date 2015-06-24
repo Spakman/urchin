@@ -27,8 +27,8 @@ module Urchin
 
   describe "Parser" do
     before do
-      Shell.clear_aliases
-      @parser = Parser.new(Shell.new)
+      @shell = Shell.new
+      @parser = Parser.new(@shell)
     end
 
     def test_word
@@ -357,21 +357,21 @@ module Urchin
     end
 
     def test_alias_expansion
-      Urchin::Shell.alias "ls" => "ls --color"
+      @shell.alias "ls" => "ls --color"
 
       command = @parser.jobs_from("ls a/dir").first.commands.first
       assert_equal "ls", command.executable
       assert_equal "--color", command.args.first
       assert_equal "a/dir", command.args.last
 
-      Urchin::Shell.alias "ls" => "notls --haha"
+      @shell.alias "ls" => "notls --haha"
 
       command = @parser.jobs_from("VAR=123 ls a/dir").first.commands.first
       assert_equal "notls", command.executable
       assert_equal "--haha", command.args.first
       assert_equal "a/dir", command.args.last
     ensure
-      Urchin::Shell.alias "ls" => nil
+      @shell.alias "ls" => nil
     end
 
     def test_inline_ruby

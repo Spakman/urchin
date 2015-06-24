@@ -8,7 +8,6 @@ require "termios"
 
 this_directory = File.expand_path(File.dirname(__FILE__))
 $LOAD_PATH << this_directory
-require "lib/startup"
 require "lib/colors"
 require "lib/string"
 require "lib/readline"

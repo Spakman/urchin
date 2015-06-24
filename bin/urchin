@@ -42,7 +42,16 @@ begin
   @shell = Urchin::Shell.new
 
   # Run any user defined configuration stuff.
-  Urchin.eval_config_file(Urchin::URCHIN_RB)
+  if File.exists?(Urchin::URCHIN_RB) && File.readable?(Urchin::URCHIN_RB)
+    begin
+      eval File.read(Urchin::URCHIN_RB)
+    rescue Exception => exception
+      STDERR.puts "Exception in #{Urchin::URCHIN_RB}:"
+      STDERR.puts exception.message
+      STDERR.puts exception.backtrace.join("\n")
+      STDERR.puts
+    end
+  end
 
   if options[:command_string]
     @shell.parse_and_run options[:command_string]

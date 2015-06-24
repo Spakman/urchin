@@ -4,7 +4,7 @@
 
 module Urchin
   class Shell
-    attr_reader :job_table, :terminal_modes, :history
+    attr_reader :job_table, :terminal_modes, :history, :aliases
 
     @ruby_delimiter = "~@"
     @completion_highlight_color = Colors::Reset
@@ -16,14 +16,13 @@ module Urchin
       attr_accessor :completion_next_character_color
     end
 
-    @@aliases = {}
-
     def initialize
       @job_table = JobTable.new(self)
       @parser = Parser.new(self)
       define_sigchld_handler
       @terminal_modes = Termios.tcgetattr(STDIN) if STDIN.tty?
       @history = History.new(self)
+      @aliases = {}
     end
 
     # Starts the command line processing loop.
@@ -157,14 +156,9 @@ module Urchin
     #
     # These are set in URCHIN_RB, like so:
     #
-    # Shell.alias "ls" => "ls --color"
-    def self.alias(hash)
-      @@aliases.merge! hash
-    end
-
-    # Returns the hash of aliases.
-    def aliases
-      @@aliases
+    # @shell.alias "ls" => "ls --color"
+    def alias(hash)
+      @aliases.merge! hash
     end
 
     # Defines the prompt method.

@@ -18,7 +18,7 @@ module Urchin
     def test_setting_alias
       shell = Urchin::Shell.new
       assert_nil shell.aliases["ls"]
-      Urchin::Shell.alias "ls" => "ls --color"
+      shell.alias "ls" => "ls --color"
       assert_equal "ls --color", shell.aliases["ls"]
     ensure
       shell.history.cleanup
