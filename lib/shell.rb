@@ -121,8 +121,7 @@ module Urchin
     # it can perform job control itself.
     def setup_terminal_and_signals
       unless STDIN.tty?
-        STDERR.puts "STDIN is not a TTY."
-        exit 1
+        abort "STDIN is not a TTY."
       end
 
       if STDIN.tty?

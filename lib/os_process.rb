@@ -29,18 +29,15 @@ module Urchin
         # Errno::EACCES can be thrown for many errors, so we detect directories
         # before calling exec().
         if /^(\.|\/)/ =~ @executable && File.directory?(@executable)
-          STDERR.puts "Is a directory: #{@executable}"
-          exit 127
+          abort "Is a directory: #{@executable}"
         end
         exec @executable, *@args
 
       rescue Errno::ENOENT
-        STDERR.puts "Command not found: #{@executable}"
-        exit 127
+        abort "Command not found: #{@executable}"
 
       rescue Errno::EACCES
-        STDERR.puts "Permission denied: #{@executable}"
-        exit 127
+        abort "Permission denied: #{@executable}"
       end
     end
 
