@@ -171,7 +171,7 @@ module Urchin
     def self.prompt(&block)
       undef :prompt
       define_method :prompt do
-        block.call
+        instance_eval(&block)
       end
     end
 

@@ -25,11 +25,7 @@ if File.readable? Urchin::Builtins::Cd::LAST_DIR
   end
 end
 
-
-# Run any user defined configuration stuff.
 Urchin::URCHIN_RB = "#{ENV["HOME"]}/.urchin.rb"
-Urchin.eval_config_file(Urchin::URCHIN_RB)
-
 
 unless defined? Urchin::History::FILE
   Urchin::History::FILE = "#{ENV["HOME"]}/.urchin.history"

@@ -40,6 +40,10 @@ begin
   end.parse!
 
   @shell = Urchin::Shell.new
+
+  # Run any user defined configuration stuff.
+  Urchin.eval_config_file(Urchin::URCHIN_RB)
+
   if options[:command_string]
     @shell.parse_and_run options[:command_string]
   else
