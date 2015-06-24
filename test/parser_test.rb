@@ -27,7 +27,7 @@ module Urchin
 
   describe "Parser" do
     before do
-      Shell.aliases = {}
+      Shell.clear_aliases
       @parser = Parser.new(Shell.new)
     end
 

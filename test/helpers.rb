@@ -28,6 +28,10 @@ Urchin::Builtins::Cd::LAST_DIR = File.expand_path("#{File.dirname(__FILE__)}/.ur
 
 class Urchin::Shell
   @@aliases = {}
+
+  def self.clear_aliases
+    @@aliases = {}
+  end
 end
 
 module Urchin

@@ -33,16 +33,9 @@ module Urchin
     attr_reader :executables
   end
 
-  class Shell
-    def self.aliases=(aliases)
-      @@aliases = aliases
-    end
-  end
-
   describe "Completer" do
-
     def setup
-      Shell.aliases = {}
+      Shell.clear_aliases
       Shell.alias "ello" => "ls --color"
       @completer_dir = File.expand_path("#{File.dirname(__FILE__)}/empty_dir")
       FileUtils.mkdir(@completer_dir)

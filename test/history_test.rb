@@ -3,12 +3,6 @@ require "fileutils"
 require "ostruct"
 
 module Urchin
-  class Shell
-    def self.aliases=(aliases)
-      @@aliases = aliases
-    end
-  end
-
   describe "History" do
     def setup
       @shell = Shell.new
