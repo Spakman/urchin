@@ -1,6 +1,7 @@
 require "optparse"
 require "strscan"
 require "fileutils"
+require "pathname"
 
 require "readline"
 require "rb-readline"
