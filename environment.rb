@@ -11,7 +11,10 @@ else
   Urchin::TMP_DIR = "/tmp/.urchin"
   STDERR.puts "XDG_RUNTIME_DIR is not writable - using #{Urchin::TMP_DIR} instead."
 end
-FileUtils.mkdir Urchin::TMP_DIR unless File.directory? Urchin::TMP_DIR
+begin
+  FileUtils.mkdir Urchin::TMP_DIR unless File.directory? Urchin::TMP_DIR
+rescue Errno::EEXIST
+end
 
 # Start in the last changed to directory.
 Urchin::Builtins::Cd::LAST_DIR = "#{Urchin::TMP_DIR}/lastdir"
