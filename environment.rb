@@ -4,7 +4,7 @@
 
 # Set up the runtime environment.
 
-xdg_runtime_dir = Pathname.new(ENV["XDG_RUNTIME_DIR"])
+xdg_runtime_dir = Pathname.new(ENV["XDG_RUNTIME_DIR"] || "")
 if File.writable? xdg_runtime_dir
   Urchin::TMP_DIR = xdg_runtime_dir + "urchin"
 else

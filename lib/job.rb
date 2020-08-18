@@ -169,7 +169,7 @@ module Urchin
       reaped_a_pid = false
       running_commands.each do |command|
         pid, status = Process.waitpid2(command.pid, flags) rescue Errno::ECHILD
-        unless pid.nil?
+        unless pid.nil? || pid == Errno::ECHILD
           command.change_status status
           reaped_a_pid = true
         end
