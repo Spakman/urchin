@@ -78,6 +78,9 @@ module Urchin
     # Runs the jobs in the command_string and returns the output. It waits for
     # all of the jobs to complete.
     def eval(command_string)
+      old_stdin = STDIN.dup
+      STDIN.reopen "/dev/null"
+
       stdout_read, stdout_write = IO.pipe
       stderr_write = stdout_write.dup
 
@@ -91,6 +94,7 @@ module Urchin
 
       stdout_write.close
       stderr_write.close
+      STDIN.reopen old_stdin
       STDOUT.reopen old_stdout
       STDERR.reopen old_stderr
       output = stdout_read.read and stdout_read.close
