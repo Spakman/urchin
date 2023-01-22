@@ -140,7 +140,7 @@ module Urchin
     def test_completion_proc_calls_complete_executable_for_an_alias_to_a_multi_word_command
       Readline.line_buffer_for_test = "e"
       completer = Completer.new File.expand_path(File.dirname(__FILE__)), @shell
-      assert_equal %w( env_var_writer ello export ).sort, completer.completion_proc.call("e").sort
+      assert_equal %w( env_var_writer ello exec export ).sort, completer.completion_proc.call("e").sort
     end
 
     def test_completion_proc_with_empty_line_buffer
