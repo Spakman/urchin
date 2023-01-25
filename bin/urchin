@@ -28,6 +28,10 @@ begin
       options[:command_string] = command_string
     end
 
+    opts.on("-l", "--login", "Make this shell a login shell, for compatibility. Does nothing.") do
+      # Currently does nothing. For compatibility.
+    end
+
     opts.on("-h", "--help", "Show this message") do
       puts opts
       exit 0
