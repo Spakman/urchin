@@ -43,6 +43,11 @@ begin
     end
   end.parse!
 
+  # Allow piping commands in.
+  if STDIN.stat.pipe?
+    options[:command_string] = STDIN.read
+  end
+
   @shell = Urchin::Shell.new
 
   # Run any user defined configuration stuff.
