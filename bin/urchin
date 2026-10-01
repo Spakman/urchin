@@ -51,7 +51,7 @@ begin
   @shell = Urchin::Shell.new
 
   # Run any user defined configuration stuff.
-  if File.exists?(Urchin::URCHIN_RB) && File.readable?(Urchin::URCHIN_RB)
+  if File.exist?(Urchin::URCHIN_RB) && File.readable?(Urchin::URCHIN_RB)
     begin
       eval File.read(Urchin::URCHIN_RB)
     rescue Exception => exception
