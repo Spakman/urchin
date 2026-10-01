@@ -3,6 +3,11 @@
 # Released under the GNU General Public License (GPL) version 3.
 # See COPYING.
 
+
+class << File
+  alias_method :exists?, :exist?
+end
+
 begin
   if ARGV.empty?
     $0 = "urchin"
