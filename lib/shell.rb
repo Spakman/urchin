@@ -77,6 +77,8 @@ module Urchin
 
     # Parses a single command string, runs it and waits for it to complete.
     def run_non_interactively(command_string)
+      setup_terminal_and_signals if STDIN.tty?
+
       jobs = @parser.jobs_from(command_string)
       if jobs.any?
         time = Time.now

@@ -118,13 +118,24 @@ module Urchin
     # Builds a pipeline of programs, fork and exec'ing as it goes.
     def run
       spawn_sub_processes
-      foreground! unless start_in_background?
+      if start_in_background?
+        reap_children(0)
+      else
+        foreground!
+      end
     end
 
     def run_non_interactively
       spawn_sub_processes
-      mark_as_running!
-      reap_children(0)
+
+      # This is in case you want to run something like `urchin -c top` to run
+      # an interactive program in non-interactive mode.
+      if STDIN.tty?
+        foreground!
+      else
+        mark_as_running!
+        reap_children(0)
+      end
     end
 
     def start_in_background!
