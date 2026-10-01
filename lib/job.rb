@@ -88,8 +88,7 @@ module Urchin
       Process.setpgid(pid, @pgid) rescue Errno::EACCES
     end
 
-    # Builds a pipeline of programs, fork and exec'ing as it goes.
-    def run
+    private def spawn_sub_processes
       next_in = STDIN
       next_out = STDOUT
       pipe = []
@@ -114,8 +113,18 @@ module Urchin
       end
 
       @shell.job_table.insert self
+    end
 
+    # Builds a pipeline of programs, fork and exec'ing as it goes.
+    def run
+      spawn_sub_processes
       foreground! unless start_in_background?
+    end
+
+    def run_non_interactively
+      spawn_sub_processes
+      mark_as_running!
+      reap_children(0)
     end
 
     def start_in_background!
@@ -162,9 +171,13 @@ module Urchin
     # Collect and process child status changes.
     #
     # This is called with Process::WUNTRACED when a foreground job is waiting
-    # for children and with Process::WNOHANG by the SIGCHLD handler in Shell,
-    # which catches exiting commands that are part of background jobs. Flags
-    # are passed to waitpid2 directly (and can be a logical OR).
+    # for children in an interactive shell (to catch signals for job control).
+    # Called with Process::WNOHANG by the SIGCHLD handler in Shell, which
+    # catches exiting commands that are part of background jobs. Called with 0
+    # when the shell is non-interactive.
+    #
+    # Flags are passed to waitpid2 directly (and can be a logical OR).
+    # Non-interactive use reaps without flags.
     def reap_children(flags)
       reaped_a_pid = false
       running_commands.each do |command|

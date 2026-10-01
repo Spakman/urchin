@@ -26,7 +26,7 @@ module Urchin
     end
 
     # Starts the command line processing loop.
-    def run
+    def run_interactively
       perform_pre_run_tasks
       begin
         while input = Readline.readline(prompt)
@@ -44,13 +44,6 @@ module Urchin
         puts "\n^C"
         retry
       end
-    end
-
-    def write_history_for(input, start_time)
-      history_line = OpenStruct.new
-      history_line.date = start_time
-      history_line.input = input
-      @history.append history_line
     end
 
     # Parse the command string and run any jobs within it in turn.
@@ -75,6 +68,25 @@ module Urchin
       end
     end
 
+    def write_history_for(input, start_time)
+      history_line = OpenStruct.new
+      history_line.date = start_time
+      history_line.input = input
+      @history.append history_line
+    end
+
+    # Parses a single command string, runs it and waits for it to complete.
+    def run_non_interactively(command_string)
+      jobs = @parser.jobs_from(command_string)
+      if jobs.any?
+        time = Time.now
+        jobs.each do |job|
+          job.run_non_interactively
+        end
+        ENV["URCHIN_LAST_TIME"] = "#{(Time.now - time).round(3)}s"
+      end
+    end
+
     # Runs the jobs in the command_string and returns the output. It waits for
     # all of the jobs to complete.
     def eval(command_string)
@@ -90,7 +102,7 @@ module Urchin
       old_stderr = STDERR.dup
       STDERR.reopen stderr_write
 
-      parse_and_run command_string
+      run_non_interactively(command_string)
 
       stdout_write.close
       stderr_write.close

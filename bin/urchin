@@ -63,10 +63,10 @@ begin
   end
 
   if options[:command_string]
-    @shell.parse_and_run options[:command_string]
+    @shell.run_non_interactively(options[:command_string])
   else
     Readline.completion_proc = Urchin::Completer.new(ENV["PATH"], @shell).completion_proc
-    @shell.run
+    @shell.run_interactively
   end
 
 rescue Exception => exception
