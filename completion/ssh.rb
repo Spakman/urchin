@@ -47,9 +47,12 @@ module Urchin
 
       def config_hostnames
         hostnames = Set.new
-        File.readlines("#{ENV["HOME"]}/.ssh/config").each do |line|
-          if host = hostname_from_config_line(line)
-            hostnames << host
+        config_path = "#{ENV["HOME"]}/.ssh/config"
+        if File.exist?(config_path)
+          File.readlines(config_path).each do |line|
+            if host = hostname_from_config_line(line)
+              hostnames << host
+            end
           end
         end
         hostnames
