@@ -44,6 +44,14 @@ module Urchin
       assert_equal '/usr/bin/ls', @parser.word
       @parser.setup 'something=here'
       assert_equal 'something', @parser.word
+      @parser.setup ' = '
+      assert_equal '=', @parser.word
+      @parser.setup '='
+      assert_equal '=', @parser.word
+      @parser.setup ' = hello'
+      assert_equal '=', @parser.word
+      @parser.setup '=123'
+      assert_equal '=123', @parser.word
     end
 
     def test_quoted_word
@@ -64,6 +72,16 @@ module Urchin
       assert_equal [ '' ], @parser.words
       @parser.setup 'find . -name "hello.*" -exec chmod 660 {} \;'
       assert_equal %w{ find . -name hello.* -exec chmod 660 \{\} ; }, @parser.words
+      @parser.setup 'ls = abc'
+      assert_equal %w( ls = abc ), @parser.words
+      @parser.setup 'ls abc ='
+      assert_equal %w( ls abc = ), @parser.words
+      @parser.setup '='
+      assert_equal [ '=' ], @parser.words
+      @parser.setup ' = '
+      assert_equal [ '=' ], @parser.words
+      @parser.setup 'chmod og= /boom'
+      assert_equal [ 'chmod', 'og=', '/boom' ], @parser.words
     end
 
     def test_simple_command

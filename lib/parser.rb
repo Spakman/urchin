@@ -172,9 +172,32 @@ module Urchin
       end
     end
 
+    # This catches things that are rare or typos:
+    #
+    #   chmod og= /boom
+    #   =
+    #   NAME =123
+    #   ls dir/ =
+    def non_var_equals(options = { :trim => true })
+      if non_var_equals = @input.scan(/^=(?=([\s]|$))/)
+        return non_var_equals
+      end
+
+      if non_var_equals = @input.scan(/^=[^\s]+/)
+        return non_var_equals
+      end
+
+      @input.scan(/^=\s/)
+    end
+
     # Returns a single word if it is next in the input string. Otherwise, nil.
     def word(options = { :trim => true })
       remove_space unless options[:trim] == false
+
+      if equals = non_var_equals
+        return equals
+      end
+
       while part = (word_part or escaped_char)
         output ||= ""
         output << part
@@ -194,7 +217,15 @@ module Urchin
       arg = word
       if equals = @input.scan(/^=/)
         arg << equals
-        arg << (quoted_word(:strip => false) or word(:trim => false))
+
+        # A word with an equals may or may not end in a value, for example:
+        #
+        #   chmod og= /dir
+        val = (quoted_word(:strip => false) or word(:trim => false))
+        if val
+          arg << val
+        end
+        arg
       else
         @input.pos = pos
         nil

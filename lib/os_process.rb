@@ -31,6 +31,21 @@ module Urchin
         if /^(\.|\/)/ =~ @executable && File.directory?(@executable)
           abort "Is a directory: #{@executable}"
         end
+
+        # If @executable starts with a shell reserved word then Ruby processes
+        # it with /bin/sh, which is a bit nasty.
+        #
+        # This is for nicely handling typos like:
+        #
+        #   =
+        #   =abc
+        #
+        # TODO: consider if they should be caught and filtered earlier than
+        #       here.
+        if @executable =~ /^=/
+          abort "Command not found: #{@executable}"
+        end
+
         exec @executable, *@args
 
       rescue Errno::ENOENT
